@@ -1,16 +1,17 @@
 "use client";
 
-import { Clear, Menu } from "@mui/icons-material";
-import { Box, List, ListItem } from "@mui/material";
+import { AccountCircle, Clear, Menu } from "@mui/icons-material";
+import { Box, List, ListItem, Stack } from "@mui/material";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
-import { useEffect, useState } from "react";
-import LogoLink from "./LogoLink";
-import { navItems } from "./NavBarLinks";
-import StyledLink from "./StyledLink";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import LogoLink from "../ui/LogoLink";
+import { navItems } from "./NavBarLinks";
+import StyledLink from "../ui/StyledLink";
+import Link from "next/link";
 
-export default function MediumMenu() {
+export default function SmallMenu() {
 	const pathname = usePathname();
 	const [open, setOpen] = useState<boolean>(false);
 
@@ -24,16 +25,26 @@ export default function MediumMenu() {
 
 	return (
 		<>
-			<IconButton
-				sx={{ display: { xs: "none", md: "block", xl: "none" } }}
-				onClick={toggle(true)}
-			>
-				<Menu />
-			</IconButton>
-			<Drawer open={open} onClose={toggle(false)} dir='left' elevation={0}>
+			<Stack direction={"row"}>
+				<Link href={"/login"} passHref legacyBehavior>
+					<IconButton
+						sx={{ display: { md: "none", xs: "inline-flex" } }}
+						href='/login'
+					>
+						<AccountCircle />
+					</IconButton>
+				</Link>
+				<IconButton
+					sx={{ display: { xs: "block", md: "none" } }}
+					onClick={toggle(true)}
+				>
+					<Menu />
+				</IconButton>
+			</Stack>
+			<Drawer open={open} onClose={toggle(false)} anchor='right' elevation={0}>
 				<Box
 					sx={{
-						width: "300px",
+						width: "100vw",
 						height: "100%",
 						background: "var(--background-gradient)"
 					}}

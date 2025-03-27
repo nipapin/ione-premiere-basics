@@ -1,6 +1,6 @@
-import HeroPlayButton from "./HeroPlayButton";
+import HeroPlayButton from "../ui/HeroPlayButton";
 import HeroVideo from "./HeroVideo";
-import { Wrapper } from "./Wrapper";
+import { Wrapper } from "../layout/Wrapper";
 
 export default function HeroVideoPlayer() {
 	return (

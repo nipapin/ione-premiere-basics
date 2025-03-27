@@ -1,4 +1,4 @@
-import StyledLink from "@/components/StyledLink";
+import StyledLink from "@/components/ui/StyledLink";
 import { Box, Typography } from "@mui/material";
 
 export default function LoginPage() {

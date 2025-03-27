@@ -9,7 +9,7 @@ import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import StyledLink from "./StyledLink";
+import StyledLink from "../ui/StyledLink";
 import { Wrapper } from "./Wrapper";
 
 type LinkItem = {

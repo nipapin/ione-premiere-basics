@@ -22,7 +22,12 @@ export const Wrapper = ({
 	switch (type) {
 		case "outlined":
 			return (
-				<Box border={"1px solid var(--primary)"} {...props}>
+				<Box
+					margin='0 auto'
+					border={"1px solid var(--primary)"}
+					width={fullWidth || isMobile ? "100%" : "auto"}
+					{...props}
+				>
 					{children}
 				</Box>
 			);

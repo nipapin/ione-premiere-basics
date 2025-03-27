@@ -1,6 +1,6 @@
 :root {
 	--primary: #ccff00;
-	--primary-glass: #ccff0040;
+	--primary-glass: #293300;
 	--foreground: #ffffff;
 	--background: #0e0f11;
 	--dimineshed: grey;
@@ -75,12 +75,14 @@ body {
 
 .animated-outline {
 	position: relative;
+	height: 100%;
 }
 
 .animated-outline-content {
 	border-radius: var(--border-radius);
 	overflow: hidden;
 	display: flex;
+	height: 100%;
 }
 
 .animated-outline::before {
@@ -117,6 +119,10 @@ body {
 	background: #000000aa;
 	z-index: 1;
 	border-radius: var(--border-radius);
+}
+
+.hidden {
+	display: none;
 }
 
 @keyframes spin {

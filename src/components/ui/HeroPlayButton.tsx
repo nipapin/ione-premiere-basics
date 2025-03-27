@@ -6,7 +6,7 @@ import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
-import HeroVideo from "./HeroVideo";
+import HeroVideo from "../media/HeroVideo";
 
 export default function HeroPlayButton() {
 	const [open, setOpen] = useState<boolean>(false);

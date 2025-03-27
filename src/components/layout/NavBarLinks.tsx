@@ -2,7 +2,7 @@
 
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import StyledLink from "./StyledLink";
+import StyledLink from "../ui/StyledLink";
 import { usePathname } from "next/navigation";
 
 export type NavItem = {

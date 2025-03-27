@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import LogoCarousel from "./LogoCarousel";
+import LogoCarousel from "../media/LogoCarousel";
 
 export default function PartnersShowcase() {
 	return (

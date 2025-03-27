@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
-import Footer from "@/components/Footer";
-import NavBar from "@/components/NavBar";
-import { Wrapper } from "@/components/Wrapper";
+import Footer from "@/components/layout/Footer";
+import NavBar from "@/components/layout/NavBar";
+import { Wrapper } from "@/components/layout/Wrapper";
 import ThemeWrapper from "@/theme/ThemeWrapper";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import "./globals.css";

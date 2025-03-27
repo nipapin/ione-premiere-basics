@@ -1,6 +1,6 @@
 import Grid2 from "@mui/material/Grid2";
 import Typography from "@mui/material/Typography";
-import { Wrapper } from "./Wrapper";
+import { Wrapper } from "../layout/Wrapper";
 import Image from "next/image";
 import Box from "@mui/material/Box";
 

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import StyledLink from "./StyledLink";
 import Typography from "@mui/material/Typography";
-import { Wrapper } from "./Wrapper";
+import { Wrapper } from "../layout/Wrapper";
 
 export default function LogoLink() {
 	return (

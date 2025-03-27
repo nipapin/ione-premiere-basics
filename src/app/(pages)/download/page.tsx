@@ -1,12 +1,12 @@
+import { Wrapper } from "@/components/layout/Wrapper";
+import StyledLink from "@/components/ui/StyledLink";
 import { HelpOutline } from "@mui/icons-material";
-import { Box, Button, Link, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import { type Metadata } from "next";
 import AEIcon from "./icons/ae";
 import MacIcon from "./icons/mac";
 import PRIcon from "./icons/pr";
 import WinIcon from "./icons/win";
-import { Wrapper } from "@/components/layout/Wrapper";
-import StyledLink from "@/components/ui/StyledLink";
 
 export const metadata: Metadata = {
 	title: "Premiere Basics | Download",

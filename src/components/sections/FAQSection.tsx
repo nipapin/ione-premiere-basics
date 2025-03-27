@@ -1,6 +1,6 @@
-import { Box, Typography } from "@mui/material";
-import FAQItem from "../ui/FAQItem";
+import { Typography } from "@mui/material";
 import { Wrapper } from "../layout/Wrapper";
+import FAQItem from "../ui/FAQItem";
 
 export type FAQ = {
 	id: number;

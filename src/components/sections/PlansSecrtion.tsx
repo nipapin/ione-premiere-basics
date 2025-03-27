@@ -1,3 +1,4 @@
+import { CheckCircle } from "@mui/icons-material";
 import {
 	Button,
 	List,
@@ -7,8 +8,6 @@ import {
 	Typography
 } from "@mui/material";
 import { Wrapper } from "../layout/Wrapper";
-import { CheckCircle } from "@mui/icons-material";
-import StyledLink from "../ui/StyledLink";
 
 type Plan = {
 	id: number;
@@ -130,7 +129,7 @@ export default function PlansSection() {
 									${plan.price} <span>/ {plan.per}</span>
 								</Typography>
 								<Typography textTransform='uppercase' mt='4rem'>
-									What's includes
+									{`What's includes`}
 								</Typography>
 								<List sx={{ mb: "2rem" }}>
 									{plan.benefits.map((benefit) => {

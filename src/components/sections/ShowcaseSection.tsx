@@ -61,7 +61,7 @@ export default function Showcase() {
 		];
 		const trackValue = (tracks[0]?.children[rows[0].length] as HTMLElement)
 			.offsetLeft;
-		tracks.forEach((track, index) => {
+		tracks.forEach((track) => {
 			track?.style.setProperty("--scroll-to", `${-trackValue}px`);
 		});
 	}, []);

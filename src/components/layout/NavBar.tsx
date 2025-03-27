@@ -1,17 +1,15 @@
-import Menu from "@mui/icons-material/Menu";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Toolbar from "@mui/material/Toolbar";
 import BlurredBox from "../ui/BlurredBox";
 import LogoLink from "../ui/LogoLink";
-import NavBarLinks from "./NavBarLinks";
 import ScrollToTop from "../ui/ScrollToTop";
-import { Wrapper } from "./Wrapper";
 import MediumMenu from "./MediumMenu";
+import NavBarLinks from "./NavBarLinks";
 import SmallMenu from "./SmallMenu";
+import { Wrapper } from "./Wrapper";
 
 export default function NavBar() {
 	return (

@@ -1,11 +1,15 @@
-import StyledLink from "@/components/ui/StyledLink";
-import { Box, Typography } from "@mui/material";
+import SignupForm from "@/components/forms/SignupForm";
+import { Box } from "@mui/material";
 
 export default function SignupPage() {
 	return (
-		<Box minHeight={"100vh"}>
-			<Typography>Signup page</Typography>
-			<StyledLink href={"/login"}>Login</StyledLink>
+		<Box
+			display={"flex"}
+			justifyContent={"center"}
+			position={"relative"}
+			py={{ md: "10rem", xs: "5rem" }}
+		>
+			<SignupForm />
 		</Box>
 	);
 }

@@ -12,7 +12,8 @@ const styles = {
 		alignItems: "center",
 		justifyContent: "center",
 		py: "4rem",
-		width: "100%"
+		width: "100%",
+		minHeight: "100vh"
 	},
 	accentChip: {
 		border: "1px solid var(--primary)",

@@ -48,7 +48,13 @@ const titleToRoute = (title: string) =>
 
 export default function BlogSection() {
 	return (
-		<Stack direction={"column"} alignItems={"center"} spacing={4} py={"4rem"}>
+		<Stack
+			direction={"column"}
+			alignItems={"center"}
+			spacing={4}
+			py={"4rem"}
+			component={"section"}
+		>
 			<Typography fontWeight={400} fontSize={"4rem"}>
 				Blog
 			</Typography>
@@ -84,7 +90,7 @@ export default function BlogSection() {
 										image={blog.media}
 										title={blog.title}
 										sx={{
-											height: { xl: "200px", xs: "150px" },
+											height: { xl: "300px", xs: "150px" },
 											backgroundPosition: "center top"
 										}}
 									/>

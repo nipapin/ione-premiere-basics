@@ -62,6 +62,7 @@ const faqs: FAQ[] = [
 export default function FAQSection() {
 	return (
 		<Wrapper
+			component={"section"}
 			display='flex'
 			flexDirection={"column"}
 			gap={2}

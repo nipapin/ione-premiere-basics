@@ -6,26 +6,26 @@ import { Wrapper } from "../layout/Wrapper";
 const styles = {
 	main: {
 		width: "100%",
+		height: "75vh",
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
 		flexDirection: "column",
 		maxWidth: { xl: "100%", md: "90%", xs: "100%" },
 		mx: { xl: 0, md: "auto", xs: 0 },
-		gap: "2rem",
-		py: "2rem"
+		gap: "2rem"
 	},
 	gridContainer: {
 		display: "grid",
 		gridTemplateColumns: { xl: "1fr 1fr", md: "1fr" },
-		gap: { xl: "2rem", xs: "1rem" },
+		gap: "1rem",
 		width: "100%",
 		maxWidth: { xl: "70vw", xs: "100%" }
 	},
 
 	topFrameStyle: {
 		background: "var(--background-gradient)",
-		padding: { xl: "2rem", xs: "1rem" },
+		padding: { xl: "2rem 8rem", xs: "1rem" },
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "space-between",
@@ -40,13 +40,13 @@ const styles = {
 			textAlign: { md: "start", xs: "center" }
 		},
 		"& img": {
-			width: { md: "revert-layer", xs: "90%" },
+			width: { md: "300px", xs: "90%" },
 			height: "auto"
 		}
 	},
 	bottomFrameStyle: {
 		background: "var(--background-gradient)",
-		padding: { xl: "2rem", xs: "1rem" },
+		padding: { xl: "1.5rem", xs: "1rem" },
 		display: "flex",
 		flexDirection: { xl: "column", md: "row", xs: "column" },
 		alignItems: "center",
@@ -109,7 +109,7 @@ export default function AboutSection() {
 					<Box sx={styles.bottomFrameStyle}>
 						<Image
 							src={
-								"https://static.shuffle.dev/components/preview/697340ff-5445-426e-84bf-57e856b9afbf/assets/public/nightsable-assets/images/features/dashboard.png"
+								"https://static.shuffle.dev/components/preview/697340ff-5445-426e-84bf-57e856b9afbf/assets/public/nightsable-assets/images/features/cards.png"
 							}
 							alt='about dashboard'
 							width={344}
@@ -117,7 +117,7 @@ export default function AboutSection() {
 						/>
 						<Box component={"article"}>
 							<Typography
-								fontSize={{ xl: "3rem", xs: "1.75rem" }}
+								fontSize={{ xl: "2rem", xs: "1.5rem" }}
 								whiteSpace={"pre"}
 							>
 								{`Updates every month`}
@@ -141,7 +141,7 @@ export default function AboutSection() {
 					>
 						<Image
 							src={
-								"https://static.shuffle.dev/components/preview/697340ff-5445-426e-84bf-57e856b9afbf/assets/public/nightsable-assets/images/features/dashboard.png"
+								"https://static.shuffle.dev/components/preview/697340ff-5445-426e-84bf-57e856b9afbf/assets/public/nightsable-assets/images/features/cards.png"
 							}
 							alt='about dashboard'
 							width={344}
@@ -149,7 +149,7 @@ export default function AboutSection() {
 						/>
 						<Box component={"article"}>
 							<Typography
-								fontSize={{ xl: "3rem", xs: "1.5rem" }}
+								fontSize={{ xl: "2rem", xs: "1.5rem" }}
 								whiteSpace={"pre"}
 							>
 								{`Suitable for both software`}

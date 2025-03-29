@@ -1,3 +1,4 @@
+import { Box } from "@mui/material";
 import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
@@ -21,13 +22,20 @@ const staticticItems: StaticticItem[] = [
 
 export default function StatisticShowcase() {
 	return (
-		<>
+		<Box
+			component={"section"}
+			sx={{
+				height: "50vh",
+				display: "flex",
+				alignItems: "center",
+				justifyContent: "center"
+			}}
+		>
 			<Stack
 				display={{ md: "flex", xs: "none" }}
 				direction='row'
 				divider={<Divider flexItem orientation='vertical' />}
 				spacing={2}
-				py={"2rem"}
 			>
 				{staticticItems.map((item) => {
 					return (
@@ -76,6 +84,6 @@ export default function StatisticShowcase() {
 					);
 				})}
 			</Stack>
-		</>
+		</Box>
 	);
 }

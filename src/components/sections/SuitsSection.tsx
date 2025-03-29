@@ -65,6 +65,7 @@ const suits: Suit[] = [
 export default function SuitsSection() {
 	return (
 		<Wrapper
+			component={"section"}
 			display='flex'
 			flexDirection='column'
 			gap={2}
@@ -81,7 +82,7 @@ export default function SuitsSection() {
 			>
 				{`Suitable for\nall content creator's`}
 			</Typography>
-			<Typography fontWeight={200} mb='2rem' textAlign={"center"}>
+			<Typography fontWeight={200} mb='3rem' textAlign={"center"}>
 				The plugin is ideal for absolutely all professions who want to achieve
 				great results by creating attractive and effective videos.
 			</Typography>
@@ -100,7 +101,7 @@ export default function SuitsSection() {
 								sx={{ background: "var(--background-gradient)", p: "2rem" }}
 							>
 								{suit.icon}
-								<Typography fontSize={"1.5rem"} fontWeight={500} mb={"2rem"}>
+								<Typography fontSize={"1.5rem"} fontWeight={500} mb={"4rem"}>
 									{suit.title}
 								</Typography>
 								<Typography fontWeight={200}>{suit.description}</Typography>

@@ -50,6 +50,7 @@ const comments: Comment[] = [
 export default function PeopleCommentsSection() {
 	return (
 		<Stack
+			component={"section"}
 			direction={"column"}
 			alignItems={"center"}
 			sx={{ py: "4rem", maxWidth: { xl: "70vw", md: "none" } }}
@@ -83,7 +84,7 @@ export default function PeopleCommentsSection() {
 									height: "100%"
 								}}
 							>
-								<Typography fontSize='1.5rem' fontWeight={200} mb={"4rem"}>
+								<Typography fontSize='1.5rem' fontWeight={300} mb={"14rem"}>
 									{comment.quote}
 								</Typography>
 								<Card

@@ -12,7 +12,8 @@ export default function PartnersShowcase() {
 				justifyContent: "center",
 				flexDirection: "column",
 				gap: { xl: "2rem", xs: "1rem" },
-				maxWidth: "100%"
+				maxWidth: "100%",
+				height: "30vh"
 			}}
 		>
 			<Typography

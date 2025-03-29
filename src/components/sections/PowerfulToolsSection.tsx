@@ -24,11 +24,11 @@ export default function PowerfulTools() {
 
 	return (
 		<Wrapper
+			component={"section"}
 			display={{ md: "flex", xs: "none" }}
-			gap={4}
+			gap={"3rem"}
 			alignItems={"center"}
 			flexDirection={"column"}
-			py={"4rem"}
 		>
 			<Typography
 				variant='h2'

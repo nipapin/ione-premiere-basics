@@ -35,6 +35,7 @@ export default function EditingSolutions() {
 	const [active, setActive] = useState<number>(0);
 	return (
 		<Wrapper
+			component={"section"}
 			display={{ xl: "grid", xs: "none" }}
 			gridTemplateColumns='420px 100px 1fr'
 			alignContent={"center"}
@@ -45,13 +46,12 @@ export default function EditingSolutions() {
 			<Wrapper
 				display={"flex"}
 				flexDirection={"column"}
-				gap={2}
 				justifyContent={"center"}
 			>
 				<Typography variant='h2' fontWeight={400} whiteSpace={"pre"}>
 					{`Editing solutions\ndriving growth\nand efficiency`}
 				</Typography>
-				<Typography fontWeight={200} whiteSpace={"pre"}>
+				<Typography fontWeight={200} whiteSpace={"pre"} mb={"2rem"}>
 					{`Our extension is a tool that outline your creative\nperformance and projections for you and your clients.`}
 				</Typography>
 				<Stack direction={"column"} spacing={2}>
@@ -62,13 +62,14 @@ export default function EditingSolutions() {
 									width: "fit-content",
 									color: index === active ? "var(--primary)" : "currentColor",
 									borderColor:
-										index === active ? "var(--primary)" : "currentColor"
+										index === active ? "var(--primary)" : "currentColor",
+									borderWidth: "1px"
 								}}
 								key={item.id}
 								variant='outlined'
 								onClick={() => setActive(index)}
 							>
-								{item.label}
+								<Typography fontWeight={300}>{item.label}</Typography>
 							</Button>
 						);
 					})}

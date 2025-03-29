@@ -1,9 +1,10 @@
 "use client";
 
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import Image from "next/image";
 import { MouseEvent, useEffect, useRef, useState } from "react";
 import { Wrapper } from "../layout/Wrapper";
+import Link from "next/link";
 
 const createRow = (...args: string[]) => [...args];
 
@@ -19,11 +20,14 @@ const styles = {
 		whiteSpace: "nowrap",
 		position: "relative",
 		width: "70vw",
+		height: "100vh",
 		py: "2rem",
 		px: "2px",
 		display: { xl: "flex", xs: "none" },
 		flexDirection: "column",
 		gap: "1rem",
+		alignItems: "center",
+		justifyContent: "center",
 		"--border-radius": "1rem",
 		"&::before": {
 			content: `""`,
@@ -67,7 +71,7 @@ export default function Showcase() {
 	}, []);
 
 	return (
-		<Box sx={styles.tracks}>
+		<Box sx={styles.tracks} component={"section"}>
 			<Stack direction={"column"} gap={2} alignItems={"center"} mb={"2rem"}>
 				<Typography variant='h2' fontWeight={400}>
 					Showcase
@@ -87,7 +91,7 @@ export default function Showcase() {
 						key={rowIndex}
 						ref={refs[rowIndex]}
 					>
-						{[...row, ...row].map((source, index, self) => (
+						{[...row, ...row, ...row].map((source, index, self) => (
 							<Wrapper
 								variant='animated'
 								angleOffset={index * (360 / self.length)}
@@ -100,6 +104,11 @@ export default function Showcase() {
 					</Stack>
 				);
 			})}
+			<Link href={"/showcase"} passHref legacyBehavior>
+				<Button variant='outlined' href='' sx={{ mt: "3rem" }}>
+					View All
+				</Button>
+			</Link>
 		</Box>
 	);
 }

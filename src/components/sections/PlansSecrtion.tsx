@@ -70,6 +70,7 @@ const plans: Plan[] = [
 export default function PlansSection() {
 	return (
 		<Wrapper
+			component={"section"}
 			display='flex'
 			flexDirection='column'
 			gap={2}

@@ -42,7 +42,13 @@ const members: Member[] = [
 
 export default function TeamSection() {
 	return (
-		<Stack direction={"column"} gap={4} py={"4rem"} alignItems={"center"}>
+		<Stack
+			direction={"column"}
+			gap={4}
+			py={"4rem"}
+			alignItems={"center"}
+			component={"section"}
+		>
 			<Typography fontSize={{ md: "4rem", xs: "3rem" }} fontWeight={400}>
 				Our Team
 			</Typography>

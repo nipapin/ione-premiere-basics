@@ -41,7 +41,7 @@ export default function HelpMenu({ tree }: HelpMenuProps) {
 						)}
 					</Fragment>
 				) : (
-					<Link href={node.href} passHref legacyBehavior>
+					<Link key={node.path} href={node.href} passHref legacyBehavior>
 						<ListItemButton href='' sx={{ pl: level * 2 }}>
 							<ListItemText primary={node.name} />
 						</ListItemButton>

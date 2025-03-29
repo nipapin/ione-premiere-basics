@@ -1,7 +1,7 @@
 import { Box, LinearProgress, Typography } from "@mui/material";
 import { readdir } from "fs/promises";
-import { serialize } from "next-mdx-remote/serialize";
-import { MDXRemote } from "next-mdx-remote";
+// import { serialize } from "next-mdx-remote/serialize";
+// import { MDXRemote } from "next-mdx-remote";
 import path from "path";
 import { readFileSync } from "fs";
 import matter from "gray-matter";
@@ -21,7 +21,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
 	const docs = await readdir(docsDirectory);
 	let article;
-	for (let doc of docs) {
+	for (const doc of docs) {
 		const mdxPath = `${docsDirectory}/${doc}`;
 		const mdxSource = readFileSync(mdxPath, "utf-8");
 		article = matter(mdxSource);

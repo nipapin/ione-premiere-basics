@@ -39,7 +39,7 @@ const menuItems: MenuItem[] = [
 export default function AccountNavigation() {
 	const pathname = usePathname();
 	const router = useRouter();
-	const user = useUser();
+	const { user } = useUser();
 
 	const handleLogout = async () => {
 		await logout();

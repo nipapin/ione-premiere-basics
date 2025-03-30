@@ -5,7 +5,12 @@ import { User } from "@/types";
 import { usePathname } from "next/navigation";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-const UserContext = createContext<User | null>(null);
+interface UserContextType {
+	user: User | null;
+	pending: boolean;
+}
+
+const UserContext = createContext<UserContextType>({ user: null, pending: true });
 
 interface UserWrapperProps {
 	children: React.ReactNode;
@@ -13,12 +18,14 @@ interface UserWrapperProps {
 
 export default function UserWrapper({ children }: UserWrapperProps) {
 	const [user, setUser] = useState<User | null>(null);
-	const [pending, setPending] = useState(true);
+	const [pending, setPending] = useState(false);
 	const pathname = usePathname();
 
 	useEffect(() => {
+		if (user) return;
 		const fetchUser = async () => {
 			try {
+				setPending(true);
 				const response = await fetch("/api/user");
 				const data = await response.json();
 
@@ -39,11 +46,11 @@ export default function UserWrapper({ children }: UserWrapperProps) {
 		fetchUser();
 	}, [pathname]);
 
-	if (pending) {
+	if (pending && user) {
 		return <Preloader />;
 	}
 
-	return <UserContext.Provider value={user}>{children}</UserContext.Provider>;
+	return <UserContext.Provider value={{ user, pending }}>{children}</UserContext.Provider>;
 }
 
 export function useUser() {

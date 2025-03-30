@@ -1,9 +1,9 @@
 "use client";
 
-import { login } from "@/actions/user";
+import { isExist, login } from "@/actions/user";
 import { setCsrfToken } from "@/lib/csrf";
 import { Home, Visibility, VisibilityOff } from "@mui/icons-material";
-import { Box, Button, CircularProgress, IconButton, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, CircularProgress, IconButton, TextField, Typography } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
@@ -77,6 +77,8 @@ export default function LoginForm() {
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [csrfToken, setCsrfTokenState] = useState("");
+	const [emailError, setEmailError] = useState(false);
+	const [passwordError, setPasswordError] = useState(false);
 	const { push } = useRouter();
 
 	useEffect(() => {
@@ -89,7 +91,8 @@ export default function LoginForm() {
 	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		setIsLoading(true);
-
+		setEmailError(false);
+		setPasswordError(false);
 		const formData = new FormData(event.currentTarget);
 		const formValues: LoginFormData = {
 			email: formData.get("email") as string,
@@ -97,10 +100,20 @@ export default function LoginForm() {
 		};
 
 		try {
+			const isValid = await isExist(formValues.email);
+			if (!isValid) {
+				setEmailError(true);
+				setIsLoading(false);
+				return;
+			}
+
 			const user = await login(formValues.email, formValues.password, csrfToken);
-			console.log(user);
+
 			if (user) {
 				push("/account");
+			} else {
+				setPasswordError(true);
+				setIsLoading(false);
 			}
 		} catch (error) {
 			console.error("Login error:", error);
@@ -127,6 +140,16 @@ export default function LoginForm() {
 					fullWidth
 				/>
 				<PasswordField show={showPassword} onToggleVisibility={() => setShowPassword(!showPassword)} name='password' placeholder='Password' />
+				{emailError && (
+					<Alert severity='error' sx={{ alignItems: "center" }}>
+						<Typography>This email is not registered</Typography>
+					</Alert>
+				)}
+				{passwordError && (
+					<Alert severity='error' sx={{ alignItems: "center" }}>
+						<Typography>Invalid password</Typography>
+					</Alert>
+				)}
 				<SubmitButton isLoading={isLoading} />
 				<Typography mt={"1rem"} textAlign={"center"} width={"100%"}>
 					Have no account yet? <StyledLink href={"/signup"}>Sign Up</StyledLink>

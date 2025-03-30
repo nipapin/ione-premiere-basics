@@ -21,7 +21,7 @@ import SmallMenu from "./SmallMenu";
 import { Wrapper } from "./Wrapper";
 
 export default function NavBar() {
-	const user = useUser();
+	const { user } = useUser();
 	const pathname = usePathname();
 	const router = useRouter();
 
@@ -51,7 +51,11 @@ export default function NavBar() {
 							<Box sx={{ flex: { xl: 1, md: 0 }, display: { xl: "flex", md: "none" }, justifyContent: "center" }}>
 								<NavBarLinks />
 							</Box>
-							<Stack direction={"row"} spacing={2} sx={{ display: { xs: "none", md: "flex" }, width: { md: "auto", xl: "300px" } }}>
+							<Stack
+								direction={"row"}
+								spacing={2}
+								sx={{ display: { xs: "none", md: "flex" }, width: { md: "auto", xl: "300px" }, justifyContent: "flex-end" }}
+							>
 								{user ? (
 									<>
 										<Link href={"/account"} passHref legacyBehavior>

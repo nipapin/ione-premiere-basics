@@ -33,7 +33,7 @@ export default function NavBar() {
 	return (
 		<>
 			<AppBar position='relative' elevation={0}>
-				<Collapse in={!["/login", "/signup"].includes(pathname ?? "")}>
+				<Collapse in={!["/login", "/signup", "/confirm-email"].includes(pathname ?? "")}>
 					<Toolbar sx={{ zIndex: 1, background: "var(--background)" }}>
 						<Wrapper
 							fullWidth

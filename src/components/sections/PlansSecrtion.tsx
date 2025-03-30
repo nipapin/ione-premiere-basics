@@ -1,12 +1,5 @@
 import { CheckCircle } from "@mui/icons-material";
-import {
-	Button,
-	List,
-	ListItem,
-	ListItemIcon,
-	ListItemText,
-	Typography
-} from "@mui/material";
+import { Button, List, ListItem, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import { Wrapper } from "../layout/Wrapper";
 
 type Plan = {
@@ -23,124 +16,138 @@ const plans: Plan[] = [
 	{
 		id: 1,
 		title: "Basic",
-		description:
-			"During this phase the design is developed\nto meet the required technical standards to",
+		description: "During this phase the design is developed\nto meet the required technical standards to",
 		price: 11,
 		per: "month",
-		benefits: [
-			"Core engagement survey",
-			"Topic-based assessments",
-			"Custom topic-based assessments",
-			"Filterable heatmap & analytics"
-		],
+		benefits: ["Core engagement survey", "Topic-based assessments", "Custom topic-based assessments", "Filterable heatmap & analytics"],
 		action: "#"
 	},
 	{
 		id: 2,
 		title: "Business",
-		description:
-			"During this phase the design is developed\nto meet the required technical standards to",
+		description: "During this phase the design is developed\nto meet the required technical standards to",
 		price: 86,
 		per: "year",
-		benefits: [
-			"Core engagement survey",
-			"Topic-based assessments",
-			"Custom topic-based assessments",
-			"Filterable heatmap & analytics"
-		],
+		benefits: ["Core engagement survey", "Topic-based assessments", "Custom topic-based assessments", "Filterable heatmap & analytics"],
 		action: "#"
 	},
 	{
 		id: 3,
 		title: "Premium",
-		description:
-			"During this phase the design is developed\nto meet the required technical standards to",
+		description: "During this phase the design is developed\nto meet the required technical standards to",
 		price: 250,
 		per: "lifetime",
-		benefits: [
-			"Core engagement survey",
-			"Topic-based assessments",
-			"Custom topic-based assessments",
-			"Filterable heatmap & analytics"
-		],
+		benefits: ["Core engagement survey", "Topic-based assessments", "Custom topic-based assessments", "Filterable heatmap & analytics"],
 		action: "#"
 	}
 ];
 
+const styles = {
+	section: {
+		display: "flex",
+		flexDirection: "column",
+		gap: 2,
+		alignItems: "center",
+		py: { xs: "2rem", md: "4rem" },
+		maxWidth: { xl: "70vw", md: "none" }
+	},
+	title: {
+		fontSize: { xs: "2.5rem", sm: "3rem", md: "4rem" },
+		fontWeight: 400,
+		textAlign: "center",
+		mb: { xs: "1rem", md: "2rem" }
+	},
+	subtitle: {
+		whiteSpace: "pre",
+		mb: { xs: "1.5rem", md: "2rem" },
+		textAlign: "center",
+		fontSize: { xs: "0.9rem", sm: "1rem" }
+	},
+	plansGrid: {
+		display: "grid",
+		gridTemplateColumns: { xs: "1fr", md: "1fr 1fr", xl: "1fr 1fr 1fr" },
+		gap: { xs: 2, md: 4 }
+	},
+	planCard: {
+		height: "100%",
+		transition: "transform 0.3s ease-in-out",
+		"&:hover": {
+			transform: "translateY(-8px)"
+		}
+	},
+	planContent: {
+		background: "var(--background-gradient)",
+		p: { xs: "1.5rem", md: "2rem" },
+		height: "100%",
+		display: "flex",
+		flexDirection: "column",
+		borderRadius: "12px",
+		boxShadow: "0 4px 20px rgba(0,0,0,0.1)"
+	},
+	planTitle: {
+		fontSize: { xs: "1.5rem", md: "2rem" },
+		fontWeight: 600,
+		mb: { xs: "1rem", md: "1.5rem" }
+	},
+	planDescription: {
+		whiteSpace: "pre",
+		fontWeight: 200,
+		mb: { xs: "1.5rem", md: "2rem" },
+		fontSize: { xs: "0.8rem", sm: "0.865rem", md: "1rem" }
+	},
+	planPrice: {
+		fontSize: { xs: "3rem", sm: "4rem" },
+		fontWeight: 400,
+		mb: { xs: "1.5rem", md: "2rem" },
+		"& span": {
+			fontSize: { xs: "0.8rem", sm: "1rem" },
+			fontWeight: 200
+		}
+	},
+	includesTitle: {
+		textTransform: "uppercase",
+		mt: { xs: "2rem", md: "4rem" },
+		fontSize: { xs: "0.9rem", sm: "1rem" },
+		fontWeight: 500
+	},
+	benefitsList: {
+		mb: { xs: "1.5rem", md: "2rem" }
+	},
+	benefitItem: {
+		my: { xs: "0.5rem", sm: "1rem" }
+	},
+	benefitIcon: {
+		minWidth: 0,
+		mr: { xs: "0.5rem", sm: "1rem" }
+	},
+	actionButton: {
+		mt: "auto",
+		py: { xs: "0.8rem", sm: "1rem" },
+		fontSize: { xs: "0.9rem", sm: "1rem" }
+	}
+};
+
 export default function PlansSection() {
 	return (
-		<Wrapper
-			component={"section"}
-			display='flex'
-			flexDirection='column'
-			gap={2}
-			alignItems='center'
-			py='4rem'
-			fullWidth
-			maxWidth={{ xl: "70vw", md: "none" }}
-		>
-			<Typography
-				fontSize={{ md: "4rem", xs: "3rem" }}
-				fontWeight={400}
-				textAlign={"center"}
-			>
-				Compare our plans
-			</Typography>
-			<Typography
-				whiteSpace={"pre"}
-				mb='2rem'
-				textAlign={"center"}
-			>{`Premiere Basics is a strategic branding agency\nfocused on brand creation, rebrands, and brand`}</Typography>
-			<Wrapper
-				display={"grid"}
-				gridTemplateColumns={{ md: "1fr 1fr 1fr", xs: "1fr" }}
-				fullWidth
-				gap={4}
-			>
+		<Wrapper component='section' sx={styles.section} fullWidth>
+			<Typography sx={styles.title}>Compare our plans</Typography>
+			<Typography sx={styles.subtitle}>{`Premiere Basics is a strategic branding agency\nfocused on brand creation, rebrands, and brand`}</Typography>
+			<Wrapper sx={styles.plansGrid} fullWidth>
 				{plans.map((plan, index) => {
 					return (
-						<Wrapper
-							fullWidth
-							key={plan.id}
-							variant='animated'
-							angleOffset={90 * index}
-						>
-							<Wrapper
-								fullWidth
-								sx={{
-									background: "var(--background-gradient)",
-									p: { md: "2rem", xs: "1rem" }
-								}}
-							>
-								<Typography variant='h3'>{plan.title}</Typography>
-								<Typography
-									whiteSpace={"pre"}
-									fontWeight={200}
-									mb={"2rem"}
-									fontSize={{ xl: "1rem", md: "0.865rem" }}
-								>
-									{plan.description}
-								</Typography>
-								<Typography
-									fontSize='4rem'
-									fontWeight={400}
-									sx={{ "& span": { fontSize: "1rem", fontWeight: 200 } }}
-									mb='2rem'
-								>
+						<Wrapper key={plan.id} sx={styles.planCard} variant='animated' angleOffset={90 * index} fullWidth>
+							<Wrapper sx={styles.planContent} fullWidth>
+								<Typography sx={styles.planTitle}>{plan.title}</Typography>
+								<Typography sx={styles.planDescription}>{plan.description}</Typography>
+								<Typography sx={styles.planPrice}>
 									${plan.price} <span>/ {plan.per}</span>
 								</Typography>
-								<Typography textTransform='uppercase' mt='4rem'>
-									{`What's includes`}
-								</Typography>
-								<List sx={{ mb: "2rem" }}>
+								<Typography sx={styles.includesTitle}>{`What's includes`}</Typography>
+								<List sx={styles.benefitsList}>
 									{plan.benefits.map((benefit) => {
 										return (
-											<ListItem
-												key={benefit}
-												disablePadding
-												sx={{ my: "1rem" }}
-											>
-												<ListItemIcon sx={{ minWidth: 0, mr: "1rem" }}>
+											<ListItem key={benefit} disablePadding sx={styles.benefitItem}>
+												<ListItemIcon sx={styles.benefitIcon}>
 													<CheckCircle color='primary' />
 												</ListItemIcon>
 												<ListItemText>{benefit}</ListItemText>
@@ -148,7 +155,7 @@ export default function PlansSection() {
 										);
 									})}
 								</List>
-								<Button fullWidth href={plan.action} variant='contained'>
+								<Button fullWidth href={plan.action} variant='contained' sx={styles.actionButton}>
 									Start Now
 								</Button>
 							</Wrapper>

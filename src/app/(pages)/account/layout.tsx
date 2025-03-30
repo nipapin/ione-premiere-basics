@@ -34,9 +34,12 @@ export default async function RootLayout({
 				}}
 			>
 				<AccountNavigation />
-				<Wrapper fullWidth variant='animated'>
+				<Wrapper fullWidth variant='animated' sx={{ height: "fit-content" }}>
 					<Wrapper
-						sx={{ background: "var(--background-gradient)" }}
+						sx={{
+							background: "var(--background-gradient)",
+							height: "fit-content"
+						}}
 						fullWidth
 						padding={"2rem"}
 					>

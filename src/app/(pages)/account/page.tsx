@@ -1,6 +1,22 @@
 import { Box, Button, Divider, TextField, Typography } from "@mui/material";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { get } from "@/actions/user";
 
-export default function AccountPage() {
+export default async function AccountPage() {
+	const cookieStore = await cookies();
+	const user_id = cookieStore.get("odin-pro-session")?.value;
+
+	if (!user_id) {
+		redirect("/login");
+	}
+
+	const user = await get(user_id);
+
+	if (!user) {
+		redirect("/login");
+	}
+
 	return (
 		<Box
 			sx={{
@@ -23,16 +39,18 @@ export default function AccountPage() {
 					alignItems: "center"
 				}}
 			>
-				<TextField
-					variant='outlined'
-					fullWidth
-					slotProps={{ input: { sx: { borderRadius: "0.5rem" } } }}
+				<TextField 
+					variant='outlined' 
+					fullWidth 
+					value={user.email}
+					disabled
+					slotProps={{ input: { sx: { borderRadius: "0.5rem" } } }} 
 				/>
 				<Button
 					variant='contained'
 					sx={{
 						borderRadius: "0.5rem",
-						height: "fit-content"
+						height: "calc(100% - 4px)"
 					}}
 				>
 					Change Email
@@ -60,20 +78,19 @@ export default function AccountPage() {
 						alignItems: "center"
 					}}
 				>
-					<TextField
-						variant='outlined'
-						fullWidth
-						slotProps={{ input: { sx: { borderRadius: "0.5rem" } } }}
+					<TextField 
+						variant='outlined' 
+						fullWidth 
+						value={user.name || ""}
+						slotProps={{ input: { sx: { borderRadius: "0.5rem" } } }} 
 					/>
-					<TextField
-						variant='outlined'
-						fullWidth
-						slotProps={{ input: { sx: { borderRadius: "0.5rem" } } }}
+					<TextField 
+						variant='outlined' 
+						fullWidth 
+						value={user.lastname || ""}
+						slotProps={{ input: { sx: { borderRadius: "0.5rem" } } }} 
 					/>
-					<Button
-						variant='contained'
-						sx={{ borderRadius: "0.5rem", height: "fit-content" }}
-					>
+					<Button variant='contained' sx={{ borderRadius: "0.5rem", height: "calc(100% - 4px)" }}>
 						Apply
 					</Button>
 				</Box>
@@ -92,11 +109,7 @@ export default function AccountPage() {
 					mt: "2rem"
 				}}
 			>
-				<TextField
-					variant='outlined'
-					fullWidth
-					slotProps={{ input: { sx: { borderRadius: "0.5rem" } } }}
-				/>
+				<TextField variant='outlined' fullWidth slotProps={{ input: { sx: { borderRadius: "0.5rem" } } }} />
 			</Box>
 			<Box>
 				<Box
@@ -119,16 +132,8 @@ export default function AccountPage() {
 						my: "1rem"
 					}}
 				>
-					<TextField
-						variant='outlined'
-						fullWidth
-						slotProps={{ input: { sx: { borderRadius: "0.5rem" } } }}
-					/>
-					<TextField
-						variant='outlined'
-						fullWidth
-						slotProps={{ input: { sx: { borderRadius: "0.5rem" } } }}
-					/>
+					<TextField variant='outlined' fullWidth slotProps={{ input: { sx: { borderRadius: "0.5rem" } } }} />
+					<TextField variant='outlined' fullWidth slotProps={{ input: { sx: { borderRadius: "0.5rem" } } }} />
 				</Box>
 			</Box>
 			<Button variant='contained' sx={{ borderRadius: "0.5rem", mt: "1rem" }}>

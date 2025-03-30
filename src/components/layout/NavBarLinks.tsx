@@ -23,18 +23,10 @@ export const navItems: NavItem[] = [
 export default function NavBarLinks() {
 	const pathname = usePathname();
 	return (
-		<Stack
-			direction={"row"}
-			spacing={4}
-			sx={{ display: { xs: "none", xl: "flex" } }}
-		>
+		<Stack direction={"row"} spacing={4} sx={{ display: { xs: "none", xl: "flex" } }}>
 			{navItems.map((item) => {
 				return (
-					<StyledLink
-						key={item.id}
-						href={item.href}
-						active={item.href === pathname}
-					>
+					<StyledLink key={item.id} href={item.href} active={item.href === pathname}>
 						<Typography fontWeight={"inherit"} textAlign={"center"}>
 							{item.label}
 						</Typography>

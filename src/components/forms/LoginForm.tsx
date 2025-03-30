@@ -1,15 +1,64 @@
 "use client";
 
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { Box, Button, IconButton, TextField, Typography } from "@mui/material";
-import { redirect } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { login } from "@/actions/user";
+import { setCsrfToken } from "@/lib/csrf";
+import { Home, Visibility, VisibilityOff } from "@mui/icons-material";
+import { Box, Button, CircularProgress, IconButton, TextField, Typography } from "@mui/material";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useState } from "react";
 import { Wrapper } from "../layout/Wrapper";
 import StyledLink from "../ui/StyledLink";
+
+interface LoginFormData {
+	email: string;
+	password: string;
+}
+
+interface PasswordFieldProps {
+	show: boolean;
+	onToggleVisibility: () => void;
+	name: string;
+	placeholder: string;
+}
+
+const PasswordField = ({ show, onToggleVisibility, name, placeholder }: PasswordFieldProps) => (
+	<TextField
+		required
+		placeholder={placeholder}
+		type={show ? "text" : "password"}
+		slotProps={{
+			input: {
+				sx: { borderRadius: "1rem" },
+				endAdornment: <IconButton onClick={onToggleVisibility}>{show ? <VisibilityOff /> : <Visibility />}</IconButton>,
+				name
+			}
+		}}
+		fullWidth
+	/>
+);
+
+const SubmitButton = ({ isLoading }: { isLoading: boolean }) => (
+	<Button
+		variant='contained'
+		sx={{
+			mt: "auto",
+			display: "flex",
+			alignItems: "center",
+			justifyContent: "center",
+			gap: "1rem"
+		}}
+		type='submit'
+	>
+		<Typography>Sign In</Typography>
+		{isLoading && <CircularProgress size='1rem' color='inherit' />}
+	</Button>
+);
 
 export const styles = {
 	wrapper: {
 		width: "100%",
+		height: "100%",
 		maxWidth: { xl: "600px", lg: "600px", md: "600px" },
 		px: { md: 0, xs: "1rem" }
 	},
@@ -19,62 +68,69 @@ export const styles = {
 		flexDirection: "column",
 		gap: "1rem",
 		width: "100%",
-		background: "var(--background-gradient)",
-		height: "fit-content"
+		height: "100%",
+		background: "var(--background-gradient)"
 	}
 };
 
 export default function LoginForm() {
-	const [show, setShow] = useState<boolean>(false);
-	const toggleVisibility = () => setShow(!show);
-	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+	const [showPassword, setShowPassword] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [csrfToken, setCsrfTokenState] = useState("");
+	const { push } = useRouter();
+
+	useEffect(() => {
+		// Generate a random token for CSRF protection
+		const token = Math.random().toString(36).substring(2);
+		setCsrfTokenState(token);
+		setCsrfToken(token);
+	}, []);
+
+	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		const data = new FormData(event.currentTarget);
-		const email = data.get("email");
-		const password = data.get("password");
-		localStorage.setItem("user", JSON.stringify({ email, password }));
-		redirect("/");
+		setIsLoading(true);
+
+		const formData = new FormData(event.currentTarget);
+		const formValues: LoginFormData = {
+			email: formData.get("email") as string,
+			password: formData.get("password") as string
+		};
+
+		try {
+			const user = await login(formValues.email, formValues.password, csrfToken);
+			console.log(user);
+			if (user) {
+				push("/account");
+			}
+		} catch (error) {
+			console.error("Login error:", error);
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	return (
 		<Wrapper variant='animated' sx={styles.wrapper}>
 			<Box sx={styles.box} component={"form"} onSubmit={handleSubmit}>
-				<Typography
-					variant='h1'
-					fontSize={{ md: "3rem", xs: "2rem" }}
-					py={"5rem"}
-					width={"100%"}
-					textAlign={"center"}
-				>
+				<Link href='/' passHref legacyBehavior>
+					<IconButton href='' sx={{ borderRadius: "0.5rem", border: "1px solid #ffffff20", minWidth: 0, width: "fit-content" }}>
+						<Home />
+					</IconButton>
+				</Link>
+				<Typography variant='h1' fontSize={{ md: "3rem", xs: "2rem" }} py={"5rem"} width={"100%"} textAlign={"center"}>
 					Welcome Back!
 				</Typography>
 				<TextField
 					placeholder='E-mail'
+					required
 					slotProps={{
 						input: { sx: { borderRadius: "1rem" }, name: "email" }
 					}}
 					fullWidth
 				/>
-				<TextField
-					placeholder='Password'
-					type={show ? "text" : "password"}
-					slotProps={{
-						input: {
-							sx: { borderRadius: "1rem" },
-							endAdornment: (
-								<IconButton onClick={toggleVisibility}>
-									{show ? <VisibilityOff /> : <Visibility />}
-								</IconButton>
-							),
-							name: "password"
-						}
-					}}
-					fullWidth
-				/>
-				<Button variant='contained' sx={{ my: "2rem" }} type='submit'>
-					Sign In
-				</Button>
-				<Typography mt={"2rem"} textAlign={"center"} width={"100%"}>
+				<PasswordField show={showPassword} onToggleVisibility={() => setShowPassword(!showPassword)} name='password' placeholder='Password' />
+				<SubmitButton isLoading={isLoading} />
+				<Typography mt={"1rem"} textAlign={"center"} width={"100%"}>
 					Have no account yet? <StyledLink href={"/signup"}>Sign Up</StyledLink>
 				</Typography>
 			</Box>

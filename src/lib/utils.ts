@@ -20,12 +20,7 @@ function getDirectoryTree(dirPath: string, parentName: string): TreeElement[] {
 			path: path.join(dirPath, entry.name),
 			type: entry.isDirectory() ? "folder" : "file",
 			href: `${parentName}/${entry.name.replace(".mdx", "")}`,
-			children: entry.isDirectory()
-				? getDirectoryTree(
-						path.join(dirPath, entry.name),
-						`${parentName}/${entry.name}`
-				  )
-				: []
+			children: entry.isDirectory() ? getDirectoryTree(path.join(dirPath, entry.name), `${parentName}/${entry.name}`) : []
 		};
 	});
 }

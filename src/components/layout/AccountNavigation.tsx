@@ -1,17 +1,11 @@
 "use client";
 
-import {
-	Box,
-	Button,
-	Divider,
-	Link,
-	List,
-	ListItem,
-	Typography
-} from "@mui/material";
-import { usePathname } from "next/navigation";
-import { Wrapper } from "./Wrapper";
+import { logout } from "@/actions/user";
+import { useUser } from "@/contexts/UserWrapper";
+import { Box, Button, Divider, Link, List, ListItem, Skeleton, Typography } from "@mui/material";
 import NextLink from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { Wrapper } from "./Wrapper";
 
 type MenuItem = {
 	id: number;
@@ -44,35 +38,37 @@ const menuItems: MenuItem[] = [
 
 export default function AccountNavigation() {
 	const pathname = usePathname();
+	const router = useRouter();
+	const user = useUser();
+
+	const handleLogout = async () => {
+		await logout();
+		router.push("/login");
+	};
+
 	return (
 		<Box>
 			<Wrapper variant='animated'>
-				<Wrapper
-					sx={{ background: "var(--background-gradient)" }}
-					fullWidth
-					padding={"2rem"}
-				>
-					<Typography sx={{ fontWeight: "400" }}>My Account</Typography>
-					<Typography sx={{ fontWeight: "400" }}>
-						username@website.com
+				<Wrapper sx={{ background: "var(--background-gradient)" }} fullWidth padding={"2rem"}>
+					<Typography sx={{ fontWeight: "400", fontSize: "1.5rem" }} gutterBottom>
+						My Account
 					</Typography>
+					{user ? (
+						<Typography sx={{ fontWeight: "400" }} color='primary'>
+							{user?.email}
+						</Typography>
+					) : (
+						<Skeleton variant='text' width={"100%"} height={"2rem"} />
+					)}
 					<Divider sx={{ my: "2rem" }} />
 					<List disablePadding>
 						{menuItems.map((menuItem) => {
 							return (
-								<ListItem
-									disableGutters
-									disablePadding
-									key={menuItem.id}
-									sx={{ my: "1rem" }}
-								>
+								<ListItem disableGutters disablePadding key={menuItem.id} sx={{ my: "1rem" }}>
 									<NextLink href={menuItem.route} passHref legacyBehavior>
 										<Link
 											sx={{
-												color:
-													menuItem.route === pathname
-														? "var(--primary)"
-														: "currentColor",
+												color: menuItem.route === pathname ? "var(--primary)" : "currentColor",
 												fontWeight: menuItem.route === pathname ? "500" : "400"
 											}}
 											underline='none'
@@ -85,14 +81,9 @@ export default function AccountNavigation() {
 						})}
 					</List>
 					<Divider sx={{ my: "2rem" }} />
-					<Button
-						variant='text'
-						fullWidth
-						sx={{ borderRadius: "1rem", color: "grey" }}
-					>
+					<Button variant='text' fullWidth sx={{ borderRadius: "1rem", color: "grey" }} onClick={handleLogout}>
 						Log Out
 					</Button>
-					{/* <LogoutButton /> */}
 				</Wrapper>
 			</Wrapper>
 		</Box>

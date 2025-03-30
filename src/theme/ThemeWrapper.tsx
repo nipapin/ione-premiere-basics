@@ -3,10 +3,6 @@
 import { CssBaseline } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
-// declare module "@mui/material/Button" {
-// 	interface ButtonVariantsOverrides {}
-// }
-
 const theme = createTheme({
 	palette: {
 		mode: "dark",
@@ -17,7 +13,7 @@ const theme = createTheme({
 		}
 	},
 	typography: {
-		fontFamily: "Clash Grotesk",
+		fontFamily: "Clash Grotesk, sans-serif",
 		fontWeightBold: 700,
 		fontWeightMedium: 600,
 		fontWeightRegular: 400,
@@ -79,11 +75,7 @@ const theme = createTheme({
 	}
 });
 
-export default function ThemeWrapper({
-	children
-}: {
-	children: React.ReactNode;
-}) {
+export default function ThemeWrapper({ children }: { children: React.ReactNode }) {
 	return (
 		<ThemeProvider theme={theme}>
 			<CssBaseline />

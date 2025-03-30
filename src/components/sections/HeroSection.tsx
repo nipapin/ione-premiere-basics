@@ -1,15 +1,13 @@
 "use client";
 
+import { useUser } from "@/contexts/UserWrapper";
+import { ArrowForwardIos } from "@mui/icons-material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import Link from "next/link";
 import HeroVideoPlayer from "../media/HeroVideoPlayer";
 import StyledLink from "../ui/StyledLink";
-import { useUser } from "@/contexts/UserWrapper";
-import Link from "next/link";
-import { ArrowForwardIos } from "@mui/icons-material";
-import { useNavBarBounding } from "@/contexts/NavBarBoundingProvider";
 
 const styles = {
 	hero: {

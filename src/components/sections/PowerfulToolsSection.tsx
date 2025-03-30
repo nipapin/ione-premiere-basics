@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
-import { Wrapper } from "../layout/Wrapper";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import Image from "next/image";
+import { useState } from "react";
+import { Wrapper } from "../layout/Wrapper";
 
 type PowerfulTool = {
 	id: number;

@@ -12,7 +12,6 @@ import StatisticShowcase from "@/components/sections/StatisticShowcaseSection";
 import SuitsSection from "@/components/sections/SuitsSection";
 import TeamSection from "@/components/sections/TeamSection";
 import { Box } from "@mui/material";
-import Stack from "@mui/material/Stack";
 
 export default function Home() {
 	return (

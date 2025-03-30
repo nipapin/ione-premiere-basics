@@ -1,15 +1,14 @@
 "use client";
 
-import { create, isExist } from "@/actions/user";
+import { create, isExist, sendConfirmationEmail } from "@/actions/user";
+import { setCsrfToken } from "@/lib/csrf";
 import { Home, Visibility, VisibilityOff } from "@mui/icons-material";
-import { Alert, Box, Button, CircularProgress, Collapse, IconButton, TextField, Typography } from "@mui/material";
-import { redirect } from "next/navigation";
+import { Alert, Box, Button, CircularProgress, Collapse, Dialog, DialogContent, DialogTitle, IconButton, TextField, Typography } from "@mui/material";
+import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { Wrapper } from "../layout/Wrapper";
 import StyledLink from "../ui/StyledLink";
 import { styles } from "./LoginForm";
-import Link from "next/link";
-import { setCsrfToken } from "@/lib/csrf";
 
 interface SignupFormData {
 	name: string;
@@ -71,6 +70,8 @@ export default function SignupForm() {
 	const [errorMessage, setErrorMessage] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 	const [csrfToken, setCsrfTokenState] = useState("");
+	const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+	const [email, setEmail] = useState<string>("");
 
 	useEffect(() => {
 		// Generate a random token for CSRF protection
@@ -105,13 +106,16 @@ export default function SignupForm() {
 		}
 
 		try {
-			await create(formValues.name.trim(), formValues.email.toLowerCase().trim(), formValues.password, csrfToken);
-			redirect("/account");
+			const user = await create(formValues.name.trim(), formValues.email.toLowerCase().trim(), formValues.password, csrfToken);
+			if (user) {
+				await sendConfirmationEmail(formValues.email, user.confirmtoken!);
+				setEmail(formValues.email);
+				setShowSuccessMessage(true);
+			}
+			// push("/account");
 		} catch (error) {
-			console.error("Signup error:", error);
+			console.log("Signup error:", error);
 			setErrorMessage("An error occurred during signup");
-		} finally {
-			setIsLoading(false);
 		}
 	};
 
@@ -170,6 +174,15 @@ export default function SignupForm() {
 					Already have an account? <StyledLink href='/login'>Log In</StyledLink>
 				</Typography>
 			</Box>
+			<Dialog open={showSuccessMessage} slotProps={{ paper: { sx: { background: "var(--background-gradient)", minWidth: "20rem" }, elevation: 0 } }}>
+				<DialogTitle>Success</DialogTitle>
+				<DialogContent>
+					<Typography gutterBottom>Your account has been created successfully</Typography>
+					<Typography sx={{ "& span": { color: "var(--primary)" } }}>
+						Please check your email <br /> <span>{email}</span> for verification
+					</Typography>
+				</DialogContent>
+			</Dialog>
 		</Wrapper>
 	);
 }

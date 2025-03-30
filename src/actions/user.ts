@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { User } from "@/types";
 import { validateCsrfToken } from "@/lib/csrf";
 import { createSession, deleteAllUserSessions, validateSession } from "@/lib/session";
+import { sendEmail } from "@/lib/email";
 
 export const create = async (name: string, email: string, _password: string, csrfToken: string): Promise<User | null> => {
 	// Validate CSRF token
@@ -18,7 +19,7 @@ export const create = async (name: string, email: string, _password: string, csr
 	const [firstName, lastName] = name.split(" ");
 
 	const hashedPassword = await bcrypt.hash(_password, 10);
-
+	const confirmationToken = crypto.randomUUID();
 	// Insert user and get the UUID
 	const { data, error } = await supabase
 		.from("users")
@@ -26,10 +27,10 @@ export const create = async (name: string, email: string, _password: string, csr
 			email: email.toLowerCase().trim(),
 			password: hashedPassword,
 			name: firstName,
-			lastname: lastName || ""
+			lastname: lastName || "",
+			confirmtoken: confirmationToken
 		})
-		.select("user_id, email, name, lastname")
-		.single();
+		.select("user_id, email, name, lastname, confirmtoken");
 
 	if (error) {
 		console.error("Supabase error:", error);
@@ -37,9 +38,9 @@ export const create = async (name: string, email: string, _password: string, csr
 	}
 
 	// Create a new session for the user
-	await createSession(data.user_id);
+	await createSession(data[0].user_id);
 
-	return data;
+	return data[0];
 };
 
 export const login = async (email: string, password: string, csrfToken: string): Promise<User | null> => {
@@ -124,11 +125,62 @@ export const isExist = async (email: string): Promise<boolean> => {
 	const cookieStore = cookies();
 	const supabase = await createClient(cookieStore);
 
-	const { data, error } = await supabase.from("users").select("user_id").eq("email", email).single();
+	const { data, error } = await supabase.from("users").select("user_id").eq("email", email).maybeSingle();
 
 	if (error) {
 		throw error;
 	}
 
 	return !!data;
+};
+
+export const sendConfirmationEmail = async (email: string, confirmationToken: string): Promise<boolean> => {
+	const cookieStore = cookies();
+	const supabase = await createClient(cookieStore);
+
+	const { data: user, error } = await supabase.from("users").select("user_id, email, name").eq("email", email.toLowerCase().trim()).single();
+
+	if (error || !user) {
+		return false;
+	}
+
+	const emailSent = await sendEmail(
+		user.email,
+		"Confirm your email",
+		`
+			<h1>Welcome to our platform!</h1>
+			<p>Hello ${user.name},</p>
+			<p>Please click the link below to confirm your email address:</p>
+			<a href="${process.env.NEXT_PUBLIC_APP_URL}/confirm-email?token=${confirmationToken}">
+				Confirm Email
+			</a>
+		`
+	);
+
+	return emailSent;
+};
+
+export const confirmAccount = async (token: string): Promise<boolean> => {
+	const cookieStore = cookies();
+	const supabase = await createClient(cookieStore);
+
+	const { data, error } = await supabase
+		.from("users")
+		.update({ confirmtoken: null, emailconfirmed: true })
+		.or(`confirmtoken.eq.${token},emailconfirmed.eq.true`)
+		.select("user_id, email, name, lastname, confirmtoken, emailconfirmed");
+
+	if (error) {
+		throw error;
+	}
+
+	console.log(data);
+
+	if (!data[0]) {
+		return false;
+	}
+
+	await createSession(data[0].user_id);
+
+	return true;
 };

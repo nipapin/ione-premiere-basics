@@ -104,8 +104,6 @@ export default function LoginForm() {
 			}
 		} catch (error) {
 			console.error("Login error:", error);
-		} finally {
-			setIsLoading(false);
 		}
 	};
 

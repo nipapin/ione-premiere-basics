@@ -3,6 +3,7 @@ export interface User {
 	email: string;
 	name: string;
 	lastname: string;
+	confirmtoken?: string;
 }
 
 export interface Session {

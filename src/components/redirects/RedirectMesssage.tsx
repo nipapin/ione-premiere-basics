@@ -11,7 +11,7 @@ export default function RedirectMesssage({ token }: { token: string }) {
 	useEffect(() => {
 		confirmAccount(token).then((res) => {
 			if (res) {
-				push("/account");
+				push("/login");
 			} else {
 				push("/");
 			}

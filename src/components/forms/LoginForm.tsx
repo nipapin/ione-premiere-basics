@@ -59,7 +59,7 @@ export const styles = {
 	wrapper: {
 		width: "100%",
 		height: "100%",
-		maxWidth: { xl: "600px", lg: "600px", md: "600px" },
+		maxWidth: "600px",
 		px: { md: 0, xs: "1rem" }
 	},
 	box: {

@@ -22,7 +22,6 @@ export default function UserWrapper({ children }: UserWrapperProps) {
 	const pathname = usePathname();
 
 	useEffect(() => {
-		if (user) return;
 		const fetchUser = async () => {
 			try {
 				setPending(true);

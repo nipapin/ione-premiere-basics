@@ -16,12 +16,17 @@ import { Box } from "@mui/material";
 export default function Home() {
 	return (
 		<Box
-			sx={{ display: "flex", flexDirection: "column", gap: { xl: "4rem", sm: "3rem", xs: "2rem" } }}
-			px={{ xl: 0, md: "2rem", xs: "1rem" }}
-			mx={"auto"}
-			maxWidth={"xl"}
-			width={"100%"}
-			alignItems={"center"}
+			sx={{
+				width: "100%",
+				maxWidth: "xl",
+				display: "flex",
+				flexDirection: "column",
+				alignItems: "center",
+				mx: "auto",
+				px: { xl: 0, md: "2rem", xs: "1rem" },
+				py: "4rem",
+				gap: "4rem"
+			}}
 		>
 			<Hero />
 			<PartnersShowcase />

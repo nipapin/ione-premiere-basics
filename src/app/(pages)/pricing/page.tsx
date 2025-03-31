@@ -3,7 +3,7 @@ import PeopleCommentsSection from "@/components/sections/PeopleCommentsSection";
 import PlansSection from "@/components/sections/PlansSecrtion";
 import Stack from "@mui/material/Stack";
 
-export default function Home() {
+export default function PricingPage() {
 	return (
 		<Stack
 			direction={"column"}

@@ -48,18 +48,8 @@ const SocialLinks: SocialItem[] = [
 
 export default function Footer() {
 	return (
-		<Box
-			component={"footer"}
-			maxWidth={"100vw"}
-			borderTop={"1px solid var(--border)"}
-			marginTop={"auto"}
-		>
-			<Wrapper
-				fullWidth
-				maxWidth={"xl"}
-				py={{ xl: "4rem", xs: "2rem" }}
-				px={{ xl: "2rem", xs: "1rem" }}
-			>
+		<Box component={"footer"} maxWidth={"100vw"} borderTop={"1px solid var(--border)"} marginTop={"auto"}>
+			<Wrapper fullWidth maxWidth={"xl"} py={{ xl: "4rem", xs: "2rem" }} px={{ xl: "2rem", xs: "1rem" }}>
 				<Wrapper
 					display={"flex"}
 					justifyContent={"space-between"}
@@ -102,12 +92,7 @@ export default function Footer() {
 							}}
 						></TextField>
 					</Wrapper>
-					<Wrapper
-						display={"grid"}
-						gridTemplateColumns={"1fr 1fr"}
-						gap={5}
-						mx={0}
-					>
+					<Wrapper display={"grid"} gridTemplateColumns={"1fr 1fr"} gap={5} mx={0}>
 						<Wrapper>
 							<Typography marginBottom={"1rem"} fontWeight={700}>
 								About
@@ -138,12 +123,7 @@ export default function Footer() {
 						</Wrapper>
 					</Wrapper>
 				</Wrapper>
-				<Wrapper
-					py={"2rem"}
-					justifyContent={"space-between"}
-					alignItems={"center"}
-					sx={{ display: { xl: "flex", xs: "none" } }}
-				>
+				<Wrapper py={"2rem"} justifyContent={"space-between"} alignItems={"center"} sx={{ display: { xl: "flex", xs: "none" } }}>
 					<Typography>© 2025 Premiere Basics</Typography>
 					<Wrapper mx={0} width={"auto"}>
 						{SocialLinks.map((link) => {
@@ -155,15 +135,8 @@ export default function Footer() {
 						})}
 					</Wrapper>
 				</Wrapper>
-				<Wrapper
-					py={"2rem"}
-					justifyContent={"space-between"}
-					alignItems={"center"}
-					sx={{ display: { xl: "none", xs: "flex" } }}
-				>
-					<Typography sx={{ fontSize: "0.8rem" }}>
-						© 2025 Premiere Basics
-					</Typography>
+				<Wrapper py={"2rem"} justifyContent={"space-between"} alignItems={"center"} sx={{ display: { xl: "none", xs: "flex" } }}>
+					<Typography sx={{ fontSize: "0.8rem" }}>© 2025 Premiere Basics</Typography>
 					<Wrapper mx={0} width={"auto"}>
 						{SocialLinks.map((link) => {
 							return (

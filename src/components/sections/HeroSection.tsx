@@ -15,15 +15,12 @@ const styles = {
 		flexDirection: "column",
 		alignItems: "center",
 		justifyContent: "center",
-		py: { xl: "4rem", md: "3rem", sm: "2rem", xs: "1.5rem" },
-		px: { xl: "2rem", md: "1.5rem", sm: "1rem", xs: "0.5rem" },
-		width: "100%",
-		minHeight: { xl: "100vh", md: "90vh", sm: "85vh", xs: "80vh" }
+		gap: "1rem"
 	},
 	accentChip: {
 		border: "1px solid var(--primary)",
 		width: "fit-content",
-		p: { xl: "1rem", md: "0.8rem", sm: "0.7rem", xs: "0.6rem" },
+		p: "1rem",
 		borderRadius: "999px",
 		background: "var(--primary-glass)",
 		"& *": {
@@ -32,28 +29,23 @@ const styles = {
 		}
 	},
 	h1: {
-		fontSize: { xl: "4rem", md: "3.5rem", sm: "2.5rem", xs: "1.5rem" },
-		lineHeight: { xl: "1.2", md: "1.3", sm: "1.4", xs: "1.2" },
-		mt: { xl: "2rem", md: "1.5rem", sm: "1.25rem", xs: "1rem" },
+		fontSize: { xl: "4rem", md: "3rem", sm: "3rem", xs: "2rem" },
 		whiteSpace: "pre",
 		textAlign: "center",
-		maxWidth: { xl: "100%", md: "90%", sm: "85%", xs: "95%" },
 		fontWeight: 500
 	},
 	tagline: {
 		whiteSpace: "pre",
 		textAlign: "center",
-		mt: { xl: "2rem", md: "1.5rem", sm: "1.25rem", xs: "1rem" },
 		fontSize: { xl: "1.25rem", md: "1.1rem", sm: "1rem", xs: "0.9rem" },
-		fontWeight: 200,
-		maxWidth: { xl: "100%", md: "90%", sm: "85%", xs: "95%" }
+		fontWeight: 200
 	},
 	buttons: {
 		display: "flex",
-		my: { xl: "4rem", md: "3rem", sm: "2.5rem", xs: "2rem" },
-		flexDirection: { xs: "column", sm: "row" },
+		my: "2rem",
+		flexDirection: "row",
 		width: { xs: "100%", sm: "auto" },
-		gap: { xl: "1rem", md: "0.5rem", sm: "0.25rem", xs: "0.1rem" },
+		gap: "1rem",
 		"& .MuiButton-root": {
 			width: { xs: "100%", sm: "auto" },
 			mb: { xs: 1, sm: 0 }
@@ -64,7 +56,7 @@ const styles = {
 export default function Hero() {
 	const user = useUser();
 	return (
-		<Box component={"section"} sx={{ ...styles.hero }}>
+		<Box component={"section"} sx={styles.hero}>
 			<Box sx={styles.accentChip}>
 				<Typography>
 					This extension made by{" "}
@@ -76,11 +68,7 @@ export default function Hero() {
 				</Typography>
 			</Box>
 			<Typography variant='h1' sx={styles.h1}>{`Discover the most powerful\ntime saver for video editing`}</Typography>
-			<Typography
-				sx={{
-					...styles.tagline
-				}}
-			>{`Premiere Basics is a strategic branding agency\nfocused on brand creation, rebrands, and brand`}</Typography>
+			<Typography sx={styles.tagline}>{`Premiere Basics is a strategic branding agency\nfocused on brand creation, rebrands, and brand`}</Typography>
 			<Box sx={{ ...styles.buttons }}>
 				<Link href={user ? "/download" : "/login"} passHref legacyBehavior>
 					<Button variant='contained' href=''>

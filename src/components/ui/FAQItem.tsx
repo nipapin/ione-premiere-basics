@@ -1,9 +1,9 @@
 "use client";
 
+import { FAQ } from "@/entities/faqs";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { Box, Button, Collapse, Divider, Typography } from "@mui/material";
 import { useState } from "react";
-import { FAQ } from "../sections/FAQSection";
 
 export default function FAQItem({ faq }: { faq: FAQ }) {
 	const [open, setOpen] = useState<boolean>(false);
@@ -21,12 +21,7 @@ export default function FAQItem({ faq }: { faq: FAQ }) {
 				sx={{ color: "white", borderRadius: "1rem 1rem 0 0" }}
 				endIcon={open ? <ExpandLess /> : <ExpandMore />}
 			>
-				<Typography
-					textAlign={"start"}
-					width={"100%"}
-					fontSize={"1.5rem"}
-					fontWeight={200}
-				>
+				<Typography textAlign={"start"} width={"100%"} fontSize={"1.5rem"} fontWeight={200}>
 					{faq.title}
 				</Typography>
 			</Button>

@@ -18,11 +18,7 @@ const styles = {
 		display: { xl: "flex", xs: "none" },
 		flexDirection: "column",
 		gap: 2,
-		mx: "auto",
-		alignItems: "center",
-		py: "4rem",
-		maxWidth: { xl: "70vw", md: "none" },
-		minHeight: "100vh"
+		alignItems: "center"
 	},
 	accentChip: {
 		display: "flex",
@@ -59,12 +55,7 @@ const styles = {
 
 export default function DownloadPage() {
 	return (
-		<Box
-			display={"flex"}
-			minHeight={"60vh"}
-			alignItems={"center"}
-			padding={{ xs: "1rem" }}
-		>
+		<Box display={"flex"} minHeight={"60vh"} alignItems={"center"} padding={{ xs: "1rem" }}>
 			<WarningChip />
 			<Stack sx={styles.stack}>
 				<AccentChip />
@@ -74,13 +65,7 @@ export default function DownloadPage() {
 				<Typography sx={styles.tagline}>
 					{`Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`}
 				</Typography>
-				<Stack
-					direction={"row"}
-					gap={4}
-					width={"100%"}
-					maxWidth={"50vw"}
-					mt={"2rem"}
-				>
+				<Stack direction={"row"} gap={4} mt={"2rem"}>
 					<Wrapper variant='animated' fullWidth>
 						<Box sx={styles.panel}>
 							<Typography fontSize={"2rem"} textAlign={"center"}>
@@ -90,11 +75,7 @@ export default function DownloadPage() {
 								<WinIcon />
 							</Box>
 							<Typography>Extension version 1.03 - 305MB</Typography>
-							<Button
-								variant='contained'
-								fullWidth
-								sx={{ borderRadius: "0.5rem" }}
-							>
+							<Button variant='contained' fullWidth sx={{ borderRadius: "0.5rem" }}>
 								Download for Windows
 							</Button>
 						</Box>
@@ -108,11 +89,7 @@ export default function DownloadPage() {
 								<MacIcon />
 							</Box>
 							<Typography>Extension version 1.03 - 305MB</Typography>
-							<Button
-								variant='contained'
-								fullWidth
-								sx={{ borderRadius: "0.5rem" }}
-							>
+							<Button variant='contained' fullWidth sx={{ borderRadius: "0.5rem" }}>
 								Download for Mac OS
 							</Button>
 						</Box>
@@ -126,27 +103,13 @@ export default function DownloadPage() {
 
 const AccentChip = () => {
 	return (
-		<Wrapper
-			variant='outlined'
-			borderRadius={"1rem"}
-			sx={{ background: "var(--primary-glass)" }}
-		>
+		<Wrapper variant='outlined' borderRadius={"1rem"} sx={{ background: "var(--primary-glass)" }}>
 			<Box sx={styles.accentChip}>
 				<AEIcon />
 				<PRIcon />
-				<Typography
-					ml={"1rem"}
-					fontWeight={200}
-					sx={{ "& a": { fontWeight: 400 } }}
-				>
-					Works with{" "}
-					<StyledLink href={"https://www.adobe.com/products/aftereffects.html"}>
-						After Effects
-					</StyledLink>{" "}
-					and{" "}
-					<StyledLink href={"https://www.adobe.com/products/premiere.html"}>
-						Premiere Pro
-					</StyledLink>
+				<Typography ml={"1rem"} fontWeight={200} sx={{ "& a": { fontWeight: 400 } }}>
+					Works with <StyledLink href={"https://www.adobe.com/products/aftereffects.html"}>After Effects</StyledLink> and{" "}
+					<StyledLink href={"https://www.adobe.com/products/premiere.html"}>Premiere Pro</StyledLink>
 				</Typography>
 			</Box>
 		</Wrapper>
@@ -170,15 +133,10 @@ const WarningChip = () => {
 					<AEIcon />
 					<PRIcon />
 				</span>
-				<Typography
-					sx={{ textWrap: "balance", fontSize: "1.25rem" }}
-					gutterBottom
-				>
+				<Typography sx={{ textWrap: "balance", fontSize: "1.25rem" }} gutterBottom>
 					The <b>Odin Pro</b> Extension is only available on desktop.
 				</Typography>
-				<Typography sx={{ fontSize: "1.25rem" }}>
-					Download it from your PC or Mac.
-				</Typography>
+				<Typography sx={{ fontSize: "1.25rem" }}>Download it from your PC or Mac.</Typography>
 			</Box>
 		</Wrapper>
 	);
@@ -194,13 +152,9 @@ const InfoChip = () => {
 				mt: "2rem"
 			}}
 		>
-			<Box
-				sx={{ padding: "1rem", display: "flex", alignItems: "center", gap: 1 }}
-			>
+			<Box sx={{ padding: "1rem", display: "flex", alignItems: "center", gap: 1 }}>
 				<HelpOutline color='primary' />
-				<Typography fontWeight={200}>
-					Having trouble installing Odin Pro?
-				</Typography>
+				<Typography fontWeight={200}>Having trouble installing Odin Pro?</Typography>
 				<StyledLink href='/help/getting-started/installation'>
 					<Typography fontWeight={400} color='primary'>
 						<u>See our full installation guide.</u>

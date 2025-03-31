@@ -2,37 +2,38 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Image from "next/image";
 import { Wrapper } from "../layout/Wrapper";
+import Title from "../ui/Title";
 
 const styles = {
 	main: {
-		width: "100%",
-		minHeight: "75vh",
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
 		flexDirection: "column",
-		maxWidth: { xl: "100%", md: "90%", xs: "100%" },
-		mx: { xl: 0, md: "auto", xs: 0 },
-		gap: { xl: "2rem", md: "1.5rem", xs: "1rem" },
-		py: { xl: "4rem", md: "3rem", xs: "2rem" }
+		gap: "1rem",
+		maxWidth: "1200px",
+		py: "4rem"
+	},
+	h2: {
+		textAlign: "center",
+		fontWeight: 400,
+		fontSize: { xl: "4rem", md: "3rem", xs: "2.5rem" },
+		mb: "1rem"
 	},
 	gridContainer: {
 		display: "grid",
-		gridTemplateColumns: { xl: "1fr 1fr", md: "1fr" },
-		gap: { xl: "2rem", md: "1.5rem", xs: "1rem" },
-		width: "100%",
-		maxWidth: { xl: "70vw", md: "85vw", xs: "100%" }
+		gridTemplateColumns: { sm: "1fr 1fr", xs: "1fr" },
+		gap: "1rem",
+		width: "100%"
 	},
-
 	topFrameStyle: {
 		background: "var(--background-gradient)",
-		padding: { xl: "2rem 8rem", md: "2rem 4rem", xs: "1.5rem" },
+		padding: { xl: "2rem 4rem", md: "2rem", xs: "1.5rem" },
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "space-between",
-		flexDirection: { md: "row", sm: "row", xs: "column" },
+		flexDirection: { sm: "row", xs: "column" },
 		width: "100%",
-		gap: { xl: "4rem", md: "2rem", xs: "1.5rem" },
 		"& article": {
 			display: "flex",
 			flexDirection: "column",
@@ -41,19 +42,21 @@ const styles = {
 			textAlign: { md: "start", xs: "center" }
 		},
 		"& img": {
-			width: { xl: "400px", md: "300px", sm: "250px", xs: "90%" },
+			mt: { sm: "none", xs: "1rem" },
+			width: { xl: "300px", md: "300px", sm: "250px", xs: "200px" },
 			height: "auto",
-			maxWidth: "100%"
+			maxWidth: { sm: "100%", xs: "90%" },
+			aspectRatio: 1
 		}
 	},
 	bottomFrameStyle: {
 		background: "var(--background-gradient)",
-		padding: { xl: "2rem 4rem", md: "2rem 3rem", xs: "1.5rem" },
+		padding: { xl: "2rem 4rem", md: "2rem", xs: "1.5rem" },
 		display: "flex",
-		flexDirection: { xl: "column", md: "row", sm: "row", xs: "column" },
+		flexDirection: "column",
 		alignItems: "center",
 		justifyContent: "space-between",
-		gap: { xl: "2rem", md: "1.5rem", xs: "1rem" },
+		gap: "1rem",
 		width: "100%",
 		textAlign: "center",
 		"& article": {
@@ -64,7 +67,7 @@ const styles = {
 			textAlign: { xl: "center", md: "start", xs: "center" }
 		},
 		"& img": {
-			width: { xl: "350px", md: "300px", sm: "250px", xs: "90%" },
+			width: { xl: "300px", md: "300px", sm: "250px", xs: "90%" },
 			maxWidth: "100%",
 			height: "auto"
 		}
@@ -74,15 +77,10 @@ const styles = {
 export default function AboutSection() {
 	return (
 		<Box component={"section"} sx={styles.main}>
-			<Typography
-				variant='h2'
-				textAlign={"center"}
-				fontWeight={400}
-				fontSize={{ xl: "3.5rem", md: "3rem", xs: "2.5rem" }}
-				mb={{ xl: "2rem", md: "1.5rem", xs: "1rem" }}
-			>
+			<Title>About</Title>
+			{/* <Typography variant='h2' sx={styles.h2}>
 				About
-			</Typography>
+			</Typography> */}
 			<Box sx={styles.gridContainer}>
 				<Wrapper variant='animated' sx={{ gridColumn: "1 / -1", width: "100%" }}>
 					<Box sx={styles.topFrameStyle}>
@@ -128,7 +126,7 @@ export default function AboutSection() {
 					<Box
 						sx={{
 							...styles.bottomFrameStyle,
-							flexDirection: { xl: "column", md: "row-reverse", sm: "row-reverse", xs: "column" }
+							flexDirection: "column"
 						}}
 					>
 						<Image

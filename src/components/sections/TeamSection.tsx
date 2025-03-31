@@ -1,89 +1,43 @@
-import React from "react";
-import { Wrapper } from "../layout/Wrapper";
-import { Card, CardContent, CardMedia, Stack, Typography } from "@mui/material";
-
-type Member = {
-	id: number;
-	name: string;
-	bio: string;
-	media: string;
-};
-
-const members: Member[] = [
-	{
-		id: 1,
-		name: "Sarah Johnson",
-		bio: "Lead Editor with 10+ years of experience in video editing and motion graphics. Specializes in creating engaging visual narratives.",
-		media:
-			"https://static.shuffle.dev/components/preview/697340ff-5445-426e-84bf-57e856b9afbf/assets/public/nightsable-assets/images/team/team.png"
-	},
-	{
-		id: 2,
-		name: "Michael Chen",
-		bio: "Senior Motion Designer who brings creativity and technical expertise to every project. Expert in After Effects and Cinema 4D.",
-		media:
-			"https://static.shuffle.dev/components/preview/697340ff-5445-426e-84bf-57e856b9afbf/assets/public/nightsable-assets/images/team/team.png"
-	},
-	{
-		id: 3,
-		name: "Emily Rodriguez",
-		bio: "Creative Director with a passion for storytelling through visual effects. Leads our team in creating stunning video content.",
-		media:
-			"https://static.shuffle.dev/components/preview/697340ff-5445-426e-84bf-57e856b9afbf/assets/public/nightsable-assets/images/team/team.png"
-	},
-	{
-		id: 4,
-		name: "David Kim",
-		bio: "Technical Director specializing in workflow optimization and advanced editing techniques. Expert trainer in Premiere Pro.",
-		media:
-			"https://static.shuffle.dev/components/preview/697340ff-5445-426e-84bf-57e856b9afbf/assets/public/nightsable-assets/images/team/team.png"
-	}
-];
+import { members } from "@/entities/members";
+import { Facebook, Instagram, X } from "@mui/icons-material";
+import { Box, Card, CardActions, CardContent, CardMedia, IconButton, Typography } from "@mui/material";
 
 export default function TeamSection() {
 	return (
-		<Stack
-			direction={"column"}
-			gap={4}
-			py={"4rem"}
-			alignItems={"center"}
-			component={"section"}
-		>
-			<Typography fontSize={{ md: "4rem", xs: "3rem" }} fontWeight={400}>
-				Our Team
-			</Typography>
-			<Wrapper
-				display='grid'
-				gridTemplateColumns={{ xl: "repeat(4, 1fr)", md: "1fr 1fr", xs: "1fr" }}
-				gap={2}
-				maxWidth={{ xl: "70vw", md: "none" }}
-			>
+		<Box component={"section"} sx={{ display: "flex", alignItems: "center", flexDirection: "column", gap: "1rem", py: "4rem", maxWidth: "1200px" }}>
+			<Typography sx={{ fontSize: "4rem", fontWeight: 400, mb: "2rem" }}>Our Team</Typography>
+			<Box sx={{ display: "grid", gridTemplateColumns: { xl: "repeat(4, 1fr)", sm: "1fr 1fr", xs: "1fr" }, gap: "1rem" }}>
 				{members.map((member) => {
 					return (
 						<Card
 							key={member.id}
 							sx={{
-								borderRadius: { md: "2rem", xs: "1rem" },
+								borderRadius: "1rem",
 								background: "var(--background-gradient)"
 							}}
 						>
 							<CardMedia image={member.media} sx={{ aspectRatio: 1 }} />
 							<CardContent>
-								<Typography
-									fontWeight={200}
-									whiteSpace={"balance"}
-									gutterBottom
-								>
+								<Typography fontWeight={200} whiteSpace={"balance"} gutterBottom>
 									{member.bio}
 								</Typography>
-								<Typography fontSize={"2rem"} fontWeight={400} mt={"1rem"}>
-									{member.name}
-								</Typography>
+								<Typography sx={{ fontWeight: 400, fontSize: "1.5rem", mt: "1rem" }}>{member.name}</Typography>
 							</CardContent>
+							<CardActions>
+								<IconButton>
+									<Facebook />
+								</IconButton>
+								<IconButton>
+									<X />
+								</IconButton>
+								<IconButton>
+									<Instagram />
+								</IconButton>
+							</CardActions>
 						</Card>
 					);
 				})}
-			</Wrapper>
-		</Stack>
+			</Box>
+		</Box>
 	);
 }

@@ -1,86 +1,45 @@
+import { staticticItems } from "@/entities/statistic";
 import { Box } from "@mui/material";
 import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { Wrapper } from "../layout/Wrapper";
-
-type StaticticItem = {
-	id: number;
-	title: string;
-	label: string;
-};
-
-const staticticItems: StaticticItem[] = [
-	{ id: 1, title: "$1.5B+", label: "active listing wordlide" },
-	{
-		id: 2,
-		title: "100+",
-		label: "cities and towns with active Premiere Basics"
-	},
-	{ id: 3, title: "75%", label: "assets Under Managment" }
-];
 
 export default function StatisticShowcase() {
 	return (
 		<Box
 			component={"section"}
 			sx={{
-				height: "50vh",
 				display: "flex",
 				alignItems: "center",
-				justifyContent: "center"
+				justifyContent: "center",
+				p: { sm: "8rem 0", xs: "2rem 0 4rem 0" }
 			}}
 		>
-			<Stack
-				display={{ md: "flex", xs: "none" }}
-				direction='row'
-				divider={<Divider flexItem orientation='vertical' />}
-				spacing={2}
-			>
+			<Stack display={{ sm: "flex", xs: "none" }} direction='row' divider={<Divider flexItem orientation='vertical' />} spacing={2}>
 				{staticticItems.map((item) => {
 					return (
-						<Wrapper
-							key={item.id}
-							display={"flex"}
-							flexDirection={"column"}
-							gap={1}
-							alignItems={"center"}
-							px={"2rem"}
-						>
+						<Box key={item.id} sx={{ display: "flex", flexDirection: "column", gap: "1rem", alignItems: "center" }}>
 							<Typography variant='h2' fontWeight={400}>
 								{item.title}
 							</Typography>
 							<Typography textAlign={"center"} fontWeight={200}>
 								{item.label}
 							</Typography>
-						</Wrapper>
+						</Box>
 					);
 				})}
 			</Stack>
-			<Stack
-				display={{ md: "none", xs: "flex" }}
-				direction='column'
-				divider={<Divider flexItem orientation='horizontal' />}
-				spacing={2}
-				py={"2rem"}
-			>
+			<Stack display={{ sm: "none", xs: "flex" }} direction='column' divider={<Divider flexItem orientation='horizontal' />} spacing={2}>
 				{staticticItems.map((item) => {
 					return (
-						<Wrapper
-							key={item.id}
-							display={"flex"}
-							flexDirection={"column"}
-							gap={1}
-							alignItems={"center"}
-							px={"2rem"}
-						>
+						<Box key={item.id} sx={{ display: "flex", flexDirection: "column", gap: "1rem", alignItems: "center" }}>
 							<Typography variant='h2' fontWeight={400}>
 								{item.title}
 							</Typography>
 							<Typography textAlign={"center"} fontWeight={200}>
 								{item.label}
 							</Typography>
-						</Wrapper>
+						</Box>
 					);
 				})}
 			</Stack>

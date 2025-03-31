@@ -32,7 +32,7 @@ const styles = {
 		fontSize: { xl: "4rem", md: "3rem", sm: "3rem", xs: "2rem" },
 		whiteSpace: "pre",
 		textAlign: "center",
-		fontWeight: 500
+		fontWeight: 400
 	},
 	tagline: {
 		whiteSpace: "pre",

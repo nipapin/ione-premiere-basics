@@ -17,7 +17,9 @@ export const styles = {
 		display: "flex",
 		alignItems: "center",
 		flexDirection: "column",
-		gap: "2rem"
+		gap: "2rem",
+		width: "100%",
+		maxWidth: "960px"
 	},
 	title: {
 		fontSize: { xs: "2.5rem", sm: "3rem", md: "4rem" },
@@ -27,20 +29,20 @@ export const styles = {
 	toolsGrid: {
 		display: "grid",
 		gridTemplateColumns: {
-			xs: "repeat(6, 1fr)",
-			sm: "repeat(6, 1fr)",
-			md: `repeat(${powerfulTools.length}, 1fr)`
+			xs: "repeat(6, auto)",
+			sm: "repeat(6, auto)",
+			md: `repeat(5, auto)`
 		},
 		gap: { xs: "0.5rem", sm: "1rem" },
 		width: "100%",
-		maxWidth: "md",
+		maxWidth: "720px",
 		margin: "0 auto"
 	},
 	toolButton: (isActive: boolean, index: number) => ({
 		color: isActive ? "var(--primary)" : "currentColor",
 		borderColor: isActive ? "var(--primary)" : "currentColor",
 		borderWidth: "1px",
-		padding: { xs: "0.5rem", sm: "1rem" },
+		padding: "1rem 0.5rem",
 		transition: "all 0.3s ease",
 		gridColumn: { md: "span 1", sm: `span ${Math.floor(index / 3) + 2}`, xs: `span ${Math.floor(index / 3) + 2}` }
 	}),

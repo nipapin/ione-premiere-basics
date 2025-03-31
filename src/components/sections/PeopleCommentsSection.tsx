@@ -5,7 +5,7 @@ import Title from "../ui/Title";
 
 export default function PeopleCommentsSection() {
 	return (
-		<Box component={"section"} sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem", maxWidth: "1200px", py: "4rem" }}>
+		<Box component={"section"} sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem", maxWidth: "1280px", py: "4rem" }}>
 			<Title>What people are saying</Title>
 			<Box sx={{ display: "grid", gridTemplateColumns: { md: "1fr 1fr 1fr", xs: "1fr" }, gap: "1rem" }}>
 				{comments.map((comment) => {

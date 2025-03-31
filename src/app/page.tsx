@@ -1,3 +1,4 @@
+import PageContainer from "@/components/layout/PageContainer";
 import AboutSection from "@/components/sections/AboutSection";
 import BlogSection from "@/components/sections/BlogSection";
 import EditingSolutions from "@/components/sections/EditingSolutionsSection";
@@ -11,23 +12,10 @@ import Showcase from "@/components/sections/ShowcaseSection";
 import StatisticShowcase from "@/components/sections/StatisticShowcaseSection";
 import SuitsSection from "@/components/sections/SuitsSection";
 import TeamSection from "@/components/sections/TeamSection";
-import { Box } from "@mui/material";
 
 export default function Home() {
 	return (
-		<Box
-			sx={{
-				width: "100%",
-				maxWidth: "xl",
-				display: "flex",
-				flexDirection: "column",
-				alignItems: "center",
-				mx: "auto",
-				px: { xl: 0, md: "2rem", xs: "1rem" },
-				py: "4rem",
-				gap: "4rem"
-			}}
-		>
+		<PageContainer>
 			<Hero />
 			<PartnersShowcase />
 			<AboutSection />
@@ -41,6 +29,6 @@ export default function Home() {
 			<PeopleCommentsSection />
 			<BlogSection />
 			<TeamSection />
-		</Box>
+		</PageContainer>
 	);
 }

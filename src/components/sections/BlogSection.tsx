@@ -6,7 +6,7 @@ const titleToRoute = (title: string) => title.toLowerCase().replace(/[^a-z0-9]/g
 
 export default function BlogSection() {
 	return (
-		<Box sx={{ display: "flex", alignItems: "center", flexDirection: "column", gap: "1rem", py: "4rem", maxWidth: "1200px" }} component={"section"}>
+		<Box sx={{ display: "flex", alignItems: "center", flexDirection: "column", gap: "1rem", py: "4rem", maxWidth: "1280px" }} component={"section"}>
 			<Typography sx={{ fontWeight: 400, fontSize: "4rem", mb: "2rem" }} fontWeight={400} fontSize={"4rem"}>
 				Blog
 			</Typography>

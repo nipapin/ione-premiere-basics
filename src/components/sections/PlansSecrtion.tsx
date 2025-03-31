@@ -8,7 +8,6 @@ export default function PlansSection() {
 	return (
 		<Wrapper component='section' sx={styles.section} fullWidth>
 			<Title>Compare our plans</Title>
-			{/* <Typography sx={styles.title}>Compare our plans</Typography> */}
 			<Typography sx={styles.subtitle}>{`Premiere Basics is a strategic branding agency\nfocused on brand creation, rebrands, and brand`}</Typography>
 			<Wrapper sx={styles.plansGrid} fullWidth>
 				{plans.map((plan, index) => {

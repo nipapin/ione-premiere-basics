@@ -22,35 +22,21 @@ export const Wrapper = ({
 	switch (type) {
 		case "outlined":
 			return (
-				<Box
-					margin='0 auto'
-					border={"1px solid var(--primary)"}
-					width={fullWidth || isMobile ? "100%" : "auto"}
-					{...props}
-				>
+				<Box margin='0 auto' border={"1px solid var(--primary)"} width={fullWidth || isMobile ? "100%" : "auto"} {...props}>
 					{children}
 				</Box>
 			);
 		case "animated":
 			return (
-				<Box
-					margin='0 auto'
-					width={fullWidth || isMobile ? "100%" : "auto"}
-					{...props}
-					sx={{ ...props.sx, "--offset": `${angleOffset || 0}deg` }}
-				>
-					<Box className='animated-outline'>
+				<Box margin='0 auto' width={fullWidth || isMobile ? "100%" : "auto"} {...props} sx={{ ...props.sx, "--offset": `${angleOffset || 0}deg` }}>
+					<Box className='animated-outline' width={fullWidth || isMobile ? "100%" : "auto"}>
 						<Box className='animated-outline-content'>{children}</Box>
 					</Box>
 				</Box>
 			);
 		default:
 			return (
-				<Box
-					margin='0 auto'
-					width={fullWidth || isMobile ? "100%" : "auto"}
-					{...props}
-				>
+				<Box margin='0 auto' width={fullWidth || isMobile ? "100%" : "auto"} {...props}>
 					{children}
 				</Box>
 			);

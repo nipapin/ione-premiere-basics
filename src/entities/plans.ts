@@ -40,10 +40,13 @@ export const plans: Plan[] = [
 
 export const styles = {
 	section: {
+		"--border-radius": "1rem",
 		display: "flex",
 		flexDirection: "column",
 		alignItems: "center",
-		gap: "1rem"
+		gap: "1rem",
+		maxWidth: "1280px",
+		width: "100%"
 	},
 	title: {
 		fontSize: "4rem",
@@ -53,13 +56,14 @@ export const styles = {
 	subtitle: {
 		whiteSpace: "pre",
 		textAlign: "center",
-		fontSize: "1rem"
+		fontSize: "1rem",
+		mt: "-1rem"
 	},
 	plansGrid: {
 		display: "grid",
 		gridTemplateColumns: { xs: "1fr", md: "1fr 1fr", xl: "1fr 1fr 1fr" },
 		gap: "1rem",
-		maxWidth: "1200px",
+		maxWidth: "1280px",
 		mt: "2rem"
 	},
 	planCard: {

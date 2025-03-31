@@ -1,11 +1,12 @@
 import { members } from "@/entities/members";
 import { Facebook, Instagram, X } from "@mui/icons-material";
 import { Box, Card, CardActions, CardContent, CardMedia, IconButton, Typography } from "@mui/material";
+import Title from "../ui/Title";
 
 export default function TeamSection() {
 	return (
-		<Box component={"section"} sx={{ display: "flex", alignItems: "center", flexDirection: "column", gap: "1rem", py: "4rem", maxWidth: "1200px" }}>
-			<Typography sx={{ fontSize: "4rem", fontWeight: 400, mb: "2rem" }}>Our Team</Typography>
+		<Box component={"section"} sx={{ display: "flex", alignItems: "center", flexDirection: "column", gap: "1rem", py: "4rem", maxWidth: "1280px" }}>
+			<Title>Our Team</Title>
 			<Box sx={{ display: "grid", gridTemplateColumns: { xl: "repeat(4, 1fr)", sm: "1fr 1fr", xs: "1fr" }, gap: "1rem" }}>
 				{members.map((member) => {
 					return (

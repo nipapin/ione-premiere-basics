@@ -13,9 +13,6 @@ export default function PowerfulTools() {
 	return (
 		<Box component='section' sx={styles.section}>
 			<Title>Powerful Tools</Title>
-			{/* <Typography variant='h2' sx={styles.title}>
-				Powerful Tools
-			</Typography> */}
 			<Box sx={styles.toolsGrid}>
 				{powerfulTools.map((tool, index) => (
 					<Button key={tool.id} sx={styles.toolButton(index === active, index)} variant='outlined' onClick={() => setActive(index)}>

@@ -1,16 +1,14 @@
-"use client";
-
+import { useTree } from "@/contexts/TreeWrapper";
 import { TreeElement } from "@/lib/utils";
-import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import { Box, Collapse, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
+import { ExpandLess, ExpandMore, Menu } from "@mui/icons-material";
+import { Box, Collapse, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Fragment, useState } from "react";
-import { Wrapper } from "../layout/Wrapper";
-import { useTree } from "@/contexts/TreeWrapper";
+import { Fragment, useEffect, useState } from "react";
 
-export default function HelpMenu() {
+export default function MobileHelpMenu() {
 	const tree = useTree();
+	const [open, setOpen] = useState(false);
 	const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
 	const pathname = usePathname();
 
@@ -25,7 +23,7 @@ export default function HelpMenu() {
 					<Fragment key={node.path}>
 						<ListItem disableGutters>
 							<ListItemButton onClick={() => node.type === "folder" && toggleFolder(node.path)} sx={{ borderRadius: "0.5rem" }}>
-								<ListItemText primary={node.name} />
+								<ListItemText primary={node.name} sx={{ textWrap: "nowrap", "& span": { fontWeight: 400 } }} />
 								<ListItemIcon sx={{ minWidth: 0 }}>
 									{node.type === "folder" && (openFolders[node.path] ? <ExpandLess /> : <ExpandMore />)}
 								</ListItemIcon>
@@ -41,7 +39,7 @@ export default function HelpMenu() {
 					<ListItem sx={{ pl: level * 2 }} key={node.path}>
 						<Link href={node.href} passHref legacyBehavior>
 							<ListItemButton sx={{ borderRadius: "0.5rem", color: pathname === node.href ? "var(--primary)" : "inherit" }}>
-								<ListItemText primary={node.name} />
+								<ListItemText primary={node.name} sx={{ textWrap: "nowrap" }} />
 							</ListItemButton>
 						</Link>
 					</ListItem>
@@ -50,9 +48,18 @@ export default function HelpMenu() {
 		</List>
 	);
 
+	useEffect(() => {
+		setOpen(false);
+	}, [pathname]);
+
 	return (
-		<Wrapper variant='animated' fullWidth sx={{ maxHeight: "fit-content", height: "fit-content", position: "sticky", top: 0, left: 0 }}>
-			<Box sx={{ p: "1rem", background: "var(--background-gradient)", width: "100%" }}>{renderList(tree)}</Box>
-		</Wrapper>
+		<Box sx={{ display: { md: "none", sm: "block" } }}>
+			<IconButton onClick={() => setOpen(true)}>
+				<Menu />
+			</IconButton>
+			<Drawer open={open} onClose={() => setOpen(false)} anchor='left' slotProps={{ paper: { elevation: 0 } }}>
+				<Box sx={{ p: "1rem" }}>{renderList(tree)}</Box>
+			</Drawer>
+		</Box>
 	);
 }

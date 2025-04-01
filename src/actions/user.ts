@@ -1,11 +1,11 @@
 "use server";
-import bcrypt from "bcrypt";
-import { createClient } from "@/lib/supabase/server";
-import { cookies } from "next/headers";
-import { User } from "@/types";
 import { validateCsrfToken } from "@/lib/csrf";
-import { createSession, deleteAllUserSessions, validateSession } from "@/lib/session";
 import { sendEmail } from "@/lib/email";
+import { createSession, deleteAllUserSessions } from "@/lib/session";
+import { createClient } from "@/lib/supabase/server";
+import { User } from "@/types";
+import bcrypt from "bcrypt";
+import { cookies } from "next/headers";
 
 export const create = async (name: string, email: string, _password: string, csrfToken: string): Promise<User | null> => {
 	// Validate CSRF token

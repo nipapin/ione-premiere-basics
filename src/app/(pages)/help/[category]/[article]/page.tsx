@@ -1,5 +1,4 @@
-import Article from "@/components/layout/Article";
-import { Box } from "@mui/material";
+import Article from "@/components/help/Article";
 import { readFileSync } from "fs";
 import matter from "gray-matter";
 import { serialize } from "next-mdx-remote/serialize";
@@ -17,9 +16,5 @@ export default async function HelpPage({ params }: HelpPageProps) {
 	const mdx = matter(mdxSource);
 	const source = await serialize(mdx.content);
 
-	return (
-		<Box sx={{ p: "1rem 2rem", height: "100%", overflow: "auto", "&::-webkit-scrollbar": { display: "none" } }}>
-			<Article source={source} />
-		</Box>
-	);
+	return <Article source={source} />;
 }

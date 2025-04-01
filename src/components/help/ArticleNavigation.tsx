@@ -15,16 +15,16 @@ export default function ArticleNavigation() {
 	const pathname = usePathname();
 
 	useEffect(() => {
-		// Get all h2 elements from the article
 		const h2Elements = document.querySelectorAll("h2");
 		const headingList = Array.from(h2Elements).map((h2) => ({
 			id: h2.id || h2.textContent?.toLowerCase().replace(/\s+/g, "-") || "",
-			text: h2.textContent || "",
+			text: h2.textContent || ""
 		}));
 		setHeadings(headingList);
+		window.scrollTo(0, 0);
 	}, [pathname]);
 
-	const scrollToHeading = (id: string) => {
+	const scrollToHeading = (id: string) => () => {
 		const element = document.getElementById(id);
 		if (element) {
 			element.scrollIntoView({ behavior: "smooth" });
@@ -34,15 +34,15 @@ export default function ArticleNavigation() {
 	if (headings.length === 0) return null;
 
 	return (
-		<Wrapper variant="animated" fullWidth>
+		<Wrapper variant='animated' fullWidth>
 			<Box sx={{ p: "2rem", background: "var(--background-gradient)", width: "100%" }}>
-				<Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
+				<Typography variant='h6' sx={{ mb: 2, fontWeight: 500 }}>
 					Table of Contents
 				</Typography>
 				<List>
 					{headings.map((heading) => (
 						<ListItem key={heading.id} disablePadding>
-							<ListItemButton onClick={() => scrollToHeading(heading.id)} sx={{ borderRadius: "0.5rem" }}>
+							<ListItemButton onClick={scrollToHeading(heading.id)} sx={{ borderRadius: "0.5rem" }}>
 								<ListItemText primary={heading.text} />
 							</ListItemButton>
 						</ListItem>

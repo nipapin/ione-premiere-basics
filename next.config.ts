@@ -7,7 +7,8 @@ const nextConfig: NextConfig = {
 				protocol: "https",
 				hostname: "static.shuffle.dev"
 			}
-		]
+		],
+		localPatterns: [{ pathname: "/images/**" }]
 	}
 };
 

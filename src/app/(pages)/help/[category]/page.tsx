@@ -1,10 +1,8 @@
-import { Box, Typography } from "@mui/material";
 import { readFileSync } from "fs";
 import { readdir } from "fs/promises";
 import matter from "gray-matter";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import path from "path";
-import Preloader from "@/components/layout/Preloader";
 
 interface CategoryPageProps {
 	params: Promise<{ category: string }>;

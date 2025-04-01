@@ -14,10 +14,10 @@ const theme = createTheme({
 	},
 	typography: {
 		fontFamily: "Clash Grotesk, sans-serif",
-		fontWeightBold: 700,
-		fontWeightMedium: 600,
-		fontWeightRegular: 400,
-		fontWeightLight: 300,
+		fontWeightBold: 500,
+		fontWeightMedium: 400,
+		fontWeightRegular: 300,
+		fontWeightLight: 200,
 		allVariants: {
 			lineHeight: 1
 		}

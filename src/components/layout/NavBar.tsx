@@ -3,10 +3,10 @@
 import { logout } from "@/actions/user";
 import { useUser } from "@/contexts/UserWrapper";
 import { Logout } from "@mui/icons-material";
-import { Collapse } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Toolbar from "@mui/material/Toolbar";
@@ -21,7 +21,7 @@ import SmallMenu from "./SmallMenu";
 import { Wrapper } from "./Wrapper";
 
 export default function NavBar() {
-	const { user } = useUser();
+	const user = useUser();
 	const pathname = usePathname();
 	const router = useRouter();
 
@@ -32,7 +32,7 @@ export default function NavBar() {
 
 	return (
 		<>
-			<AppBar position='relative' elevation={0}>
+			<AppBar position="relative" elevation={0}>
 				<Collapse in={!["/login", "/signup", "/confirm-email"].includes(pathname ?? "")}>
 					<Toolbar sx={{ zIndex: 1, background: "var(--background)" }}>
 						<Wrapper
@@ -59,7 +59,7 @@ export default function NavBar() {
 								{user ? (
 									<>
 										<Link href={"/account"} passHref legacyBehavior>
-											<Button variant='contained' href=''>
+											<Button variant="contained" href="">
 												Account
 											</Button>
 										</Link>
@@ -69,10 +69,10 @@ export default function NavBar() {
 									</>
 								) : (
 									<>
-										<Button variant='outlined' href='/login'>
+										<Button variant="outlined" href="/login">
 											Log In
 										</Button>
-										<Button variant='contained' color='primary' href='/download'>
+										<Button variant="contained" color="primary" href="/download">
 											Start now for free
 										</Button>
 									</>

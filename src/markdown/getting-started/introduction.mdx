@@ -2,8 +2,98 @@
 title: Introduction
 prev:
 next: getting-started/instalation
+order: 1
 ---
-
+<div>
 # Introduction
+Welcome to our comprehensive testing documentation! This guide will help you understand and implement testing in your project effectively.
+</div>
 
-Welcome to our documentation. This is the introduction page.
+## What is Testing?
+
+Testing is a crucial part of software development that helps ensure your code works as expected. It involves writing code to verify that your application behaves correctly under various conditions.
+
+## Why Testing Matters
+
+- **Quality Assurance**: Catch bugs early in development
+- **Code Confidence**: Ensure changes don't break existing functionality
+- **Documentation**: Tests serve as living documentation
+- **Maintenance**: Easier to maintain and refactor code
+
+## Types of Testing
+
+1. **Unit Testing**: Testing individual components in isolation
+2. **Integration Testing**: Testing how components work together
+3. **End-to-End Testing**: Testing the entire application flow
+4. **Performance Testing**: Testing application performance and scalability
+
+## Getting Started
+
+In this documentation, you'll learn:
+- How to set up your testing environment
+- Writing your first test
+- Best practices for testing
+- Common testing patterns and anti-patterns
+
+Let's begin your testing journey!
+
+## Managing MDX Components
+
+MDX (Markdown + JSX) allows you to use JSX components within your Markdown content. Here's how to effectively manage MDX components:
+
+### Component Organization
+
+1. **Component Location**:
+   - Place reusable MDX components in `src/components/ui/`
+   - Create specific MDX components in `src/components/mdx/`
+   - Keep documentation-specific components in `src/components/docs/`
+
+2. **Component Structure**:
+   ```jsx
+   // Example MDX component
+   export const Callout = ({ children, type = 'info' }) => (
+     <div className={`callout callout-${type}`}>
+       {children}
+     </div>
+   )
+   ```
+
+### Using Components in MDX
+
+1. **Import Components**:
+   ```mdx
+   import { Callout, CodeBlock } from '@/components/mdx'
+   
+   # My Documentation
+   
+   <Callout type="info">
+     This is an important note!
+   </Callout>
+   ```
+
+2. **Common MDX Components**:
+   - `<Callout>` - For important notes and warnings
+   - `<CodeBlock>` - For syntax-highlighted code
+   - `<Tabs>` - For tabbed content
+   - `<Steps>` - For numbered instructions
+
+### Best Practices
+
+1. **Component Naming**:
+   - Use PascalCase for component names
+   - Prefix with 'MDX' if specifically for MDX use
+
+2. **Props Management**:
+   - Use TypeScript for better type safety
+   - Provide default props where appropriate
+   - Document props using JSDoc comments
+
+3. **Styling**:
+   - Use CSS modules or styled-components
+   - Keep styles scoped to components
+   - Follow your design system
+
+4. **Testing MDX Components**:
+   - Write unit tests for components
+   - Test different prop combinations
+   - Ensure accessibility compliance

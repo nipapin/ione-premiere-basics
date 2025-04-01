@@ -1,5 +1,6 @@
 import { convertChunkToTypo } from "@/components/help/utils";
-import { readdirSync } from "fs";
+import { readdirSync, readFileSync } from "fs";
+import matter from "gray-matter";
 import path from "path";
 
 export type TreeElement = {
@@ -8,6 +9,7 @@ export type TreeElement = {
 	href: string;
 	type: "folder" | "file";
 	children: TreeElement[];
+	order: number;
 };
 
 function getDirectoryTree(dirPath: string, parentName: string): TreeElement[] {
@@ -15,12 +17,21 @@ function getDirectoryTree(dirPath: string, parentName: string): TreeElement[] {
 
 	return entries.map((entry) => {
 		const entryName = convertChunkToTypo(entry.name.replace(".mdx", ""));
+		let order = 0;
+		if (entry.isFile()) {
+			const mdxSource = readFileSync(`${dirPath}/${entry.name}`, "utf-8");
+			const { data } = matter(mdxSource);
+			order = data.order;
+		}
 		return {
 			name: entryName,
 			path: path.join(dirPath, entry.name),
 			type: entry.isDirectory() ? "folder" : "file",
 			href: `${parentName}/${entry.name.replace(".mdx", "")}`,
-			children: entry.isDirectory() ? getDirectoryTree(path.join(dirPath, entry.name), `${parentName}/${entry.name}`) : []
+			children: entry.isDirectory()
+				? getDirectoryTree(path.join(dirPath, entry.name), `${parentName}/${entry.name}`).sort((a, b) => a.order - b.order)
+				: [],
+			order,
 		};
 	});
 }

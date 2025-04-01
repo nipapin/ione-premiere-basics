@@ -91,10 +91,10 @@ export const get = async (user_id: string): Promise<User | null> => {
 	const supabase = await createClient(cookieStore);
 
 	// Validate the session
-	const session = await validateSession();
-	if (!session || session.user_id !== user_id) {
-		return null;
-	}
+	// const session = await validateSession();
+	// if (!session || session.user_id !== user_id) {
+	// 	return null;
+	// }
 
 	const { data, error } = await supabase.from("users").select("user_id, email, name, lastname").eq("user_id", user_id).single();
 
@@ -114,7 +114,7 @@ export const logout = async (): Promise<boolean> => {
 	const user_id = cookieStore.get("odin-pro-session")?.value;
 
 	if (user_id) {
-		// Delete all sessions for the user
+		// Delete all sessions and cookies for the user
 		await deleteAllUserSessions(user_id);
 	}
 

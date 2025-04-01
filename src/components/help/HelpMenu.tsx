@@ -2,9 +2,11 @@
 
 import { TreeElement } from "@/lib/utils";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import { Collapse, List, ListItemButton, ListItemText } from "@mui/material";
+import { Box, Collapse, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Fragment, useState } from "react";
+import { Wrapper } from "../layout/Wrapper";
 
 interface HelpMenuProps {
 	tree: TreeElement[];
@@ -12,44 +14,47 @@ interface HelpMenuProps {
 
 export default function HelpMenu({ tree }: HelpMenuProps) {
 	const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
+	const pathname = usePathname();
 
 	const toggleFolder = (path: string) => {
 		setOpenFolders((prev) => ({ ...prev, [path]: !prev[path] }));
 	};
 
 	const renderList = (nodes: TreeElement[], level = 0) => (
-		<List component='div' disablePadding>
+		<List component="div" disablePadding sx={{ width: "100%" }}>
 			{nodes.map((node) =>
 				node.type === "folder" ? (
 					<Fragment key={node.path}>
-						<ListItemButton
-							onClick={() => node.type === "folder" && toggleFolder(node.path)}
-							sx={{ pl: level * 2 }}
-						>
-							<ListItemText primary={node.name} />
-							{node.type === "folder" &&
-								(openFolders[node.path] ? <ExpandLess /> : <ExpandMore />)}
-						</ListItemButton>
+						<ListItem disableGutters>
+							<ListItemButton onClick={() => node.type === "folder" && toggleFolder(node.path)} sx={{ borderRadius: "0.5rem" }}>
+								<ListItemText primary={node.name} />
+								<ListItemIcon sx={{ minWidth: 0 }}>
+									{node.type === "folder" && (openFolders[node.path] ? <ExpandLess /> : <ExpandMore />)}
+								</ListItemIcon>
+							</ListItemButton>
+						</ListItem>
 						{node.children && (
-							<Collapse
-								in={openFolders[node.path]}
-								timeout='auto'
-								unmountOnExit
-							>
+							<Collapse in={!openFolders[node.path]} timeout="auto" unmountOnExit>
 								{renderList(node.children, level + 1)}
 							</Collapse>
 						)}
 					</Fragment>
 				) : (
-					<Link key={node.path} href={node.href} passHref legacyBehavior>
-						<ListItemButton href='' sx={{ pl: level * 2 }}>
-							<ListItemText primary={node.name} />
-						</ListItemButton>
-					</Link>
+					<ListItem sx={{ pl: level * 2 }} key={node.path}>
+						<Link href={node.href} passHref legacyBehavior>
+							<ListItemButton sx={{ borderRadius: "0.5rem", color: pathname === node.href ? "var(--primary)" : "inherit" }}>
+								<ListItemText primary={node.name} />
+							</ListItemButton>
+						</Link>
+					</ListItem>
 				)
 			)}
 		</List>
 	);
 
-	return <>{renderList(tree)}</>;
+	return (
+		<Wrapper variant="animated" fullWidth sx={{ maxHeight: "fit-content", height: "fit-content", position: "sticky", top: 0, left: 0 }}>
+			<Box sx={{ p: "1rem", background: "var(--background-gradient)", width: "100%" }}>{renderList(tree)}</Box>
+		</Wrapper>
+	);
 }

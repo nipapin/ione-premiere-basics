@@ -17,29 +17,29 @@ const menuItems: MenuItem[] = [
 	{
 		id: 1,
 		title: "Account Details",
-		route: "/account"
+		route: "/account",
 	},
 	{
 		id: 2,
 		title: "Subscription",
-		route: "/account/subscription"
+		route: "/account/subscription",
 	},
 	{
 		id: 3,
 		title: "My Devices",
-		route: "/account/devices"
+		route: "/account/devices",
 	},
 	{
 		id: 4,
 		title: "Extension",
-		route: "/account/extension"
-	}
+		route: "/account/extension",
+	},
 ];
 
 export default function AccountNavigation() {
 	const pathname = usePathname();
 	const router = useRouter();
-	const { user } = useUser();
+	const user = useUser();
 
 	const handleLogout = async () => {
 		await logout();
@@ -48,17 +48,17 @@ export default function AccountNavigation() {
 
 	return (
 		<Box>
-			<Wrapper variant='animated'>
+			<Wrapper variant="animated">
 				<Wrapper sx={{ background: "var(--background-gradient)" }} fullWidth padding={"2rem"}>
 					<Typography sx={{ fontWeight: "400", fontSize: "1.5rem" }} gutterBottom>
 						My Account
 					</Typography>
 					{user ? (
-						<Typography sx={{ fontWeight: "400" }} color='primary'>
+						<Typography sx={{ fontWeight: "400" }} color="primary">
 							{user?.email}
 						</Typography>
 					) : (
-						<Skeleton variant='text' width={"100%"} height={"2rem"} />
+						<Skeleton variant="text" width={"100%"} height={"2rem"} />
 					)}
 					<Divider sx={{ my: "2rem" }} />
 					<List disablePadding>
@@ -69,9 +69,9 @@ export default function AccountNavigation() {
 										<Link
 											sx={{
 												color: menuItem.route === pathname ? "var(--primary)" : "currentColor",
-												fontWeight: menuItem.route === pathname ? "500" : "400"
+												fontWeight: menuItem.route === pathname ? "500" : "400",
 											}}
-											underline='none'
+											underline="none"
 										>
 											{menuItem.title}
 										</Link>
@@ -81,7 +81,7 @@ export default function AccountNavigation() {
 						})}
 					</List>
 					<Divider sx={{ my: "2rem" }} />
-					<Button variant='text' fullWidth sx={{ borderRadius: "1rem", color: "grey" }} onClick={handleLogout}>
+					<Button variant="text" fullWidth sx={{ borderRadius: "1rem", color: "grey" }} onClick={handleLogout}>
 						Log Out
 					</Button>
 				</Wrapper>

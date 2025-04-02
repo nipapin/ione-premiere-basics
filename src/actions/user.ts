@@ -28,7 +28,7 @@ export const create = async (name: string, email: string, _password: string, csr
 			password: hashedPassword,
 			name: firstName,
 			lastname: lastName || "",
-			confirmtoken: confirmationToken
+			confirmtoken: confirmationToken,
 		})
 		.select("user_id, email, name, lastname, confirmtoken");
 
@@ -77,7 +77,7 @@ export const login = async (email: string, password: string, csrfToken: string):
 		user_id: data.user_id,
 		email: data.email,
 		name: data.name,
-		lastname: data.lastname
+		lastname: data.lastname,
 	};
 
 	// Create a new session for the user
@@ -182,5 +182,96 @@ export const confirmAccount = async (token: string): Promise<boolean> => {
 
 	await createSession(data[0].user_id);
 
+	return true;
+};
+
+export const checkPassword = async (password: string): Promise<boolean> => {
+	const cookieStore = cookies();
+	const supabase = await createClient(cookieStore);
+
+	const user_id = (await cookieStore).get("odin-pro-session")?.value;
+
+	const { data, error } = await supabase.from("users").select("password").eq("user_id", user_id).single();
+
+	if (error) {
+		console.error("Supabase error:", error);
+		return false;
+	}
+
+	const encryptedPassword = data?.password;
+	return bcrypt.compareSync(password, encryptedPassword);
+};
+
+export const updatePassword = async (password: string): Promise<boolean> => {
+	const cookieStore = cookies();
+	const supabase = await createClient(cookieStore);
+
+	const user_id = (await cookieStore).get("odin-pro-session")?.value;
+
+	const encryptedPassword = await bcrypt.hash(password, 10);
+
+	const { error } = await supabase.from("users").update({ password: encryptedPassword }).eq("user_id", user_id);
+
+	if (error) {
+		console.error("Supabase error:", error);
+		return false;
+	}
+
+	return true;
+};
+
+export const updateName = async (name: string, lastname: string): Promise<boolean> => {
+	const cookieStore = cookies();
+	const supabase = await createClient(cookieStore);
+
+	const user_id = (await cookieStore).get("odin-pro-session")?.value;
+
+	const { error } = await supabase.from("users").update({ name, lastname }).eq("user_id", user_id);
+
+	if (error) {
+		console.error("Supabase error:", error);
+		return false;
+	}
+
+	return true;
+};
+
+export const updateEmail = async (previousEmail: string, email: string): Promise<boolean> => {
+	if (!Boolean(email)) return false;
+
+	const cookieStore = cookies();
+	const supabase = await createClient(cookieStore);
+
+	const user_id = (await cookieStore).get("odin-pro-session")?.value;
+	const emailIsBusy = await isExist(email);
+
+	if (emailIsBusy) {
+		return false;
+	}
+
+	const { error } = await supabase.from("users").update({ email }).eq("user_id", user_id);
+
+	if (error) {
+		console.error("Supabase error:", error);
+		return false;
+	}
+
+	await sendEmail(
+		previousEmail,
+		"Your email has been changed",
+		`<h1>Your email has been changed</h1>
+		<p>New email: ${email}</p>
+		<p>If you did not change your email address, please <a href="${process.env.NEXT_PUBLIC_APP_URL}/contact">contact us immediately</a>.</p>
+		<p>Best regards, <b>Odin Pro Team</b></p>
+	`
+	);
+	await sendEmail(
+		email,
+		"Welcome to Odin Pro",
+		`<h1>Welcome to Odin Pro</h1>
+		<p>Your E-mail has been changed.</p>
+		<p>Best regards, <b>Odin Pro Team</b></p>
+	`
+	);
 	return true;
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { logout, updateEmail } from "@/actions/user";
+import { logout, sendUpdateEmail } from "@/actions/user";
 import Preloader from "@/components/layout/Preloader";
 import { useUser } from "@/contexts/UserWrapper";
 import { Alert, Box, Button, CircularProgress, TextField, Typography } from "@mui/material";
@@ -20,7 +20,7 @@ export default function ChangeEmailForm() {
 		setError(false);
 		const formData = new FormData(event.target as HTMLFormElement);
 		const email = formData.get("email") as string;
-		updateEmail(user?.email || "", email).then((success) => {
+		sendUpdateEmail(user?.email || "", email).then((success) => {
 			if (success) {
 				setRedirecting(true);
 				logout().then(() => {
@@ -36,7 +36,7 @@ export default function ChangeEmailForm() {
 	return (
 		<Box>
 			{redirecting && <Preloader />}
-			<Alert severity="error" sx={{ display: error ? "flex" : "none", alignItems: "center" }}>
+			<Alert severity='error' sx={{ display: error ? "flex" : "none", alignItems: "center" }}>
 				<Typography>User with this email already exists</Typography>
 			</Alert>
 			<Typography sx={{ my: "1rem" }}>Email</Typography>
@@ -49,28 +49,31 @@ export default function ChangeEmailForm() {
 					gap: "1rem",
 					width: "100%",
 					my: "1rem",
-					alignItems: "center",
+					alignItems: "center"
 				}}
 			>
 				<TextField
-					variant="outlined"
+					variant='outlined'
 					fullWidth
-					defaultValue={user?.email || ""}
+					defaultValue={""}
 					slotProps={{ input: { sx: { borderRadius: "0.5rem" } } }}
-					name="email"
+					name='email'
 					placeholder={user?.email || ""}
 				/>
 				<Button
-					variant="contained"
+					variant='contained'
 					sx={{
 						borderRadius: "0.5rem",
-						height: "calc(100% - 4px)",
+						height: "calc(100% - 4px)"
 					}}
 					type={"submit"}
 				>
-					{pending ? <CircularProgress size={20} color="inherit" /> : "Change Email"}
+					{pending ? <CircularProgress size={20} color='inherit' /> : "Change Email"}
 				</Button>
 			</Box>
+			<Alert severity='info' sx={{ alignItems: "center" }}>
+				<Typography>When you change your email, you will be logged out and need to confirm your new email address.</Typography>
+			</Alert>
 		</Box>
 	);
 }

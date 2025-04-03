@@ -28,7 +28,7 @@ export const create = async (name: string, email: string, _password: string, csr
 			password: hashedPassword,
 			name: firstName,
 			lastname: lastName || "",
-			confirmtoken: confirmationToken,
+			confirmtoken: confirmationToken
 		})
 		.select("user_id, email, name, lastname, confirmtoken");
 
@@ -77,7 +77,7 @@ export const login = async (email: string, password: string, csrfToken: string):
 		user_id: data.user_id,
 		email: data.email,
 		name: data.name,
-		lastname: data.lastname,
+		lastname: data.lastname
 	};
 
 	// Create a new session for the user
@@ -174,8 +174,6 @@ export const confirmAccount = async (token: string): Promise<boolean> => {
 		throw error;
 	}
 
-	console.log(data);
-
 	if (!data[0]) {
 		return false;
 	}
@@ -236,7 +234,7 @@ export const updateName = async (name: string, lastname: string): Promise<boolea
 	return true;
 };
 
-export const updateEmail = async (previousEmail: string, email: string): Promise<boolean> => {
+export const sendUpdateEmail = async (previousEmail: string, email: string): Promise<boolean> => {
 	if (!Boolean(email)) return false;
 
 	const cookieStore = cookies();
@@ -249,7 +247,15 @@ export const updateEmail = async (previousEmail: string, email: string): Promise
 		return false;
 	}
 
-	const { error } = await supabase.from("users").update({ email }).eq("user_id", user_id);
+	// const { error } = await supabase.from("users").update({ email }).eq("user_id", user_id);
+
+	// if (error) {
+	// 	console.error("Supabase error:", error);
+	// 	return false;
+	// }
+
+	const confirmationToken = crypto.randomUUID();
+	const { error } = await supabase.from("users").update({ confirmtoken: confirmationToken }).eq("user_id", user_id);
 
 	if (error) {
 		console.error("Supabase error:", error);
@@ -270,8 +276,34 @@ export const updateEmail = async (previousEmail: string, email: string): Promise
 		"Welcome to Odin Pro",
 		`<h1>Welcome to Odin Pro</h1>
 		<p>Your E-mail has been changed.</p>
+		<p>Please confirm your email address by clicking the link below:</p>
+		<a href="${process.env.NEXT_PUBLIC_APP_URL}change-email?token=${confirmationToken}&email=${Buffer.from(email).toString("base64")}">
+			Confirm Email
+		</a>
 		<p>Best regards, <b>Odin Pro Team</b></p>
 	`
 	);
+	return true;
+};
+
+export const confirmUpdateEmail = async (token: string): Promise<boolean> => {
+	const cookieStore = cookies();
+	const supabase = await createClient(cookieStore);
+
+	const { data, error } = await supabase
+		.from("users")
+		.select("user_id, email, name, lastname, confirmtoken, emailconfirmed")
+		.eq("confirmtoken", token)
+		.single();
+
+	if (error) {
+		console.error("Supabase error:", error);
+		return false;
+	}
+
+	if (!data) {
+		return false;
+	}
+
 	return true;
 };

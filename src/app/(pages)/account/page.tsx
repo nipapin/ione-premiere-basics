@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
 	title: "Premiere Basics | Account",
-	description: "Manage your account",
+	description: "Manage your account"
 };
 
 export default async function AccountPage() {

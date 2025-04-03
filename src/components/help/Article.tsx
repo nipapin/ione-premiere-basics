@@ -1,11 +1,15 @@
 "use client";
 
 import { useMDXComponents } from "@/mdx-components";
-import { Box } from "@mui/material";
+import { Box, BoxProps } from "@mui/material";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import React from "react";
 
-export default function Article({ source }: { source: MDXRemoteSerializeResult }) {
+interface ArticleProps extends BoxProps {
+	source: MDXRemoteSerializeResult;
+}
+
+export default function Article({ source, sx }: ArticleProps) {
 	const components = useMDXComponents({});
 
 	return (
@@ -23,7 +27,8 @@ export default function Article({ source }: { source: MDXRemoteSerializeResult }
 					height: "auto",
 					borderRadius: "0.5rem",
 					margin: "1.5rem 0"
-				}
+				},
+				...sx
 			}}
 		>
 			<MDXRemote {...source} components={components} />

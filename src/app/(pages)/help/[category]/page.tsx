@@ -18,7 +18,7 @@ const toSlug = (title: string) => title.toLowerCase().replace(/[^a-z0-9]/g, "-")
 export default async function CategoryPage({ params }: CategoryPageProps) {
 	const { category } = await params;
 
-	const docsDirectory = path.join(process.cwd(), `src/markdown/${category}`);
+	const docsDirectory = path.join(process.cwd(), `src/markdown/help/${category}`);
 
 	let article: Article | null = null;
 

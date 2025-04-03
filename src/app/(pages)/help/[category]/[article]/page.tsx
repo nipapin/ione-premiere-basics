@@ -11,7 +11,7 @@ interface HelpPageProps {
 export default async function HelpPage({ params }: HelpPageProps) {
 	const { category, article } = await params;
 
-	const mdxPath = path.join(process.cwd(), `src/markdown/${category}/${article}.mdx`);
+	const mdxPath = path.join(process.cwd(), `src/markdown/help/${category}/${article}.mdx`);
 	const mdxSource = readFileSync(mdxPath, "utf-8");
 	const mdx = matter(mdxSource);
 	const source = await serialize(mdx.content);

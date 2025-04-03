@@ -37,6 +37,6 @@ function getDirectoryTree(dirPath: string, parentName: string): TreeElement[] {
 }
 
 export const getDocsTree = () => {
-	const mdxDirectory = path.join(process.cwd(), "src/markdown");
+	const mdxDirectory = path.join(process.cwd(), "src/markdown/help");
 	return getDirectoryTree(mdxDirectory, "/help");
 };

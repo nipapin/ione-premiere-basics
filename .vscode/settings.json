@@ -1,5 +1,5 @@
 {
 	"prettier.useTabs": true,
 	"editor.tabSize": 4,
-	"prettier.printWidth": 150
+	"prettier.printWidth": 120
 }

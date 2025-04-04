@@ -45,7 +45,7 @@ export default function ChangeEmailForm() {
 				onSubmit={changeUserEmail}
 				sx={{
 					display: "grid",
-					gridTemplateColumns: "3fr 1fr",
+					gridTemplateColumns: { lg: "3fr 1fr", xs: "1fr" },
 					gap: "1rem",
 					width: "100%",
 					my: "1rem",
@@ -71,8 +71,10 @@ export default function ChangeEmailForm() {
 					{pending ? <CircularProgress size={20} color='inherit' /> : "Change Email"}
 				</Button>
 			</Box>
-			<Alert severity='info' sx={{ alignItems: "center" }}>
-				<Typography>When you change your email, you will be logged out and need to confirm your new email address.</Typography>
+			<Alert severity='warning' sx={{ alignItems: "center" }}>
+				<Typography>
+					When you change your email, you will be logged out and need to confirm your new email address.
+				</Typography>
 			</Alert>
 		</Box>
 	);

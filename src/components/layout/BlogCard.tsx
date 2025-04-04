@@ -2,8 +2,6 @@ import { Blog } from "@/entities/blogs";
 import { Card, CardActionArea, CardContent, CardMedia, Typography } from "@mui/material";
 import Link from "next/link";
 
-const titleToRoute = (title: string) => title.toLowerCase().replace(/[^a-z0-9]/g, "-");
-
 export default function BlogCard({ blog }: { blog: Blog }) {
 	return (
 		<Card
@@ -21,21 +19,23 @@ export default function BlogCard({ blog }: { blog: Blog }) {
 			}}
 			elevation={0}
 		>
-			<Link href={`/blog/${titleToRoute(blog.title)}`} passHref legacyBehavior>
-				<CardActionArea>
+			<Link href={`/blog/${blog.slug}`} passHref legacyBehavior>
+				<CardActionArea sx={{ height: "100%" }}>
 					<CardMedia
 						image={blog.media}
 						title={blog.title}
 						sx={{
-							height: { xl: "300px", xs: "150px" },
+							height: { xl: "250px", xs: "200px" },
 							backgroundPosition: "center top"
 						}}
 					/>
-					<CardContent sx={{ p: "2rem" }}>
-						<Typography fontSize={"1.5rem"} gutterBottom>
+					<CardContent sx={{ p: { md: "2rem", xs: "1rem" } }}>
+						<Typography fontSize={"1.5rem"} sx={{ textWrap: "balance" }} gutterBottom>
 							{blog.title}
 						</Typography>
-						<Typography fontWeight={200}>{blog.description}</Typography>
+						<Typography fontWeight={200} sx={{ textWrap: "balance" }}>
+							{blog.description}
+						</Typography>
 					</CardContent>
 				</CardActionArea>
 			</Link>

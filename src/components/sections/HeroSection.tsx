@@ -15,12 +15,14 @@ const styles = {
 		flexDirection: "column",
 		alignItems: "center",
 		justifyContent: "center",
-		gap: "1rem"
+		gap: "1rem",
+		pt: "2.5rem"
 	},
 	accentChip: {
 		border: "1px solid var(--primary)",
 		width: "fit-content",
 		p: "1rem",
+		mb: "1.5rem",
 		borderRadius: "999px",
 		background: "var(--primary-glass)",
 		"& *": {

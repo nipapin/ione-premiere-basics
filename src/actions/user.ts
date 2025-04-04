@@ -268,21 +268,25 @@ export const sendUpdateEmail = async (previousEmail: string, email: string): Pro
 		`<h1>Your email has been changed</h1>
 		<p>New email: ${email}</p>
 		<p>If you did not change your email address, please <a href="${process.env.NEXT_PUBLIC_APP_URL}/contact">contact us immediately</a>.</p>
-		<p>Best regards, <b>Odin Pro Team</b></p>
-	`
-	);
-	await sendEmail(
-		email,
-		"Welcome to Odin Pro",
-		`<h1>Welcome to Odin Pro</h1>
-		<p>Your E-mail has been changed.</p>
 		<p>Please confirm your email address by clicking the link below:</p>
-		<a href="${process.env.NEXT_PUBLIC_APP_URL}change-email?token=${confirmationToken}&email=${Buffer.from(email).toString("base64")}">
+		<a href="${process.env.NEXT_PUBLIC_APP_URL}/change-email?token=${confirmationToken}&email=${Buffer.from(email).toString("base64")}">
 			Confirm Email
 		</a>
 		<p>Best regards, <b>Odin Pro Team</b></p>
 	`
 	);
+	// await sendEmail(
+	// 	email,
+	// 	"Welcome to Odin Pro",
+	// 	`<h1>Welcome to Odin Pro</h1>
+	// 	<p>Your E-mail has been changed.</p>
+	// 	<p>Please confirm your email address by clicking the link below:</p>
+	// 	<a href="${process.env.NEXT_PUBLIC_APP_URL}/change-email?token=${confirmationToken}&email=${Buffer.from(email).toString("base64")}">
+	// 		Confirm Email
+	// 	</a>
+	// 	<p>Best regards, <b>Odin Pro Team</b></p>
+	// `
+	// );
 	return true;
 };
 

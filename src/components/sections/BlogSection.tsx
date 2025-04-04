@@ -1,11 +1,21 @@
-import { blogs } from "@/entities/blogs";
 import { Box, Button, Typography } from "@mui/material";
 import Link from "next/link";
 import BlogCard from "../layout/BlogCard";
+import { Blog } from "@/entities/blogs";
 
-export default function BlogSection() {
+export default function BlogSection({ blogs }: { blogs: Blog[] }) {
 	return (
-		<Box sx={{ display: "flex", alignItems: "center", flexDirection: "column", gap: "1rem", py: "4rem", maxWidth: "1280px" }} component={"section"}>
+		<Box
+			sx={{
+				display: "flex",
+				alignItems: "center",
+				flexDirection: "column",
+				gap: "1rem",
+				py: "4rem",
+				maxWidth: "1280px"
+			}}
+			component={"section"}
+		>
 			<Typography sx={{ fontWeight: 400, fontSize: "4rem", mb: "2rem" }} fontWeight={400} fontSize={"4rem"}>
 				Blog
 			</Typography>

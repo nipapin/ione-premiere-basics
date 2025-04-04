@@ -1,3 +1,4 @@
+import { getBlogs } from "@/actions/blog";
 import PageContainer from "@/components/layout/PageContainer";
 import AboutSection from "@/components/sections/AboutSection";
 import BlogSection from "@/components/sections/BlogSection";
@@ -13,7 +14,8 @@ import StatisticShowcase from "@/components/sections/StatisticShowcaseSection";
 import SuitsSection from "@/components/sections/SuitsSection";
 import TeamSection from "@/components/sections/TeamSection";
 
-export default function Home() {
+export default async function Home() {
+	const blogs = await getBlogs(undefined, 3);
 	return (
 		<PageContainer>
 			<Hero />
@@ -27,7 +29,7 @@ export default function Home() {
 			<PlansSection />
 			<FAQSection />
 			<PeopleCommentsSection />
-			<BlogSection />
+			<BlogSection blogs={blogs} />
 			<TeamSection />
 		</PageContainer>
 	);

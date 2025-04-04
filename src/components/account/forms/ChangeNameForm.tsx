@@ -31,8 +31,8 @@ export default function ChangeNameForm() {
 			<Box
 				sx={{
 					display: "grid",
-					gridTemplateColumns: "1fr 1fr 200px",
-					gap: "1rem",
+					gridTemplateColumns: { lg: "1fr 1fr 200px", xs: "1fr" },
+					gap: "1rem"
 				}}
 				component={"form"}
 				onSubmit={changeName}
@@ -40,25 +40,25 @@ export default function ChangeNameForm() {
 				<Box sx={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
 					<Typography>First Name</Typography>
 					<TextField
-						variant="outlined"
+						variant='outlined'
 						fullWidth
 						defaultValue={user?.name || ""}
 						slotProps={{ input: { sx: { borderRadius: "0.5rem" } } }}
-						name="name"
+						name='name'
 					/>
 				</Box>
 				<Box sx={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
 					<Typography>Last Name</Typography>
 					<TextField
-						variant="outlined"
+						variant='outlined'
 						fullWidth
 						defaultValue={user?.lastname || ""}
 						slotProps={{ input: { sx: { borderRadius: "0.5rem" } } }}
-						name="lastname"
+						name='lastname'
 					/>
 				</Box>
-				<Button variant="contained" sx={{ borderRadius: "0.5rem", height: "56px", mt: "auto" }} type={"submit"}>
-					{pending ? <CircularProgress size={20} color="inherit" /> : "Apply"}
+				<Button variant='contained' sx={{ borderRadius: "0.5rem", height: "56px", mt: "auto" }} type={"submit"}>
+					{pending ? <CircularProgress size={20} color='inherit' /> : "Apply"}
 				</Button>
 			</Box>
 		</Box>

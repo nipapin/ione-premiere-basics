@@ -3,7 +3,7 @@ import PageContainer from "@/components/layout/PageContainer";
 import { Wrapper } from "@/components/layout/Wrapper";
 import StyledLink from "@/components/ui/StyledLink";
 import { NavigateNext } from "@mui/icons-material";
-import { Box, Breadcrumbs, Paper, Typography } from "@mui/material";
+import { Box, Breadcrumbs, Divider, Paper, Typography } from "@mui/material";
 import { readFileSync } from "fs";
 import matter from "gray-matter";
 import { serialize } from "next-mdx-remote/serialize";
@@ -23,7 +23,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 	const source = await serialize(mdx.content);
 
 	return (
-		<PageContainer>
+		<PageContainer sx={{ gap: { md: "2rem", xs: "1rem" } }}>
 			<Paper
 				variant='outlined'
 				sx={{
@@ -38,7 +38,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 				<Breadcrumbs separator={<NavigateNext fontSize='small' />}>
 					<StyledLink href='/'>Home</StyledLink>
 					<StyledLink href='/blog'>Blog</StyledLink>
-					<Typography>{mdx.data.title}</Typography>
+					<Typography fontWeight={400} color={"primary"} sx={{ textWrap: "balance" }}>
+						{mdx.data.title}
+					</Typography>
 				</Breadcrumbs>
 			</Paper>
 			<Wrapper variant='animated' fullWidth sx={{ maxWidth: "1280px" }}>
@@ -53,18 +55,28 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 					}}
 				>
 					<Box sx={{ display: "flex", flexDirection: "column", gap: "1rem", p: "2rem" }}>
-						<Typography variant='h2' fontSize={"4rem"} fontWeight={400}>
+						<Typography
+							variant='h2'
+							sx={{ fontSize: { md: "4rem", xs: "2rem" }, fontWeight: 400, textWrap: "balance" }}
+						>
 							{mdx.data.title}
 						</Typography>
-						<Typography variant='body1' fontSize={"1.5rem"}>
+						<Typography
+							variant='body1'
+							sx={{ fontSize: { md: "1.5rem", xs: "1rem" }, fontWeight: 200, textWrap: "balance" }}
+						>
 							{mdx.data.description}
 						</Typography>
 					</Box>
-					<Box sx={{ "& img": { width: "auto", height: "100%" } }}>
+					<Box sx={{ display: { md: "block", xs: "none" }, "& img": { width: "auto", height: "100%" } }}>
 						<Image src={mdx.data.media} alt={mdx.data.title} width={1000} height={1000} />
 					</Box>
 				</Box>
 			</Wrapper>
+			<Box sx={{ width: "100%", display: { md: "none", xs: "block" }, "& img": { width: "100%", height: "auto" } }}>
+				<Image src={mdx.data.media} alt={mdx.data.title} width={1000} height={1000} />
+				<Divider sx={{ my: "1rem" }} />
+			</Box>
 			<Article source={source} sx={{ width: "100%", maxWidth: "1280px", "& h1": { textWrap: "balance" } }} />
 		</PageContainer>
 	);

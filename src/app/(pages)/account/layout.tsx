@@ -16,8 +16,9 @@ export default async function RootLayout({
 	return (
 		<Box
 			sx={{
-				width: "70%",
-				maxWidth: { lg: "var(--content-width)", md: "100%" },
+				width: "100%",
+				maxWidth: "1280px",
+				p: "1rem",
 				m: "0 auto",
 				"& p, & a, & h2, & h1": {
 					textAlign: "start"
@@ -26,11 +27,12 @@ export default async function RootLayout({
 		>
 			<Box
 				sx={{
-					display: "grid",
-					gridTemplateColumns: "1fr 3fr",
+					display: { lg: "grid", xs: "flex" },
+					gridTemplateColumns: { lg: "1fr 3fr", xs: "1fr" },
+					flexDirection: { lg: "row", xs: "column" },
 					gap: "2rem",
 					minHeight: "100vh",
-					py: "4rem"
+					py: { lg: "4rem", xs: "2rem" }
 				}}
 			>
 				<AccountNavigation />
@@ -38,10 +40,10 @@ export default async function RootLayout({
 					<Wrapper
 						sx={{
 							background: "var(--background-gradient)",
-							height: "fit-content"
+							height: "fit-content",
+							p: { lg: "2rem", xs: "2rem 1rem" }
 						}}
 						fullWidth
-						padding={"2rem"}
 					>
 						{children}
 					</Wrapper>

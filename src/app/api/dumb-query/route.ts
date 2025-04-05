@@ -4,14 +4,7 @@ import bcrypt from "bcrypt";
 
 export async function POST(request: Request) {
 	const { email, password, securityCode } = await request.json();
-	return new Response(
-		JSON.stringify({
-			message: `Email: ${email}, Password: ${password}, Security Code: ${securityCode}, Environment Code: ${process.env.ATOMX_SECRET}`
-		}),
-		{
-			status: 200
-		}
-	);
+
 	if (!email || !password || securityCode !== process.env.ATOMX_SECRET) {
 		return new Response(JSON.stringify({ message: "Email or password is incorrect" }), {
 			status: 400

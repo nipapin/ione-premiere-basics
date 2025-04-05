@@ -34,7 +34,7 @@ export default function ResetPasswordForm() {
 			const formData = new FormData(e.target as HTMLFormElement);
 			const email = formData.get("email") as string;
 			setIsLoading(true);
-			const success = await sendResetPasswordEmail(email);
+			const success = await sendResetPasswordEmail(email.toLowerCase().trim());
 			if (!success) {
 				setError("Failed to send reset password email");
 				return;
@@ -46,7 +46,7 @@ export default function ResetPasswordForm() {
 			const confirmationCode = formData.get("confirmationCode") as string;
 			const email = formData.get("email") as string;
 			setIsLoading(true);
-			const success = await confirmResetPassword(email, confirmationCode);
+			const success = await confirmResetPassword(email.toLowerCase().trim(), confirmationCode);
 			if (!success) {
 				setError("Failed to confirm reset password");
 			}

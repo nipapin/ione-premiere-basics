@@ -7,7 +7,8 @@ import Link from "next/link";
 import { MouseEvent, useEffect, useRef, useState } from "react";
 import { Wrapper } from "../layout/Wrapper";
 
-const getAnimation = (index: number) => (index === 1 ? "scroll-logo 120s linear infinite reverse" : "scroll-logo 120s linear infinite");
+const getAnimation = (index: number) =>
+	index === 1 ? "scroll-logo 120s linear infinite reverse" : "scroll-logo 120s linear infinite";
 
 export default function Showcase() {
 	const firstRowRef = useRef<HTMLDivElement | null>(null);
@@ -39,9 +40,20 @@ export default function Showcase() {
 			<Box sx={styles.box}>
 				{rows.map((row, rowIndex) => {
 					return (
-						<Stack direction={"row"} gap={"1rem"} sx={{ animation: getAnimation(rowIndex) }} key={rowIndex} ref={refs[rowIndex]}>
+						<Stack
+							direction={"row"}
+							gap={"1rem"}
+							sx={{ animation: getAnimation(rowIndex) }}
+							key={rowIndex}
+							ref={refs[rowIndex]}
+						>
 							{[...row, ...row, ...row].map((source, index, self) => (
-								<Wrapper variant='animated' angleOffset={index * (360 / self.length)} key={index} sx={{ borderRadius: "1rem" }}>
+								<Wrapper
+									variant='animated'
+									angleOffset={index * (360 / self.length)}
+									key={index}
+									sx={{ borderRadius: "1rem" }}
+								>
 									<ElementCard key={index} name={source} />
 								</Wrapper>
 							))}
@@ -72,8 +84,24 @@ const ElementCard = ({ name }: { name: string }) => {
 
 	return (
 		<Stack onMouseEnter={togglePlay(true)} onMouseLeave={togglePlay(false)}>
-			<video src={`/videos/graphics/${name}.webm`} className={play ? "" : "hidden"} muted loop width={256} height={144} />
-			<Image src={`/images/graphics/${name}.webp`} alt={name} className={play ? "hidden" : ""} width={256} height={144} />
+			<video
+				src={`/videos/graphics/${name}.webm`}
+				className={play ? "" : "hidden"}
+				muted
+				loop
+				width={256}
+				height={144}
+				preload='metadata'
+				playsInline
+			/>
+			<Image
+				loading='lazy'
+				src={`/images/graphics/${name}.webp`}
+				alt={name}
+				className={play ? "hidden" : ""}
+				width={256}
+				height={144}
+			/>
 		</Stack>
 	);
 };

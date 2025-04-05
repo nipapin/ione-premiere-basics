@@ -51,7 +51,7 @@ export default async function HelpPage() {
 										{linkItem.icon}
 										<Stack
 											alignItems={{
-												md: linkItem.direction === "column" ? "center" : "",
+												md: linkItem.direction === "column" ? "center" : "flex-start",
 												xs: "center",
 											}}
 											marginLeft={{

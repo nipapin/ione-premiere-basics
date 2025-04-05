@@ -46,7 +46,7 @@ export const links: LinkItem[] = [
 		icon: ContactIcon,
 		span: 3,
 		direction: "row",
-		route: "/help/contact",
+		route: "/contact",
 	},
 	{
 		id: 5,

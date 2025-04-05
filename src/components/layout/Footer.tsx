@@ -25,18 +25,13 @@ type SocialItem = {
 };
 
 const AboutLinks: LinkItem[] = [
-	{ id: 1, label: "Contact", href: "" },
-	{ id: 2, label: "Blog", href: "" },
-	{ id: 3, label: "Our Story", href: "" },
-	{ id: 4, label: "Careers", href: "" }
+	{ id: 1, label: "Contact", href: "/contact" },
+	{ id: 2, label: "Blog", href: "/blog" },
+	{ id: 3, label: "Our Story", href: "/about" },
+	{ id: 4, label: "Careers", href: "/careers" }
 ];
 
-const CompanyLinks: LinkItem[] = [
-	{ id: 1, label: "Press", href: "" },
-	{ id: 2, label: "Brand Assets", href: "" },
-	{ id: 3, label: "Changelog", href: "" },
-	{ id: 4, label: "Help center", href: "" }
-];
+const CompanyLinks: LinkItem[] = [{ id: 4, label: "Help center", href: "/help" }];
 
 const SocialLinks: SocialItem[] = [
 	{ id: 1, href: "#", icon: <X /> },
@@ -123,7 +118,12 @@ export default function Footer() {
 						</Wrapper>
 					</Wrapper>
 				</Wrapper>
-				<Wrapper py={"2rem"} justifyContent={"space-between"} alignItems={"center"} sx={{ display: { xl: "flex", xs: "none" } }}>
+				<Wrapper
+					py={"2rem"}
+					justifyContent={"space-between"}
+					alignItems={"center"}
+					sx={{ display: { xl: "flex", xs: "none" } }}
+				>
 					<Typography>© 2025 Premiere Basics</Typography>
 					<Wrapper mx={0} width={"auto"}>
 						{SocialLinks.map((link) => {
@@ -135,7 +135,12 @@ export default function Footer() {
 						})}
 					</Wrapper>
 				</Wrapper>
-				<Wrapper py={"2rem"} justifyContent={"space-between"} alignItems={"center"} sx={{ display: { xl: "none", xs: "flex" } }}>
+				<Wrapper
+					py={"2rem"}
+					justifyContent={"space-between"}
+					alignItems={"center"}
+					sx={{ display: { xl: "none", xs: "flex" } }}
+				>
 					<Typography sx={{ fontSize: "0.8rem" }}>© 2025 Premiere Basics</Typography>
 					<Wrapper mx={0} width={"auto"}>
 						{SocialLinks.map((link) => {

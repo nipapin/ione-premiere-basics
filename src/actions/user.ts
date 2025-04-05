@@ -7,7 +7,12 @@ import { User } from "@/types";
 import bcrypt from "bcrypt";
 import { cookies } from "next/headers";
 
-export const create = async (name: string, email: string, _password: string, csrfToken: string): Promise<User | null> => {
+export const create = async (
+	name: string,
+	email: string,
+	_password: string,
+	csrfToken: string
+): Promise<User | null> => {
 	// Validate CSRF token
 	if (!validateCsrfToken(csrfToken)) {
 		throw new Error("Invalid CSRF token");
@@ -96,7 +101,11 @@ export const get = async (user_id: string): Promise<User | null> => {
 	// 	return null;
 	// }
 
-	const { data, error } = await supabase.from("users").select("user_id, email, name, lastname").eq("user_id", user_id).single();
+	const { data, error } = await supabase
+		.from("users")
+		.select("user_id, email, name, lastname")
+		.eq("user_id", user_id)
+		.single();
 
 	if (!data) {
 		return null;
@@ -138,7 +147,11 @@ export const sendConfirmationEmail = async (email: string, confirmationToken: st
 	const cookieStore = cookies();
 	const supabase = await createClient(cookieStore);
 
-	const { data: user, error } = await supabase.from("users").select("user_id, email, name").eq("email", email.toLowerCase().trim()).single();
+	const { data: user, error } = await supabase
+		.from("users")
+		.select("user_id, email, name")
+		.eq("email", email.toLowerCase().trim())
+		.single();
 
 	if (error || !user) {
 		return false;
@@ -200,19 +213,27 @@ export const checkPassword = async (password: string): Promise<boolean> => {
 	return bcrypt.compareSync(password, encryptedPassword);
 };
 
-export const updatePassword = async (password: string): Promise<boolean> => {
+export const updatePassword = async (password: string, email?: string): Promise<boolean> => {
 	const cookieStore = cookies();
 	const supabase = await createClient(cookieStore);
 
 	const user_id = (await cookieStore).get("odin-pro-session")?.value;
 
 	const encryptedPassword = await bcrypt.hash(password, 10);
+	if (email) {
+		const { error } = await supabase.from("users").update({ password: encryptedPassword }).eq("email", email);
 
-	const { error } = await supabase.from("users").update({ password: encryptedPassword }).eq("user_id", user_id);
+		if (error) {
+			console.error("Supabase error:", error);
+			return false;
+		}
+	} else {
+		const { error } = await supabase.from("users").update({ password: encryptedPassword }).eq("user_id", user_id);
 
-	if (error) {
-		console.error("Supabase error:", error);
-		return false;
+		if (error) {
+			console.error("Supabase error:", error);
+			return false;
+		}
 	}
 
 	return true;
@@ -247,13 +268,6 @@ export const sendUpdateEmail = async (previousEmail: string, email: string): Pro
 		return false;
 	}
 
-	// const { error } = await supabase.from("users").update({ email }).eq("user_id", user_id);
-
-	// if (error) {
-	// 	console.error("Supabase error:", error);
-	// 	return false;
-	// }
-
 	const confirmationToken = crypto.randomUUID();
 	const { error } = await supabase.from("users").update({ confirmtoken: confirmationToken }).eq("user_id", user_id);
 
@@ -267,26 +281,19 @@ export const sendUpdateEmail = async (previousEmail: string, email: string): Pro
 		"Your email has been changed",
 		`<h1>Your email has been changed</h1>
 		<p>New email: ${email}</p>
-		<p>If you did not change your email address, please <a href="${process.env.NEXT_PUBLIC_APP_URL}/contact">contact us immediately</a>.</p>
+		<p>If you did not change your email address, please <a href="${
+			process.env.NEXT_PUBLIC_APP_URL
+		}/contact">contact us immediately</a>.</p>
 		<p>Please confirm your email address by clicking the link below:</p>
-		<a href="${process.env.NEXT_PUBLIC_APP_URL}/change-email?token=${confirmationToken}&email=${Buffer.from(email).toString("base64")}">
+		<a href="${process.env.NEXT_PUBLIC_APP_URL}/change-email?token=${confirmationToken}&email=${Buffer.from(email).toString(
+			"base64"
+		)}">
 			Confirm Email
 		</a>
 		<p>Best regards, <b>Odin Pro Team</b></p>
 	`
 	);
-	// await sendEmail(
-	// 	email,
-	// 	"Welcome to Odin Pro",
-	// 	`<h1>Welcome to Odin Pro</h1>
-	// 	<p>Your E-mail has been changed.</p>
-	// 	<p>Please confirm your email address by clicking the link below:</p>
-	// 	<a href="${process.env.NEXT_PUBLIC_APP_URL}/change-email?token=${confirmationToken}&email=${Buffer.from(email).toString("base64")}">
-	// 		Confirm Email
-	// 	</a>
-	// 	<p>Best regards, <b>Odin Pro Team</b></p>
-	// `
-	// );
+
 	return true;
 };
 
@@ -308,6 +315,66 @@ export const confirmUpdateEmail = async (token: string): Promise<boolean> => {
 	if (!data) {
 		return false;
 	}
+
+	return true;
+};
+
+export const sendResetPasswordEmail = async (email: string): Promise<boolean> => {
+	const cookieStore = cookies();
+	const supabase = await createClient(cookieStore);
+
+	const confirmationToken = crypto.randomUUID();
+	const { data, error } = await supabase
+		.from("users")
+		.update({ confirmtoken: confirmationToken })
+		.eq("email", email)
+		.select("name")
+		.single();
+
+	if (error) {
+		console.error("Supabase error:", error);
+		return false;
+	}
+
+	if (!data) {
+		return false;
+	}
+
+	await sendEmail(
+		email,
+		"OdinPro - Reset Password",
+		`<h1>OdinPro - Reset Password</h1>
+		<p>Hello ${data.name},</p>
+		<p>If you did not change your password, please <a href="${process.env.NEXT_PUBLIC_APP_URL}/contact">contact us immediately</a>.</p>
+		<p>Your confirmation code is: <b>${confirmationToken}</b></p>
+		<p>Best regards, <b>Odin Pro Team</b></p>
+	`
+	);
+
+	return true;
+};
+
+export const confirmResetPassword = async (email: string, confirmationCode: string): Promise<boolean> => {
+	const cookieStore = cookies();
+	const supabase = await createClient(cookieStore);
+
+	const { data, error } = await supabase
+		.from("users")
+		.select("*")
+		.eq("confirmtoken", confirmationCode)
+		.eq("email", email)
+		.single();
+
+	if (error) {
+		console.error("Supabase error:", error);
+		return false;
+	}
+
+	if (!data) {
+		return false;
+	}
+
+	await supabase.from("users").update({ confirmtoken: null }).eq("user_id", data.user_id);
 
 	return true;
 };

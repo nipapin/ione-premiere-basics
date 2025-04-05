@@ -3,8 +3,8 @@
 import { isExist, login } from "@/actions/user";
 import { setCsrfToken } from "@/lib/csrf";
 import { Home, Visibility, VisibilityOff } from "@mui/icons-material";
-import { Alert, Box, Button, CircularProgress, IconButton, TextField, Typography } from "@mui/material";
-import Link from "next/link";
+import { Alert, Box, Button, CircularProgress, IconButton, Link, TextField, Typography } from "@mui/material";
+import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { Wrapper } from "../layout/Wrapper";
@@ -123,11 +123,14 @@ export default function LoginForm() {
 	return (
 		<Wrapper variant='animated' sx={styles.wrapper}>
 			<Box sx={styles.box} component={"form"} onSubmit={handleSubmit}>
-				<Link href='/' passHref legacyBehavior>
-					<IconButton href='' sx={{ borderRadius: "0.5rem", border: "1px solid #ffffff20", minWidth: 0, width: "fit-content" }}>
+				<NextLink href='/' passHref legacyBehavior>
+					<IconButton
+						href=''
+						sx={{ borderRadius: "0.5rem", border: "1px solid #ffffff20", minWidth: 0, width: "fit-content" }}
+					>
 						<Home />
 					</IconButton>
-				</Link>
+				</NextLink>
 				<Typography variant='h1' fontSize={{ md: "3rem", xs: "2rem" }} py={"5rem"} width={"100%"} textAlign={"center"}>
 					Welcome Back!
 				</Typography>
@@ -139,17 +142,23 @@ export default function LoginForm() {
 					}}
 					fullWidth
 				/>
-				<PasswordField show={showPassword} onToggleVisibility={() => setShowPassword(!showPassword)} name='password' placeholder='Password' />
-				{emailError && (
+				<PasswordField
+					show={showPassword}
+					onToggleVisibility={() => setShowPassword(!showPassword)}
+					name='password'
+					placeholder='Password'
+				/>
+				<NextLink href={"/reset-password"} passHref legacyBehavior>
+					<Link variant='body2' color={"primary"} textAlign={"right"} width={"100%"}>
+						Forgot password?
+					</Link>
+				</NextLink>
+				{(emailError || passwordError) && (
 					<Alert severity='error' sx={{ alignItems: "center" }}>
-						<Typography>This email is not registered</Typography>
+						<Typography>Email or password is incorrect</Typography>
 					</Alert>
 				)}
-				{passwordError && (
-					<Alert severity='error' sx={{ alignItems: "center" }}>
-						<Typography>Invalid password</Typography>
-					</Alert>
-				)}
+
 				<SubmitButton isLoading={isLoading} />
 				<Typography mt={"1rem"} textAlign={"center"} width={"100%"}>
 					Have no account yet? <StyledLink href={"/signup"}>Sign Up</StyledLink>

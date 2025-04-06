@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
 			}
 		],
 		localPatterns: [{ pathname: "/images/**" }]
+	},
+	experimental: {
+		serverActions: {
+			allowedOrigins: ["localhost:3000", "193.164.128.81", "odin-pro.com"]
+		}
 	}
 };
 

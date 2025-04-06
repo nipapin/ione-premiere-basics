@@ -9,7 +9,7 @@ export const rows: string[][] = [
 export const styles = {
 	tracks: {
 		overflow: "hidden",
-		display: { xl: "flex", xs: "none" },
+		display: { xl: "flex" },
 		flexDirection: "column",
 		alignItems: "center",
 		justifyContent: "center",
@@ -20,11 +20,11 @@ export const styles = {
 	box: {
 		display: "flex",
 		flexDirection: "column",
-		alignItems: "center",
+		alignItems: "flex-start",
 		justifyContent: "center",
 		gap: "1rem",
 		position: "relative",
-		maxWidth: "1200px",
+		maxWidth: "1280px",
 		"&::before": {
 			content: `""`,
 			display: "block",
@@ -33,7 +33,8 @@ export const styles = {
 			position: "absolute",
 			left: 0,
 			top: 0,
-			background: "linear-gradient(90deg, var(--background) 0%, transparent 25%, transparent 75%, var(--background) 100%)",
+			background:
+				"linear-gradient(90deg, var(--background) 0%, transparent 25%, transparent 75%, var(--background) 100%)",
 			zIndex: 1,
 			pointerEvents: "none"
 		}

@@ -130,7 +130,7 @@ body {
 
 @keyframes scroll-logo {
 	from {
-		transform: translateX(0);
+		transform: translateX(var(--scroll-from));
 	}
 	to {
 		transform: translateX(var(--scroll-to));

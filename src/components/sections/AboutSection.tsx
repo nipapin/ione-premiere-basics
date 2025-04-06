@@ -65,7 +65,7 @@ export default function AboutSection() {
 										background: "linear-gradient(to bottom, var(--background), transparent)"
 									}}
 								/>
-								<Image src={"/images/about-image-1.webp"} alt='about dashboard' width={1168} height={824} loading='lazy' />
+								<Image src={"https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//about-image-1.webp"} alt='about dashboard' width={1168} height={824} loading='lazy' />
 							</Box>
 						</Box>
 					</Box>

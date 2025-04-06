@@ -8,17 +8,17 @@ export const toggleItems: ToggleItem[] = [
 	{
 		id: 1,
 		label: "Scale your business and sales model",
-		media: "/images/cover-poster.webp"
+		media: "https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover-poster.webp"
 	},
 	{
 		id: 2,
 		label: "Lorem ipsum dolor sit amet, consectetur adipiscing",
-		media: "/images/cover-poster.webp"
+		media: "https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover-poster.webp"
 	},
 	{
 		id: 3,
 		label: "Scale your business with sales assembly",
-		media: "/images/cover-poster.webp"
+		media: "https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover-poster.webp"
 	}
 ];
 

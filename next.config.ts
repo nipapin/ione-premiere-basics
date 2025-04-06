@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
 			{
 				protocol: "https",
 				hostname: "static.shuffle.dev"
+			},
+			{
+				protocol: "https",
+				hostname: "lzsyykhroxoqmjgoxhrs.supabase.co"
 			}
 		],
 		localPatterns: [{ pathname: "/images/**" }]

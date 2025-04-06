@@ -1,41 +1,135 @@
 "use client";
 
 import { rows, styles } from "@/entities/showcases";
-import { Box, Button, Stack, Typography } from "@mui/material";
-import Image from "next/image";
+import { Box, Button, Stack, Typography, useScrollTrigger } from "@mui/material";
 import Link from "next/link";
-import { MouseEvent, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef } from "react";
 import { Wrapper } from "../layout/Wrapper";
 
 const getAnimation = (index: number) =>
 	index === 1 ? "scroll-logo 120s linear infinite reverse" : "scroll-logo 120s linear infinite";
 
+// Оптимизация кеширования видео
+const videoCache = new Map<string, { video: HTMLVideoElement; lastUsed: number }>();
+const CACHE_LIMIT = 20; // Максимальное количество видео в кеше
+const CACHE_EXPIRY = 5 * 60 * 1000; // 5 минут в миллисекундах
+
+function getVideoClone(name: string): HTMLVideoElement {
+	const now = Date.now();
+
+	// Очистка устаревших видео
+	if (videoCache.size >= CACHE_LIMIT) {
+		for (const [key, value] of videoCache.entries()) {
+			if (now - value.lastUsed > CACHE_EXPIRY) {
+				videoCache.delete(key);
+			}
+		}
+	}
+
+	if (!videoCache.has(name)) {
+		const video = document.createElement("video");
+		video.src = `https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media/graphics/${name}.webm`;
+		video.poster = `https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media/graphics/${name}.webp`;
+		video.muted = true;
+		video.loop = true;
+		video.preload = "metadata";
+		video.width = 256;
+		video.height = 144;
+		videoCache.set(name, { video, lastUsed: now });
+	} else {
+		videoCache.get(name)!.lastUsed = now;
+	}
+
+	return videoCache.get(name)!.video.cloneNode(true) as HTMLVideoElement;
+}
+
+const ElementCard = memo(({ name }: { name: string }) => {
+	const videoRef = useRef<HTMLVideoElement | null>(null);
+
+	const togglePlay = useMemo(() => {
+		return (state: boolean) => () => {
+			if (!videoRef.current) return;
+			if (state) {
+				videoRef.current.currentTime = 0;
+				videoRef.current.play();
+			} else {
+				videoRef.current.currentTime = videoRef.current.duration;
+				videoRef.current.pause();
+			}
+		};
+	}, []);
+
+	useEffect(() => {
+		if (videoRef.current) {
+			const video = getVideoClone(name);
+			videoRef.current.src = video.src;
+			videoRef.current.poster = video.poster;
+			videoRef.current.muted = true;
+			videoRef.current.loop = true;
+			videoRef.current.preload = "metadata";
+		}
+
+		return () => {
+			if (videoRef.current) {
+				videoRef.current.muted = true;
+				videoRef.current.pause();
+				videoRef.current.src = "";
+				videoRef.current.poster = "";
+			}
+		};
+	}, [name]);
+
+	return (
+		<video
+			ref={videoRef}
+			onMouseEnter={togglePlay(true)}
+			onMouseLeave={togglePlay(false)}
+			style={{
+				width: "256px",
+				height: "144px",
+				objectFit: "cover",
+				backgroundColor: "var(--background-gradient)"
+			}}
+			muted
+			loop
+			preload='metadata'
+			width={256}
+			height={144}
+		/>
+	);
+});
+
+ElementCard.displayName = "ElementCard";
+
 export default function Showcase() {
+	const trigger = useScrollTrigger({ threshold: 1000, disableHysteresis: true });
 	const firstRowRef = useRef<HTMLDivElement | null>(null);
 	const secondRowRef = useRef<HTMLDivElement | null>(null);
 	const thirdRowRef = useRef<HTMLDivElement | null>(null);
 
-	const refs = [firstRowRef, secondRowRef, thirdRowRef];
+	const refs = useMemo(() => [firstRowRef, secondRowRef, thirdRowRef], []);
 
 	useEffect(() => {
 		const tracks = [firstRowRef.current, secondRowRef.current, thirdRowRef.current];
-		const trackValue = (tracks[0]?.children[rows[0].length] as HTMLElement).offsetLeft;
-		tracks.forEach((track) => {
-			track?.style.setProperty("--scroll-to", `${-trackValue}px`);
-		});
-	}, []);
+		tracks.forEach((track, index) => {
+			const trackValue = (track?.children[rows[0].length] as HTMLElement)?.offsetLeft;
 
-	return (
+			if (trackValue) {
+				track?.style.setProperty("--scroll-from", index === 1 ? `${trackValue}px` : "0px");
+				track?.style.setProperty("--scroll-to", index === 1 ? "0px" : `${-trackValue}px`);
+			}
+		});
+	}, [trigger]);
+
+	return trigger && (
 		<Box sx={styles.tracks} component={"section"}>
 			<Stack direction={"column"} gap={2} alignItems={"center"} mb={"2rem"}>
 				<Typography variant='h2' fontWeight={400}>
 					Showcase
 				</Typography>
-				<Typography
-					fontWeight={200}
-					whiteSpace={"pre"}
-					textAlign={"center"}
-				>{`The plugin is ideal for absolutely all professions\nwho want to achieve great results by creating attractive and effective videos`}</Typography>
+				<Typography fontWeight={200} whiteSpace={"pre"} textAlign={"center"}>
+					{`The plugin is ideal for absolutely all professions\nwho want to achieve great results by creating attractive and effective videos`}
+				</Typography>
 			</Stack>
 			<Box sx={styles.box}>
 				{rows.map((row, rowIndex) => {
@@ -43,18 +137,13 @@ export default function Showcase() {
 						<Stack
 							direction={"row"}
 							gap={"1rem"}
-							sx={{ animation: getAnimation(rowIndex) }}
+							sx={{ animation: getAnimation(rowIndex), alignSelf: rowIndex === 1 ? "flex-end" : "flex-start" }}
 							key={rowIndex}
 							ref={refs[rowIndex]}
 						>
-							{[...row, ...row, ...row].map((source, index, self) => (
-								<Wrapper
-									variant='animated'
-									angleOffset={index * (360 / self.length)}
-									key={index}
-									sx={{ borderRadius: "1rem" }}
-								>
-									<ElementCard key={index} name={source} />
+							{[...row, ...row].map((source, index) => (
+								<Wrapper variant='animated' angleOffset={index * 36} key={index} sx={{ borderRadius: "1rem" }}>
+									<ElementCard name={source} />
 								</Wrapper>
 							))}
 						</Stack>
@@ -69,39 +158,3 @@ export default function Showcase() {
 		</Box>
 	);
 }
-
-const ElementCard = ({ name }: { name: string }) => {
-	const [play, setPlay] = useState<boolean>(false);
-
-	const togglePlay = (state: boolean) => (event: MouseEvent<HTMLDivElement>) => {
-		setPlay(state);
-		if (state) {
-			const video = event.currentTarget.children[0] as HTMLVideoElement;
-			video.currentTime = 0;
-			video.play();
-		}
-	};
-
-	return (
-		<Stack onMouseEnter={togglePlay(true)} onMouseLeave={togglePlay(false)}>
-			<video
-				src={`/videos/graphics/${name}.webm`}
-				className={play ? "" : "hidden"}
-				muted
-				loop
-				width={256}
-				height={144}
-				preload='metadata'
-				playsInline
-			/>
-			<Image
-				loading='lazy'
-				src={`/images/graphics/${name}.webp`}
-				alt={name}
-				className={play ? "hidden" : ""}
-				width={256}
-				height={144}
-			/>
-		</Stack>
-	);
-};

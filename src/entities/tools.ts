@@ -5,11 +5,31 @@ type PowerfulTool = {
 };
 
 export const powerfulTools: PowerfulTool[] = [
-	{ id: 1, label: "Transitions", media: "/images/cover-poster.webp" },
-	{ id: 2, label: "Effects", media: "/images/cover-poster.webp" },
-	{ id: 3, label: "Motion Graphics", media: "/images/cover-poster.webp" },
-	{ id: 4, label: "Sound FX", media: "/images/cover-poster.webp" },
-	{ id: 5, label: "Assets", media: "/images/cover-poster.webp" }
+	{
+		id: 1,
+		label: "Transitions",
+		media: "https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover-poster.webp"
+	},
+	{
+		id: 2,
+		label: "Effects",
+		media: "https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover-poster.webp"
+	},
+	{
+		id: 3,
+		label: "Motion Graphics",
+		media: "https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover-poster.webp"
+	},
+	{
+		id: 4,
+		label: "Sound FX",
+		media: "https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover-poster.webp"
+	},
+	{
+		id: 5,
+		label: "Assets",
+		media: "https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover-poster.webp"
+	}
 ];
 
 export const styles = {

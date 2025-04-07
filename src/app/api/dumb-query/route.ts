@@ -74,7 +74,7 @@ export async function POST(request: Request) {
 	}
 
 	if (type === "recheck") {
-		if (!email || securityCode !== process.env.ATOMX_SECRET) {
+		if (!email) {
 			return withCORSHeaders(
 				new Response(JSON.stringify({ message: "Email or password is incorrect" }), {
 					status: 400

@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 const TELEGRAM_BOT_TOKEN = process.env.TGBOT_API!;
 const TELEGRAM_CHAT_ID = process.env.TGBOT_CHAT_ID!;
 
-function sendTelegramMessage(message: string) {
+async function sendTelegramMessage(message: string) {
 	const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
 	const payload = {
 		chat_id: TELEGRAM_CHAT_ID,
@@ -12,13 +12,16 @@ function sendTelegramMessage(message: string) {
 		parse_mode: "Markdown"
 	};
 
-	return fetch(url, {
+	const response = await fetch(url, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json"
 		},
 		body: JSON.stringify(payload)
 	});
+
+	console.log(response);
+	return response;
 }
 
 export async function POST() {

@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "local-dev": "next dev --turbopack",
-    "dev": "tsx server.ts",
+    "dev": "node server.js",
     "build": "next build",
     "local-start": "next start",
-    "start": "NODE_ENV=production tsx server.ts",
+    "start": "NODE_ENV=production node server.js",
     "lint": "next lint"
   },
   "dependencies": {
@@ -33,11 +33,10 @@
     "nodemailer": "^6.10.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-syntax-highlighter": "^5.8.0",
+    "react-syntax-highlighter": "^15.6.1",
     "remark-gfm": "^4.0.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
-    "tsx": "^4.19.3",
     "ws": "^8.18.1"
   },
   "devDependencies": {

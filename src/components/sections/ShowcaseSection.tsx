@@ -60,21 +60,22 @@ const ElementCard = memo(({ name }: { name: string }) => {
 	}, []);
 
 	useEffect(() => {
-		if (videoRef.current) {
+		const currentVideo = videoRef.current;
+		if (currentVideo) {
 			const video = getVideoClone(name);
-			videoRef.current.src = video.src;
-			videoRef.current.poster = video.poster;
-			videoRef.current.muted = true;
-			videoRef.current.loop = true;
-			videoRef.current.preload = "metadata";
+			currentVideo.src = video.src;
+			currentVideo.poster = video.poster;
+			currentVideo.muted = true;
+			currentVideo.loop = true;
+			currentVideo.preload = "metadata";
 		}
 
 		return () => {
-			if (videoRef.current) {
-				videoRef.current.muted = true;
-				videoRef.current.pause();
-				videoRef.current.src = "";
-				videoRef.current.poster = "";
+			if (currentVideo) {
+				currentVideo.muted = true;
+				currentVideo.pause();
+				currentVideo.src = "";
+				currentVideo.poster = "";
 			}
 		};
 	}, [name]);
@@ -121,40 +122,42 @@ export default function Showcase() {
 		});
 	}, [trigger]);
 
-	return trigger && (
-		<Box sx={styles.tracks} component={"section"}>
-			<Stack direction={"column"} gap={2} alignItems={"center"} mb={"2rem"}>
-				<Typography variant='h2' fontWeight={400}>
-					Showcase
-				</Typography>
-				<Typography fontWeight={200} whiteSpace={"pre"} textAlign={"center"}>
-					{`The plugin is ideal for absolutely all professions\nwho want to achieve great results by creating attractive and effective videos`}
-				</Typography>
-			</Stack>
-			<Box sx={styles.box}>
-				{rows.map((row, rowIndex) => {
-					return (
-						<Stack
-							direction={"row"}
-							gap={"1rem"}
-							sx={{ animation: getAnimation(rowIndex), alignSelf: rowIndex === 1 ? "flex-end" : "flex-start" }}
-							key={rowIndex}
-							ref={refs[rowIndex]}
-						>
-							{[...row, ...row].map((source, index) => (
-								<Wrapper variant='animated' angleOffset={index * 36} key={index} sx={{ borderRadius: "1rem" }}>
-									<ElementCard name={source} />
-								</Wrapper>
-							))}
-						</Stack>
-					);
-				})}
+	return (
+		trigger && (
+			<Box sx={styles.tracks} component={"section"}>
+				<Stack direction={"column"} gap={2} alignItems={"center"} mb={"2rem"}>
+					<Typography variant='h2' fontWeight={400}>
+						Showcase
+					</Typography>
+					<Typography fontWeight={200} whiteSpace={"pre"} textAlign={"center"}>
+						{`The plugin is ideal for absolutely all professions\nwho want to achieve great results by creating attractive and effective videos`}
+					</Typography>
+				</Stack>
+				<Box sx={styles.box}>
+					{rows.map((row, rowIndex) => {
+						return (
+							<Stack
+								direction={"row"}
+								gap={"1rem"}
+								sx={{ animation: getAnimation(rowIndex), alignSelf: rowIndex === 1 ? "flex-end" : "flex-start" }}
+								key={rowIndex}
+								ref={refs[rowIndex]}
+							>
+								{[...row, ...row].map((source, index) => (
+									<Wrapper variant='animated' angleOffset={index * 36} key={index} sx={{ borderRadius: "1rem" }}>
+										<ElementCard name={source} />
+									</Wrapper>
+								))}
+							</Stack>
+						);
+					})}
+				</Box>
+				<Link href={"/showcase"} passHref legacyBehavior>
+					<Button variant='outlined' href='' sx={{ mt: "2rem" }}>
+						View All
+					</Button>
+				</Link>
 			</Box>
-			<Link href={"/showcase"} passHref legacyBehavior>
-				<Button variant='outlined' href='' sx={{ mt: "2rem" }}>
-					View All
-				</Button>
-			</Link>
-		</Box>
+		)
 	);
 }

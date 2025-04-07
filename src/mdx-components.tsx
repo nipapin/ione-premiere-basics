@@ -87,7 +87,9 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
 			</Typography>
 		),
 		ul: ({ children }: { children: React.ReactNode }) => <List sx={{ mb: "1.5rem", pl: "1.5rem" }}>{children}</List>,
-		ol: ({ children }: { children: React.ReactNode }) => <List sx={{ mb: "1.5rem", pl: "1.5rem", listStyleType: "decimal" }}>{children}</List>,
+		ol: ({ children }: { children: React.ReactNode }) => (
+			<List sx={{ mb: "1.5rem", pl: "1.5rem", listStyleType: "decimal" }}>{children}</List>
+		),
 		li: ({ children }: { children: React.ReactNode }) => (
 			<ListItem sx={{ display: "list-item", pl: 0, mb: "0.5rem" }}>
 				<ListItemText

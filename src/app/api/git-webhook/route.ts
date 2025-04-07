@@ -44,9 +44,9 @@ export async function POST() {
 		);
 
 		return NextResponse.json({ success: true });
-	} catch (error: any) {
+	} catch (error) {
 		console.error(error);
-		await sendTelegramMessage(`🔥 *Internal Server Error:*\n\`\`\`\n${error.message}\n\`\`\``);
+		await sendTelegramMessage(`🔥 *Internal Server Error:*\n\`\`\`\n${(error as Error).message}\n\`\`\``);
 		return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
 	}
 }

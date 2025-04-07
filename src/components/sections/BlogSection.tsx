@@ -1,7 +1,7 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Blog } from "@/entities/blogs";
+import { Box, Button } from "@mui/material";
 import Link from "next/link";
 import BlogCard from "../layout/BlogCard";
-import { Blog } from "@/entities/blogs";
 import Title from "../ui/Title";
 
 export default function BlogSection({ blogs }: { blogs: Blog[] }) {

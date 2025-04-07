@@ -3,14 +3,13 @@ import type { Metadata } from "next";
 import { get } from "@/actions/user";
 import Footer from "@/components/layout/Footer";
 import NavBar from "@/components/layout/NavBar";
-import { Wrapper } from "@/components/layout/Wrapper";
 import NavBarBoundingProvider from "@/contexts/NavBarBoundingProvider";
 import UserWrapper from "@/contexts/UserWrapper";
 import ThemeWrapper from "@/theme/ThemeWrapper";
+import { Box } from "@mui/material";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import { cookies } from "next/headers";
 import "./globals.css";
-import { Box } from "@mui/material";
 
 export const metadata: Metadata = {
 	title: "Premiere Basics",

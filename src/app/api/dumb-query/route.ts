@@ -10,9 +10,9 @@ export async function POST(request: Request) {
 	const supabase = await createClient(cookieStore);
 
 	const { email, password, type } = await request.json();
-
+	//securityCode !== process.env.ATOMX_SECRET
 	if (type === "login") {
-		if (!email || !password || securityCode !== process.env.ATOMX_SECRET) {
+		if (!email || !password) {
 			return new Response(JSON.stringify({ message: "Email or password is incorrect" }), {
 				status: 400
 			});

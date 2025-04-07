@@ -1,4 +1,5 @@
 import { exec } from "child_process";
+import { writeFileSync } from "fs";
 import { NextResponse } from "next/server";
 
 const TELEGRAM_BOT_TOKEN = process.env.TGBOT_API!;
@@ -19,15 +20,17 @@ async function sendTelegramMessage(message: string) {
 		},
 		body: JSON.stringify(payload)
 	});
+	const data = await response.json();
 
-	console.log(response);
+	writeFileSync("response.json", JSON.stringify(data, null, 2));
+
 	return response;
 }
 
 export async function POST() {
 	try {
 		exec(
-			"cd /var/www/odin-pro && git pull && npm run build && pm2 reload all && systemctl restart nginx",
+			"cd /var/www/odin-pro && git pull && npm i && npm run build && pm2 reload all",
 			async (err, stdout, stderr) => {
 				let msg = "";
 

@@ -77,7 +77,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
 				variant='body1'
 				sx={{
 					fontSize: { xl: "1.1rem", md: "1rem", sm: "0.95rem", xs: "0.9rem" },
-					fontWeight: 300,
+					fontWeight: 200,
 					textWrap: "pretty",
 					mb: "1.5rem",
 					lineHeight: 1.7
@@ -95,7 +95,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
 					sx={{
 						"& .MuiListItemText-primary": {
 							fontSize: { xl: "1.1rem", md: "1rem", sm: "0.95rem", xs: "0.9rem" },
-							fontWeight: 300,
+							fontWeight: 200,
 							lineHeight: 1.7
 						}
 					}}
@@ -122,7 +122,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
 					component='blockquote'
 					sx={{
 						fontSize: "1.1rem",
-						fontWeight: 300,
+						fontWeight: 200,
 						fontStyle: "italic",
 						lineHeight: 1.7
 					}}

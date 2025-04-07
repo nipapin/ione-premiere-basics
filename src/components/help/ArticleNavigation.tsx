@@ -36,7 +36,7 @@ export default function ArticleNavigation() {
 	return (
 		<Wrapper variant='animated' fullWidth>
 			<Box sx={{ p: "2rem", background: "var(--background-gradient)", width: "100%" }}>
-				<Typography variant='h6' sx={{ mb: 2, fontWeight: 500 }}>
+				<Typography variant='h6' sx={{ mb: 2, fontWeight: 400 }}>
 					Table of Contents
 				</Typography>
 				<List>

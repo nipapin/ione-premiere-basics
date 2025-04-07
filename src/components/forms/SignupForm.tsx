@@ -136,7 +136,7 @@ export default function SignupForm() {
 					</IconButton>
 				</Link>
 
-				<Typography variant='h1' fontSize='3rem' py='2rem' width='100%' textAlign='center' sx={{ "& span": { fontWeight: 500, textWrap: "nowrap" } }}>
+				<Typography variant='h1' fontSize='3rem' py='2rem' width='100%' textAlign='center' sx={{ "& span": { fontWeight: 400, textWrap: "nowrap" } }}>
 					Welcome to <span>Odin Pro</span>
 				</Typography>
 

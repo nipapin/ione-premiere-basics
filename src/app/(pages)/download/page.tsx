@@ -29,7 +29,7 @@ const styles = {
 	},
 	h1: {
 		fontSize: "4rem",
-		"& b": { fontWeight: 500 },
+		"& b": { fontWeight: 400 },
 	},
 	tagline: {
 		textWrap: "balance",

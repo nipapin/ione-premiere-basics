@@ -84,7 +84,7 @@ export const styles = {
 	},
 	planTitle: {
 		fontSize: { xs: "1.5rem", md: "2rem" },
-		fontWeight: 600,
+		fontWeight: 400,
 		mb: { xs: "1rem", md: "1.5rem" }
 	},
 	planDescription: {
@@ -106,7 +106,7 @@ export const styles = {
 		textTransform: "uppercase",
 		mt: { xs: "2rem", md: "4rem" },
 		fontSize: { xs: "0.9rem", sm: "1rem" },
-		fontWeight: 500
+		fontWeight: 400
 	},
 	benefitsList: {
 		mb: { xs: "1.5rem", md: "2rem" }

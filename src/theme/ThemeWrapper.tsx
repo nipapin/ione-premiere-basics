@@ -28,7 +28,7 @@ const theme = createTheme({
 				root: {
 					textTransform: "none",
 					fontSize: "1rem",
-					fontWeight: 500,
+					fontWeight: 400,
 					borderRadius: "999px",
 					padding: "0.75rem 1.5rem",
 					minWidth: 0,

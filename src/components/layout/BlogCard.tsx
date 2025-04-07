@@ -30,7 +30,7 @@ export default function BlogCard({ blog }: { blog: Blog }) {
 						}}
 					/>
 					<CardContent sx={{ p: { md: "2rem", xs: "1rem" } }}>
-						<Typography fontSize={"1.5rem"} sx={{ textWrap: "balance" }} gutterBottom>
+						<Typography fontSize={"1.5rem"} sx={{ textWrap: "balance", fontWeight: 400 }} gutterBottom>
 							{blog.title}
 						</Typography>
 						<Typography fontWeight={200} sx={{ textWrap: "balance" }}>

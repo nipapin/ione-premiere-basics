@@ -1,5 +1,6 @@
 "use client";
 
+import { Box } from "@mui/material";
 import Image from "next/image";
 import { DetailedHTMLProps, VideoHTMLAttributes, useEffect, useState } from "react";
 
@@ -15,15 +16,7 @@ export default function HeroVideo(props: DetailedHTMLProps<VideoHTMLAttributes<H
 	}, []);
 
 	return (
-		<div
-			style={{
-				position: "relative",
-				width: "1280px",
-				height: "720px",
-				backgroundImage:
-					"url(https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover-poster.webp)"
-			}}
-		>
+		<Box sx={{ position: "relative", width: "100%", height: "100%", maxWidth: "1280px", maxHeight: "720px" }}>
 			{isVideoPlaying && (
 				<video
 					loop
@@ -49,6 +42,6 @@ export default function HeroVideo(props: DetailedHTMLProps<VideoHTMLAttributes<H
 				width={1280}
 				height={720}
 			/>
-		</div>
+		</Box>
 	);
 }

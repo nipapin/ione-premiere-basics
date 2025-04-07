@@ -2,6 +2,7 @@ import { Box, Button, Typography } from "@mui/material";
 import Link from "next/link";
 import BlogCard from "../layout/BlogCard";
 import { Blog } from "@/entities/blogs";
+import Title from "../ui/Title";
 
 export default function BlogSection({ blogs }: { blogs: Blog[] }) {
 	return (
@@ -16,9 +17,7 @@ export default function BlogSection({ blogs }: { blogs: Blog[] }) {
 			}}
 			component={"section"}
 		>
-			<Typography sx={{ fontWeight: 400, fontSize: "4rem", mb: "2rem" }} fontWeight={400} fontSize={"4rem"}>
-				Blog
-			</Typography>
+			<Title>Blog</Title>
 			<Box
 				sx={{
 					display: "grid",

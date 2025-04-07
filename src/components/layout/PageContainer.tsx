@@ -7,7 +7,7 @@ export default function PageContainer(props: BoxProps) {
 			{...props}
 			sx={{
 				width: "100%",
-				maxWidth: "xl",
+				maxWidth: "1280px",
 				display: "flex",
 				flexDirection: "column",
 				alignItems: "center",
@@ -15,7 +15,8 @@ export default function PageContainer(props: BoxProps) {
 				px: { xl: 0, md: "2rem", xs: "1rem" },
 				py: "4rem",
 				gap: "4rem",
-				...props.sx,
+				overflowX: "hidden",
+				...props.sx
 			}}
 		>
 			{props.children}

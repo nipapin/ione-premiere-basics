@@ -9,13 +9,15 @@ export const rows: string[][] = [
 export const styles = {
 	tracks: {
 		overflow: "hidden",
-		display: { xl: "flex" },
+		display: "flex",
 		flexDirection: "column",
 		alignItems: "center",
 		justifyContent: "center",
 		gap: "1rem",
 		"--border-radius": "1rem",
-		py: "4rem"
+		py: "4rem",
+		width: "100%",
+		maxWidth: "1280px"
 	},
 	box: {
 		display: "flex",
@@ -24,7 +26,9 @@ export const styles = {
 		justifyContent: "center",
 		gap: "1rem",
 		position: "relative",
+		width: "100%",
 		maxWidth: "1280px",
+		overflow: "hidden",
 		"&::before": {
 			content: `""`,
 			display: "block",

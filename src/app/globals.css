@@ -118,6 +118,7 @@ body {
 	display: none;
 }
 
+
 @keyframes spin {
 	0% {
 		--angle: 0deg;

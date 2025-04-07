@@ -137,6 +137,7 @@ export default function Showcase() {
 					{rows.map((row, rowIndex) => {
 						return (
 							<Stack
+								className='showcase-track'
 								direction={"row"}
 								gap={"1rem"}
 								sx={{ animation: getAnimation(rowIndex), alignSelf: rowIndex === 1 ? "flex-end" : "flex-start" }}

@@ -6,7 +6,7 @@ export default function Title({ children, ...props }: TypographyProps) {
 		<Typography
 			variant='h2'
 			sx={{
-				fontSize: { xl: "4rem", md: "3rem", sm: "3rem", xs: "3rem" },
+				fontSize: { xl: "4rem", md: "3rem", sm: "3rem", xs: "1.9rem" },
 				textWrap: "balance",
 				textAlign: "center",
 				fontWeight: 400,

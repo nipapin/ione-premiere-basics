@@ -10,14 +10,15 @@ import ThemeWrapper from "@/theme/ThemeWrapper";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import { cookies } from "next/headers";
 import "./globals.css";
+import { Box } from "@mui/material";
 
 export const metadata: Metadata = {
 	title: "Premiere Basics",
-	description: "Get our extension Odin Pro now!",
+	description: "Get our extension Odin Pro now!"
 };
 
 export default async function RootLayout({
-	children,
+	children
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
@@ -30,20 +31,20 @@ export default async function RootLayout({
 	}
 
 	return (
-		<html lang="en">
+		<html lang='en'>
 			<head>
-				<link href="https://api.fontshare.com/v2/css?f[]=clash-grotesk@200,400&display=swap" rel="stylesheet" />
+				<link href='https://api.fontshare.com/v2/css?f[]=clash-grotesk@200,400&display=swap' rel='stylesheet' />
 			</head>
 			<body>
 				<AppRouterCacheProvider options={{ key: "odin" }}>
 					<NavBarBoundingProvider>
 						<UserWrapper initialUser={initialUser}>
 							<ThemeWrapper>
-								<Wrapper display={"flex"} flexDirection={"column"} minHeight={"100vh"}>
+								<Box sx={{ width: "100vw", overflowX: "hidden", maxWidth: "100%" }}>
 									<NavBar />
 									{children}
 									<Footer />
-								</Wrapper>
+								</Box>
 							</ThemeWrapper>
 						</UserWrapper>
 					</NavBarBoundingProvider>

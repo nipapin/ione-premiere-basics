@@ -31,7 +31,7 @@ const styles = {
 		}
 	},
 	h1: {
-		fontSize: { xl: "4rem", md: "3rem", sm: "3rem", xs: "2rem" },
+		fontSize: { xl: "4rem", md: "3rem", sm: "3rem", xs: "1.9rem" },
 		whiteSpace: "pre",
 		textAlign: "center",
 		fontWeight: 400

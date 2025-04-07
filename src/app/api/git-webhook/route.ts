@@ -32,20 +32,29 @@ async function sendTelegramMessage(message: string) {
 
 export async function POST() {
 	try {
-		const { stdout, stderr } = await execSync(
-			"cd /var/www/odin-pro && git pull && npm i && npm run build && pm2 reload all"
-		);
-		let message = `✅ *Deploy successful!*\n\n🟢 *stdout:*\n\`\`\`\n${stdout.slice(0, 1500)}\n\`\`\`\n`;
-		if (stderr) {
-			message += `🟠 *stderr:*\n\`\`\`\n${stderr.slice(0, 1500)}\n\`\`\``;
-		}
-
-		await sendTelegramMessage(message);
+		await execSync("cd /var/www/odin-pro");
+		await execSync("git pull");
+		await sendTelegramMessage(`🔄 *Pulling changes...*`);
+		await execSync("npm i");
+		await sendTelegramMessage(`🔄 *Installing dependencies...*`);
+		await execSync("npm run build");
+		await sendTelegramMessage(`🔄 *Building...*`);
+		await execSync("pm2 reload all");
+		await sendTelegramMessage(`🔄 *Reloading...*`);
+		// const { stdout, stderr } = await execSync(
+		// 	"cd /var/www/odin-pro && git pull && npm i && npm run build && pm2 reload all"
+		// );
+		// let message = `✅ *Deploy successful!*\n\n🟢 *stdout:*\n\`\`\`\n${stdout.slice(0, 1500)}\n\`\`\`\n`;
+		// if (stderr) {
+		// 	message += `🟠 *stderr:*\n\`\`\`\n${stderr.slice(0, 1500)}\n\`\`\``;
+		// }
+		await sendTelegramMessage(`✅ *Deploy successful!*`);
+		// await sendTelegramMessage(message);
 
 		return NextResponse.json({ success: true });
 	} catch (error) {
 		console.error("Deploy error:", error);
-		await sendTelegramMessage(`🔥 *Internal Server Error:*\n\`\`\`\n${(error as Error).message}\n\`\`\``);
+		await sendTelegramMessage(`💩 *Internal Server Error:*\n\`\`\`\n${(error as Error).message}\n\`\`\``);
 		return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
 	}
 }

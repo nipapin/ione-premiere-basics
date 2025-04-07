@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import bcrypt from "bcrypt";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 
 function withCORSHeaders(response: Response) {
 	response.headers.set("Access-Control-Allow-Origin", "*");
@@ -23,8 +23,8 @@ export async function OPTIONS() {
 }
 
 export async function POST(request: Request) {
-	const headersList = await headers();
-	const securityCode = headersList.get("AtomX-Secure-Check");
+	// const headersList = await headers();
+	// const securityCode = headersList.get("AtomX-Secure-Check");
 
 	const cookieStore = cookies();
 	const supabase = await createClient(cookieStore);

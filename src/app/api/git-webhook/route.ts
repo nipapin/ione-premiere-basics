@@ -1,7 +1,7 @@
 import { exec } from "child_process";
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+export async function POST() {
 	try {
 		// Можно добавить проверку подписи, если нужно для безопасности
 		// Например, проверить HMAC подпись, если она была настроена в webhook на GitHub

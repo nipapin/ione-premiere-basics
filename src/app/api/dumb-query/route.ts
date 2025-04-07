@@ -64,7 +64,7 @@ export async function POST(request: Request) {
 			new Response(
 				JSON.stringify({
 					message: "User authenticated successfully",
-					id: data.user_id,
+					id: data.id,
 					status: data.subscription_status,
 					max_devices: data.max_devices
 				}),

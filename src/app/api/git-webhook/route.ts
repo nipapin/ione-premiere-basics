@@ -33,7 +33,7 @@ async function sendTelegramMessage(message: string) {
 export async function POST() {
 	try {
 		const { stdout, stderr } = await execSync(
-			"cd /var/www/odin-pro && git reset --hard && git pull && npm i && npm run build && pm2 reload all"
+			"cd /var/www/odin-pro && git pull && npm i && npm run build && pm2 reload all"
 		);
 		let message = `✅ *Deploy successful!*\n\n🟢 *stdout:*\n\`\`\`\n${stdout.slice(0, 1500)}\n\`\`\`\n`;
 		if (stderr) {

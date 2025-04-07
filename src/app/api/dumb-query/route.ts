@@ -77,4 +77,8 @@ export async function POST(request: Request) {
 			status: 200
 		});
 	}
+
+	return new Response(JSON.stringify({ message: "Invalid request" }), {
+		status: 500
+	});
 }

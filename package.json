@@ -2,6 +2,7 @@
   "name": "ione-premiere-basics",
   "version": "1.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
     "local-dev": "next dev --turbopack",
     "dev": "node server.js",

@@ -1,14 +1,14 @@
 "use client";
 
 import { Box } from "@mui/material";
-import Image from "next/image";
-import { DetailedHTMLProps, VideoHTMLAttributes, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function HeroVideo(props: DetailedHTMLProps<VideoHTMLAttributes<HTMLVideoElement>, HTMLVideoElement>) {
+export default function HeroVideo() {
 	const [isVideoPlaying, setIsVideoPlaying] = useState(false);
-
+	const [videoSrc, setVideoSrc] = useState<string>();
 	useEffect(() => {
 		const timeout = setTimeout(() => {
+			setVideoSrc("https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover.mp4");
 			setIsVideoPlaying(true);
 		}, 1000);
 
@@ -16,32 +16,52 @@ export default function HeroVideo(props: DetailedHTMLProps<VideoHTMLAttributes<H
 	}, []);
 
 	return (
-		<Box sx={{ position: "relative", width: "100%", height: "100%", maxWidth: "1280px", maxHeight: "720px" }}>
-			{isVideoPlaying && (
-				<video
-					loop
-					muted
-					playsInline
-					autoPlay={true}
-					width={1280}
-					height={720}
-					poster='https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover-poster.webp'
-					src='https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover.mp4'
-					preload='none'
-					{...props}
-					style={{
-						width: "100%",
-						height: "100%"
-					}}
-				/>
-			)}
-			<Image
-				src='https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover-poster.webp'
-				alt='Video poster'
-				style={{ width: "100%", height: "auto", display: isVideoPlaying ? "none" : "block" }}
+		<Box
+			sx={{
+				position: "relative",
+				width: "100%",
+				height: "auto",
+				aspectRatio: "16/9",
+				maxWidth: "1280px",
+				maxHeight: "720px",
+				display: "flex",
+				justifyContent: "center",
+				alignItems: "center",
+				overflow: "hidden"
+			}}
+		>
+			<video
+				loop
+				muted
+				playsInline={isVideoPlaying}
+				autoPlay={isVideoPlaying}
 				width={1280}
 				height={720}
+				poster='https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover-poster.webp'
+				src={videoSrc}
+				preload='metadata'
+				style={{
+					width: "100%",
+					height: "auto",
+					aspectRatio: "16/9",
+					objectFit: "cover"
+				}}
 			/>
+			{/* <Image
+				src='https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover-poster.webp'
+				alt='video poster'
+				style={{
+					width: "100%",
+					height: "auto",
+					display: "block",
+					position: "absolute",
+					top: 0,
+					left: 0,
+					animation: isVideoPlaying ? "fadeOut 1s ease-in-out" : "none"
+				}}
+				width={1280}
+				height={720}
+			/> */}
 		</Box>
 	);
 }

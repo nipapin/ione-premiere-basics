@@ -12,7 +12,7 @@ export default function PageContainer(props: BoxProps) {
 				flexDirection: "column",
 				alignItems: "center",
 				mx: "auto",
-				px: { xl: 0, md: "2rem", xs: "1rem" },
+				px: { xl: "2px", md: "2rem", xs: "1rem" },
 				py: "4rem",
 				gap: "4rem",
 				overflowX: "hidden",

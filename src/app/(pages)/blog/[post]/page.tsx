@@ -43,40 +43,34 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 					</Typography>
 				</Breadcrumbs>
 			</Paper>
-			<Wrapper variant='animated' fullWidth sx={{ maxWidth: "1280px" }}>
-				<Box
-					sx={{
-						background: "var(--background-gradient)",
-						width: "100%",
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "space-between",
-						overflow: "hidden"
-					}}
-				>
-					<Box sx={{ display: "flex", flexDirection: "column", gap: "1rem", p: "2rem" }}>
-						<Typography
-							variant='h2'
-							sx={{ fontSize: { md: "4rem", xs: "2rem" }, fontWeight: 400, textWrap: "balance" }}
-						>
-							{mdx.data.title}
-						</Typography>
-						<Typography
-							variant='body1'
-							sx={{ fontSize: { md: "1.5rem", xs: "1rem" }, fontWeight: 200, textWrap: "balance" }}
-						>
-							{mdx.data.description}
-						</Typography>
-					</Box>
-					<Box sx={{ display: { md: "block", xs: "none" }, "& img": { width: "auto", height: "100%" } }}>
-						<Image src={mdx.data.media} alt={mdx.data.title} width={1000} height={1000} />
-					</Box>
+			<Box
+				sx={{
+					width: "100%",
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "space-between",
+					overflow: "hidden"
+				}}
+			>
+				<Box sx={{ display: "flex", flexDirection: "column", gap: "1rem", py: "2rem", width: "700px" }}>
+					<Typography variant='h2' sx={{ fontSize: { md: "4rem", xs: "2rem" }, fontWeight: 400, textWrap: "balance" }}>
+						{mdx.data.title}
+					</Typography>
+					<Typography
+						variant='body1'
+						sx={{ fontSize: { md: "1.5rem", xs: "1rem" }, fontWeight: 200, textWrap: "balance" }}
+					>
+						{mdx.data.description}
+					</Typography>
 				</Box>
-			</Wrapper>
+				<Box sx={{ display: { md: "block", xs: "none" }, width: "500px", "& img": { width: "100%", height: "100%" } }}>
+					<Image src={mdx.data.media} alt={mdx.data.title} width={1000} height={1000} />
+				</Box>
+			</Box>
 			<Box sx={{ width: "100%", display: { md: "none", xs: "block" }, "& img": { width: "100%", height: "auto" } }}>
 				<Image src={mdx.data.media} alt={mdx.data.title} width={1000} height={1000} />
-				<Divider sx={{ my: "1rem" }} />
 			</Box>
+			<Divider sx={{ my: "1rem" }} flexItem />
 			<Article source={source} sx={{ width: "100%", maxWidth: "1280px", "& h1": { textWrap: "balance" } }} />
 		</PageContainer>
 	);

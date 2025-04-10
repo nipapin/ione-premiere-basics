@@ -1,11 +1,13 @@
 import { readdirSync } from "fs";
 import path from "path";
 
+type FileType = "video" | "audio";
+
 export type TreeElement = {
 	name: string;
 	path: string;
 	href: string;
-	type: "folder" | "file";
+	type: "folder" | FileType;
 	children: TreeElement[];
 	remove: boolean;
 	media?: string;
@@ -16,36 +18,39 @@ export type TreeElement = {
 function getDirectoryTree(dirPath: string, parentName: string): TreeElement[] {
 	const entries = readdirSync(dirPath, { withFileTypes: true });
 
-	function getWebmCount(entries: TreeElement[]): number {
+	function getFileCount(entries: TreeElement[]): number {
 		let count = 0;
 		for (const entry of entries) {
-			if (entry.type === "file") {
+			if (entry.type === "video" || entry.type === "audio") {
 				count++;
 			}
+
 			if (entry.type === "folder") {
-				count += getWebmCount(entry.children);
+				count += getFileCount(entry.children);
 			}
 		}
 		return count;
 	}
 
 	return entries
-		.filter((entry) => entry.name.endsWith(".webm") || entry.isDirectory())
+		.filter((entry) => entry.name.endsWith(".webm") || entry.name.endsWith(".wav") || entry.isDirectory())
 		.map((entry) => {
-			const entryName = entry.name.replace(".webm", "");
+			const entryName = entry.name.replace(/(\.webm|\.wav)$/, "");
 			const children = entry.isDirectory()
 				? getDirectoryTree(path.join(dirPath, entry.name), `${parentName}/${entry.name}`)
 				: [];
+			const fileType: FileType = entry.name.endsWith(".webm") ? "video" : "audio";
+			const type: TreeElement["type"] = entry.isDirectory() ? "folder" : fileType;
 			return {
 				name: entryName,
 				path: path.join(dirPath, entry.name),
-				type: entry.isDirectory() ? ("folder" as const) : ("file" as const),
-				href: `${parentName}/${entry.name.replace(".webm", "")}`,
+				href: `${parentName}/${entry.name}`,
+				type,
 				children,
 				remove: entry.isDirectory() && children.length === 0,
-				media: entry.name.endsWith(".webm") ? `/showcase/${encodeURIComponent(entry.name)}` : undefined,
-				description: entry.name.endsWith(".webm") ? entry.name.replace(".webm", "") : undefined,
-				counter: getWebmCount(children)
+				media: entry.isFile() ? `/showcase/${encodeURIComponent(entry.name)}` : undefined,
+				description: entry.name.endsWith(".webm") || entry.name.endsWith(".wav") ? entryName : undefined,
+				counter: getFileCount(children)
 			};
 		})
 		.filter((entry) => !entry.remove);

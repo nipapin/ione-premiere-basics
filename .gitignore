@@ -42,5 +42,8 @@ next-env.d.ts
 
 # deploy-bot
 /deploy-bot/deploy-bot.js
-src/markdown/showcase
+
+/src/**/*.webm
+/src/**/*.wav
+
 public/showcase

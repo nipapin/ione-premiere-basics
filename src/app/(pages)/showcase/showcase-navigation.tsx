@@ -1,9 +1,10 @@
 "use client";
 
 import { TreeElement } from "@/lib/showcase/tree";
-import { ExpandLess, ExpandMore, Menu } from "@mui/icons-material";
+import { ExpandLess, ExpandMore, Menu, MusicNote } from "@mui/icons-material";
 import {
 	Box,
+	CircularProgress,
 	Collapse,
 	Drawer,
 	IconButton,
@@ -12,10 +13,11 @@ import {
 	ListItemButton,
 	ListItemIcon,
 	ListItemText,
+	Paper,
 	Typography,
 	useScrollTrigger
 } from "@mui/material";
-import { Fragment, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 
 export default function ShowcaseNavigation({ tree }: { tree: TreeElement[] }) {
 	const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
@@ -85,7 +87,7 @@ export default function ShowcaseNavigation({ tree }: { tree: TreeElement[] }) {
 		if (!selectedFolder) return null;
 
 		const previewItems = (function findFiles(node: TreeElement): TreeElement[] {
-			const files = node.children.filter((child) => child.type === "file");
+			const files = node.children.filter((child) => child.type === "video" || child.type === "audio");
 			const subFiles = node.children.filter((child) => child.type === "folder").flatMap((folder) => findFiles(folder));
 			return [...files, ...subFiles];
 		})(selectedFolder);
@@ -113,7 +115,7 @@ export default function ShowcaseNavigation({ tree }: { tree: TreeElement[] }) {
 								backgroundColor: "var(--background-gradient)"
 							}}
 						>
-							{item.media && (
+							{item.type === "video" && item.media && (
 								<video
 									src={item.media}
 									autoPlay
@@ -128,6 +130,7 @@ export default function ShowcaseNavigation({ tree }: { tree: TreeElement[] }) {
 									}}
 								/>
 							)}
+							{item.type === "audio" && item.media && <AudioItem item={item} />}
 							{item.description && (
 								<Typography variant='body2' sx={{ color: "text.secondary", textWrap: "balance" }}>
 									{item.description}
@@ -176,3 +179,71 @@ export default function ShowcaseNavigation({ tree }: { tree: TreeElement[] }) {
 		</Box>
 	);
 }
+
+const AudioItem = ({ item }: { item: TreeElement }) => {
+	const [hover, setHover] = useState(false);
+	const [value, setValue] = useState(0);
+	const audioRef = useRef<HTMLAudioElement>(null);
+
+	const mouseEnter = () => {
+		setHover(true);
+		if (!audioRef.current) return;
+		audioRef.current.currentTime = 0;
+		audioRef.current.play();
+	};
+
+	const mouseLeave = () => {
+		setHover(false);
+		if (!audioRef.current) return;
+		audioRef.current.currentTime = 0;
+		audioRef.current.pause();
+	};
+
+	const handleTimeUpdate = () => {
+		if (!audioRef.current) return;
+		const currentTime = audioRef.current.currentTime;
+		const duration = audioRef.current.duration || 1;
+		const progress = Math.min((currentTime / Math.floor(duration)) * 100, 100);
+		setValue(progress);
+	};
+
+	return (
+		<>
+			<Paper
+				variant='outlined'
+				sx={{
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+					width: "100%",
+					height: "auto",
+					aspectRatio: "16/9",
+					background: "var(--background-gradient)",
+					position: "relative",
+					"& .MuiCircularProgress-root": {
+						position: "absolute",
+						left: "50%",
+						top: "50%",
+						transform: "translate(-50%, -50%) rotate(-90deg)!important",
+						zIndex: 1
+					}
+				}}
+				onMouseEnter={mouseEnter}
+				onMouseLeave={mouseLeave}
+			>
+				<MusicNote
+					sx={{
+						position: "absolute",
+						left: "50%",
+						top: "50%",
+						transform: "translate(-50%, -50%)",
+						zIndex: 1,
+						fontSize: "4rem"
+					}}
+				/>
+				<CircularProgress value={value} variant='determinate' size={100} thickness={2} />
+				<audio ref={audioRef} src={item.media} muted={!hover} loop onTimeUpdate={handleTimeUpdate} />
+			</Paper>
+		</>
+	);
+};

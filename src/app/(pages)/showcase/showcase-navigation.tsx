@@ -36,7 +36,7 @@ export default function ShowcaseNavigation({ tree }: { tree: TreeElement[] }) {
 						<ListItem disableGutters sx={{ pl: level * 2 }}>
 							<ListItemButton
 								onClick={() => {
-									node.type === "folder" && toggleFolder(node.path, node);
+									if (node.type === "folder") toggleFolder(node.path, node);
 								}}
 								sx={{ borderRadius: "0.5rem" }}
 							>

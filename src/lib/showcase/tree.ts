@@ -1,4 +1,4 @@
-import { Dirent, readdirSync } from "fs";
+import { readdirSync } from "fs";
 import path from "path";
 
 export type TreeElement = {

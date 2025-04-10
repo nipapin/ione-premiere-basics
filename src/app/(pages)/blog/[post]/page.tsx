@@ -1,6 +1,5 @@
 import Article from "@/components/help/Article";
 import PageContainer from "@/components/layout/PageContainer";
-import { Wrapper } from "@/components/layout/Wrapper";
 import StyledLink from "@/components/ui/StyledLink";
 import { NavigateNext } from "@mui/icons-material";
 import { Box, Breadcrumbs, Divider, Paper, Typography } from "@mui/material";

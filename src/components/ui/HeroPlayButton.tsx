@@ -32,9 +32,7 @@ export default function HeroPlayButton() {
 				onClick={toggle(true)}
 			>
 				<PlayArrow />
-				<Typography sx={{ display: "none" }}>
-					Learn about Odin Pro in 2 minutes
-				</Typography>
+				<Typography sx={{ display: "none" }}>Learn about Odin Pro in 2 minutes</Typography>
 			</Button>
 			<Box className={"tint"} />
 			<Dialog
@@ -53,7 +51,7 @@ export default function HeroPlayButton() {
 					}
 				}}
 			>
-				<HeroVideo controls={true} muted={false} />
+				<HeroVideo />
 			</Dialog>
 		</>
 	);

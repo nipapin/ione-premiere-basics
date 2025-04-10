@@ -47,21 +47,6 @@ export default function HeroVideo() {
 					objectFit: "cover"
 				}}
 			/>
-			{/* <Image
-				src='https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover-poster.webp'
-				alt='video poster'
-				style={{
-					width: "100%",
-					height: "auto",
-					display: "block",
-					position: "absolute",
-					top: 0,
-					left: 0,
-					animation: isVideoPlaying ? "fadeOut 1s ease-in-out" : "none"
-				}}
-				width={1280}
-				height={720}
-			/> */}
 		</Box>
 	);
 }

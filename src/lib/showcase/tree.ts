@@ -1,4 +1,4 @@
-import { readdirSync } from "fs";
+import { readdirSync, readFileSync } from "fs";
 import path from "path";
 
 type FileType = "video" | "audio";
@@ -57,6 +57,12 @@ function getDirectoryTree(dirPath: string, parentName: string): TreeElement[] {
 }
 
 export const getShowcaseTree = () => {
+	const treeJson = readFileSync(path.join(process.cwd(), "src/lib/showcase/tree.json"), "utf-8");
+	if (treeJson) {
+		return JSON.parse(treeJson);
+	}
+
 	const mdxDirectory = path.join(process.cwd(), "src/markdown/showcase");
-	return getDirectoryTree(mdxDirectory, "/showcase");
+	const tree = getDirectoryTree(mdxDirectory, "/showcase");
+	return tree;
 };

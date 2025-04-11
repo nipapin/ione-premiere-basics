@@ -1,3 +1,5 @@
+"use server";
+
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
@@ -19,9 +21,8 @@ transporter.verify(function (error) {
 
 export const sendEmail = async (to: string, subject: string, html: string): Promise<boolean> => {
 	try {
-		console.log("Sending email to:", to, "From:", process.env.SMTP_FROM);
 		await transporter.sendMail({
-			from: process.env.SMTP_FROM,
+			from: `Odin Pro Notification ${process.env.SMTP_FROM_NO_REPLY}`,
 			to,
 			subject,
 			html
@@ -30,12 +31,25 @@ export const sendEmail = async (to: string, subject: string, html: string): Prom
 	} catch (error) {
 		console.error("Error sending email:", {
 			error: error instanceof Error ? error.message : error,
-			stack: error instanceof Error ? error.stack : undefined,
-			to,
-			subject,
-			from: process.env.SMTP_FROM,
-			host: process.env.SMTP_HOST,
-			port: process.env.SMTP_PORT
+			stack: error instanceof Error ? error.stack : undefined
+		});
+		return false;
+	}
+};
+
+export const sendEmailFromContact = async (from: string, subject: string, html: string): Promise<boolean> => {
+	try {
+		await transporter.sendMail({
+			sender: "Contact Form",
+			to: process.env.SMTP_FROM,
+			subject: `New submission from ${from}`,
+			html: `<h1>${subject}</h1><p>${html}</p><p>From: ${from}</p>`
+		});
+		return true;
+	} catch (error) {
+		console.error("Error sending email:", {
+			error: error instanceof Error ? error.message : error,
+			stack: error instanceof Error ? error.stack : undefined
 		});
 		return false;
 	}

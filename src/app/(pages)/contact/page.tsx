@@ -2,7 +2,9 @@
 
 import PageContainer from "@/components/layout/PageContainer";
 import Title from "@/components/ui/Title";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { sendEmailFromContact } from "@/lib/email";
+import { Alert, Box, Button, CircularProgress, Link as MuiLink, TextField, Typography } from "@mui/material";
+import Link from "next/link";
 import { useState } from "react";
 
 export default function ContactPage() {
@@ -13,6 +15,9 @@ export default function ContactPage() {
 		message: ""
 	});
 
+	const [isLoading, setIsLoading] = useState(false);
+	const [isSuccess, setIsSuccess] = useState<boolean>();
+
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 		const { name, value } = e.target;
 		setFormData((prev) => ({
@@ -21,10 +26,14 @@ export default function ContactPage() {
 		}));
 	};
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		// TODO: Implement form submission logic
-		console.log("Form submitted:", formData);
+		
+		setIsLoading(true);
+		const result = await sendEmailFromContact(formData.email, formData.subject, formData.message);
+		setIsLoading(false);
+
+		setIsSuccess(result);
 	};
 
 	return (
@@ -83,7 +92,21 @@ export default function ContactPage() {
 						onChange={handleChange}
 						variant='outlined'
 					/>
-
+					{isSuccess !== undefined && (
+						<Alert
+							severity={isSuccess ? "success" : "error"}
+							sx={{ display: "flex", alignItems: "center", gap: "1rem" }}
+						>
+							<Typography variant='body1' whiteSpace={"pre"}>
+								{isSuccess
+									? "Your message has been sent successfully. We will get back to you as soon as possible."
+									: "There was an error sending your message. Please try again.\nIf the problem persists, please contact us directly at "}
+								<Link href='mailto:support@odin-pro.com' passHref legacyBehavior>
+									<MuiLink>support@odin-pro.com</MuiLink>
+								</Link>
+							</Typography>
+						</Alert>
+					)}
 					<Button
 						type='submit'
 						variant='contained'
@@ -93,7 +116,7 @@ export default function ContactPage() {
 							px: 4
 						}}
 					>
-						Send Message
+						{isLoading ? <CircularProgress size={20} color='inherit' /> : "Send Message"}
 					</Button>
 				</Box>
 			</Box>

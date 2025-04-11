@@ -28,7 +28,7 @@ export default function ContactPage() {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		
+
 		setIsLoading(true);
 		const result = await sendEmailFromContact(formData.email, formData.subject, formData.message);
 		setIsLoading(false);
@@ -98,12 +98,17 @@ export default function ContactPage() {
 							sx={{ display: "flex", alignItems: "center", gap: "1rem" }}
 						>
 							<Typography variant='body1' whiteSpace={"pre"}>
-								{isSuccess
-									? "Your message has been sent successfully. We will get back to you as soon as possible."
-									: "There was an error sending your message. Please try again.\nIf the problem persists, please contact us directly at "}
-								<Link href='mailto:support@odin-pro.com' passHref legacyBehavior>
-									<MuiLink>support@odin-pro.com</MuiLink>
-								</Link>
+								{isSuccess ? (
+									`Your message has been sent successfully. We will get back to you as soon as possible.`
+								) : (
+									<>
+										There was an error sending your message. Please try again. If the problem persists, please contact
+										us directly at{" "}
+										<Link href='mailto:help@odin-pro.com' passHref legacyBehavior>
+											<MuiLink>help@odin-pro.com</MuiLink>
+										</Link>
+									</>
+								)}
 							</Typography>
 						</Alert>
 					)}

@@ -20,8 +20,18 @@ transporter.verify(function (error) {
 });
 
 export const sendEmail = async (to: string, subject: string, html: string): Promise<boolean> => {
+	const noreplyTransport = nodemailer.createTransport({
+		host: process.env.SMTP_HOST,
+		port: Number(process.env.SMTP_PORT),
+		secure: process.env.SMTP_SECURE === "true",
+		auth: {
+			user: process.env.SMTP_USER,
+			pass: process.env.SMTP_PASSWORD
+		}
+	});
+
 	try {
-		await transporter.sendMail({
+		await noreplyTransport.sendMail({
 			from: `Odin Pro Notification ${process.env.SMTP_FROM_NO_REPLY}`,
 			to,
 			subject,
@@ -41,7 +51,7 @@ export const sendEmailFromContact = async (from: string, subject: string, html: 
 	try {
 		await transporter.sendMail({
 			sender: "Contact Form",
-			to: process.env.SMTP_FROM,
+			to: process.env.SMTP_FROM_SUPPORT,
 			subject: `New submission from ${from}`,
 			html: `<h1>${subject}</h1><p>${html}</p><p>From: ${from}</p>`
 		});

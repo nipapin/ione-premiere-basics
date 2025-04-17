@@ -12,13 +12,6 @@ const transporter = nodemailer.createTransport({
 	}
 });
 
-// Verify SMTP configuration
-transporter.verify(function (error) {
-	if (error) {
-		console.error("SMTP Configuration Error:", error);
-	}
-});
-
 export const sendEmail = async (to: string, subject: string, html: string): Promise<boolean> => {
 	const noreplyTransport = nodemailer.createTransport({
 		host: process.env.SMTP_HOST,

@@ -66,7 +66,8 @@ export async function POST(request: Request) {
 					message: "User authenticated successfully",
 					id: data.id,
 					status: data.subscription_status,
-					max_devices: data.max_devices
+					max_devices: data.max_devices,
+					assigned_sub_id: 3159
 				}),
 				{ status: 200 }
 			)

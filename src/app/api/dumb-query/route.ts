@@ -93,7 +93,7 @@ export async function POST(request: Request) {
 		}
 
 		const response =
-			data.subscription_status === "active"
+			data.status === "active"
 				? { status: "active", max_devices: 2, message: "User has subscription" }
 				: { status: null, max_devices: 0, message: "User does not have subscription" };
 

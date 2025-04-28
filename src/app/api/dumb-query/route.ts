@@ -94,7 +94,7 @@ export async function POST(request: Request) {
 
 		const response =
 			data.status === "active"
-				? { status: "active", max_devices: 2, message: "User has subscription" }
+				? { status: "active", max_devices: 2, message: "User has subscription", assigned_sub_id: 3159 }
 				: { status: null, max_devices: 0, message: "User does not have subscription" };
 
 		return withCORSHeaders(new Response(JSON.stringify(response), { status: 200 }));

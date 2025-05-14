@@ -47,3 +47,5 @@ next-env.d.ts
 /src/**/*.wav
 
 public/showcase
+public/odin_pro_installer_windows.zip
+public/odin_pro_installer_mac.zip

@@ -3,7 +3,7 @@
 import { Button, CircularProgress } from "@mui/material";
 import { useState } from "react";
 
-export default function downloadButton({ href, title }: { href: string; title: string }) {
+export default function DownloadButton({ href, title }: { href: string; title: string }) {
 	const [loading, setLoading] = useState(false);
 	const downloadFile = async () => {
 		setLoading(true);

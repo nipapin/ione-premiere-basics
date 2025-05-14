@@ -80,7 +80,7 @@ export default function DownloadPage() {
 							<Box sx={{ my: "4rem" }}>
 								<WinIcon />
 							</Box>
-							<Typography>Extension version 1.03 - 305MB</Typography>
+							<Typography>Extension version 1.0.0 - 86MB</Typography>
 							<DownloadButton href='/odin_pro_installer_windows.zip' title='Download for Windows' />
 						</Box>
 					</Wrapper>
@@ -92,7 +92,7 @@ export default function DownloadPage() {
 							<Box sx={{ my: "4rem" }}>
 								<MacIcon />
 							</Box>
-							<Typography>Extension version 1.03 - 305MB</Typography>
+							<Typography>Extension version 1.0.0 - 86MB</Typography>
 							<DownloadButton href='/odin_pro_installer_mac.zip' title='Download for Mac OS' />
 						</Box>
 					</Wrapper>

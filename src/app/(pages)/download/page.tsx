@@ -1,16 +1,15 @@
+import PageContainer from "@/components/layout/PageContainer";
 import { Wrapper } from "@/components/layout/Wrapper";
 import StyledLink from "@/components/ui/StyledLink";
+import Title from "@/components/ui/Title";
 import { HelpOutline } from "@mui/icons-material";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import { type Metadata } from "next";
+import DownloadButton from "./downloadButton";
 import AEIcon from "./icons/ae";
 import MacIcon from "./icons/mac";
 import PRIcon from "./icons/pr";
 import WinIcon from "./icons/win";
-import PageContainer from "@/components/layout/PageContainer";
-import Title from "@/components/ui/Title";
-import Link from "next/link";
-import DownloadButton from "./downloadButton";
 
 export const metadata: Metadata = {
 	title: "Premiere Basics | Download",

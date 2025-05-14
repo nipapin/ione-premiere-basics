@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@mui/material";
-import Link from "next/link";
 
 export default function downloadButton({ href, title }: { href: string; title: string }) {
 	const downloadFile = async () => {

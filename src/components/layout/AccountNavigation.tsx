@@ -27,11 +27,6 @@ const menuItems: MenuItem[] = [
 		route: "/account/subscription"
 	},
 	{
-		id: 3,
-		title: "My Devices",
-		route: "/account/devices"
-	},
-	{
 		id: 4,
 		title: "Extension",
 		route: "/account/extension"

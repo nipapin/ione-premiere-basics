@@ -6,7 +6,7 @@ import ChangePasswordForm from "./forms/ChangePasswordForm";
 export default function AccountDetails() {
 	return (
 		<Box sx={{ "& h1, h2": { fontWeight: 400 } }}>
-			<Typography variant="h1" sx={{ fontSize: "1.2rem" }}>
+			<Typography variant='h1' sx={{ fontSize: "1.2rem" }}>
 				Account Details
 			</Typography>
 			<Divider sx={{ my: "1rem" }} />

@@ -1,7 +1,9 @@
 import { Circle, Delete } from "@mui/icons-material";
 import { Box, Divider, IconButton, List, Paper, Typography } from "@mui/material";
+import { redirect } from "next/navigation";
 
 export default function AccountDevices() {
+	return redirect("/account");
 	return (
 		<Box
 			sx={{

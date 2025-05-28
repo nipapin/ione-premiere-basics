@@ -11,29 +11,44 @@ type Plan = {
 export const plans: Plan[] = [
 	{
 		id: 1,
-		title: "Basic",
+		title: "Free",
 		description: "During this phase the design is developed\nto meet the required technical standards to",
-		price: 11,
-		per: "month",
-		benefits: ["Core engagement survey", "Topic-based assessments", "Custom topic-based assessments", "Filterable heatmap & analytics"],
+		price: 0,
+		per: "",
+		benefits: [
+			"Core engagement survey",
+			"Topic-based assessments",
+			"Custom topic-based assessments",
+			"Filterable heatmap & analytics"
+		],
 		action: "#"
 	},
 	{
 		id: 2,
-		title: "Business",
+		title: "Pro",
 		description: "During this phase the design is developed\nto meet the required technical standards to",
-		price: 86,
-		per: "year",
-		benefits: ["Core engagement survey", "Topic-based assessments", "Custom topic-based assessments", "Filterable heatmap & analytics"],
+		price: 19,
+		per: "month",
+		benefits: [
+			"Core engagement survey",
+			"Topic-based assessments",
+			"Custom topic-based assessments",
+			"Filterable heatmap & analytics"
+		],
 		action: "#"
 	},
 	{
 		id: 3,
-		title: "Premium",
+		title: "Infinite",
 		description: "During this phase the design is developed\nto meet the required technical standards to",
 		price: 250,
 		per: "lifetime",
-		benefits: ["Core engagement survey", "Topic-based assessments", "Custom topic-based assessments", "Filterable heatmap & analytics"],
+		benefits: [
+			"Core engagement survey",
+			"Topic-based assessments",
+			"Custom topic-based assessments",
+			"Filterable heatmap & analytics"
+		],
 		action: "#"
 	}
 ];
@@ -70,7 +85,7 @@ export const styles = {
 		height: "100%",
 		transition: "transform 0.3s ease-in-out",
 		"&:hover": {
-			transform: "translateY(-8px)"
+			transform: "translateY(0px)"
 		}
 	},
 	planContent: {
@@ -104,7 +119,7 @@ export const styles = {
 	},
 	includesTitle: {
 		textTransform: "uppercase",
-		mt: { xs: "2rem", md: "4rem" },
+		mt: { xs: "2rem", md: "3rem" },
 		fontSize: { xs: "0.9rem", sm: "1rem" },
 		fontWeight: 400
 	},

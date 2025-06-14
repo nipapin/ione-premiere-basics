@@ -2,9 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 const HTTP_WC_ATOMX_SOURCE = "195bb24881ae34";
 
+type AtomXPaymentStatus = "active" | "on-hold" | "pending-cancel" | "cancelled" | "expired";
+type AtomXPaymentType = "Personal" | "Business" | "Team";
+
 interface AtomXPaymentData {
-	status: "active" | "on-hold" | "pending-cancel" | "cancelled" | "expired";
-	type?: "Personal" | "Business" | "Team";
+	status: AtomXPaymentStatus;
+	type?: AtomXPaymentType;
 	assigned_author_id?: number;
 	parent_order_id: number;
 	order_id: number;
@@ -17,17 +20,32 @@ interface AtomXPaymentData {
 	created: Date;
 }
 
+type PayproOrderData = Record<string, string>;
+
 const parsePayproOrder = (payproOrder: string) => {
-	const payproOrderData = payproOrder.split("&").map((item) => {
+	const payproOrderData = payproOrder.split("&").reduce((acc, item) => {
 		const [key, value] = item.split("=");
-		return { [key]: value };
-	});
+		acc[key] = value;
+		return acc;
+	}, {} as PayproOrderData);
 	return payproOrderData;
 };
 
 export async function POST(request: NextRequest) {
 	const payproOrder = await request.text();
 	const payproOrderData = parsePayproOrder(payproOrder);
-	console.log(payproOrderData);
+	const atomPayload: AtomXPaymentData = {
+		status: "active",
+		parent_order_id: Number(payproOrderData.ORDER_ID),
+		order_id: Number(payproOrderData.ORDER_ITEM_ID),
+		product_id: 1,
+		generated_hash: payproOrderData.HASH,
+		currency: payproOrderData.CURRENCY,
+		price: Number(payproOrderData.AMOUNT),
+		billing_info: payproOrderData.CUSTOMER_NAME,
+		billing_mail: payproOrderData.CUSTOMER_EMAIL,
+		created: new Date()
+	};
+	console.log(JSON.stringify(atomPayload, null, 2));
 	return NextResponse.json({ message: "Hello, world!" });
 }

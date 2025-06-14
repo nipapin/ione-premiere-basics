@@ -17,7 +17,7 @@ interface AtomXPaymentData {
 	price: number;
 	billing_info: string;
 	billing_mail: string;
-	created: Date;
+	created: number;
 }
 
 type PayproOrderData = Record<string, string>;
@@ -40,12 +40,19 @@ export async function POST(request: NextRequest) {
 		order_id: Number(payproOrderData.ORDER_ITEM_ID),
 		product_id: 1,
 		generated_hash: payproOrderData.HASH,
-		currency: payproOrderData.CURRENCY,
+		currency: payproOrderData.ORDER_CURRENCY_CODE,
 		price: Number(payproOrderData.AMOUNT),
 		billing_info: payproOrderData.CUSTOMER_NAME,
 		billing_mail: payproOrderData.CUSTOMER_EMAIL,
-		created: new Date()
+		created: Date.now()
 	};
-	console.log(JSON.stringify(atomPayload, null, 2));
+	fetch("https://api.get-atomx.com/atomx/v1/webhook_esubs", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			HTTP_WC_ATOMX_SOURCE: HTTP_WC_ATOMX_SOURCE
+		},
+		body: JSON.stringify(atomPayload)
+	});
 	return NextResponse.json({ message: "Hello, world!" });
 }

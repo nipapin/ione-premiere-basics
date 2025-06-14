@@ -63,11 +63,14 @@ export async function POST(request: Request) {
 		return withCORSHeaders(
 			new Response(
 				JSON.stringify({
-					message: "User authenticated successfully",
-					id: data.id,
-					status: data.status,
-					max_devices: data.max_devices,
-					assigned_sub_id: 3159
+					subscription: {
+						message: "User authenticated successfully",
+						id: data.id,
+						status: data.status,
+						max_devices: data.max_devices,
+						assigned_sub_id: 3159
+					},
+					payload: {}
 				}),
 				{ status: 200 }
 			)

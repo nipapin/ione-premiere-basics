@@ -17,13 +17,18 @@ interface AtomXPaymentData {
 	created: Date;
 }
 
-export async function POST(request: NextRequest) {
-	const payproOrder = await request.text();
+const parsePayproOrder = (payproOrder: string) => {
 	const payproOrderData = payproOrder.split("&").map((item) => {
 		const [key, value] = item.split("=");
 		return { [key]: value };
 	});
-	console.log(payproOrderData);
+	return payproOrderData;
+};
 
+export async function POST(request: NextRequest) {
+	const payproOrder = await request.text();
+	const payproOrderData = parsePayproOrder(payproOrder);
+	console.log(payproOrderData);
+	console.log(HTTP_WC_ATOMX_SOURCE);
 	return NextResponse.json({ message: "Hello, world!" });
 }

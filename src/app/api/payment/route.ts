@@ -14,7 +14,7 @@ interface AtomXPaymentData {
 	product_id: number;
 	generated_purchase_code: string;
 	currency: string;
-	price: number;
+	item_price: number;
 	billing_firstname: string;
 	billing_lastname: string;
 	billing_company: string;
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
 		product_id: Number(payproOrderData.PRODUCT_ID),
 		generated_purchase_code: payproOrderData.HASH,
 		currency: payproOrderData.ORDER_CURRENCY_CODE,
-		price: Number(payproOrderData.ORDER_ITEM_UNIT_PRICE),
+		item_price: Number(payproOrderData.ORDER_ITEM_UNIT_PRICE),
 		billing_firstname: payproOrderData.CUSTOMER_FIRST_NAME,
 		billing_lastname: payproOrderData.CUSTOMER_LAST_NAME,
 		billing_company: payproOrderData.COMPANY_NAME,

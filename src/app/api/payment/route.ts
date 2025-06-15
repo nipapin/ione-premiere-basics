@@ -80,6 +80,9 @@ export async function POST(request: NextRequest) {
 			HTTP_WC_ATOMX_SOURCE: HTTP_WC_ATOMX_SOURCE
 		},
 		body: JSON.stringify(atomPayload)
+	}).catch((error) => {
+		console.error(error);
+		return NextResponse.json({ message: "Error" }, { status: 500 });
 	});
 	return NextResponse.json({ message: "Hello, world!" });
 }

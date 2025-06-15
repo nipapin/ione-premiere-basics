@@ -12,15 +12,39 @@ interface AtomXPaymentData {
 	parent_order_id: number;
 	order_id: number;
 	product_id: number;
-	generated_hash: string;
+	generated_purchase_code: string;
 	currency: string;
 	price: number;
-	billing_info: string;
-	billing_mail: string;
-	created: number;
+	billing_info: {
+		billing_firstname: string;
+		billing_lastname: string;
+		billing_company: string;
+	};
+	billing_email: string;
 }
 
 type PayproOrderData = Record<string, string>;
+
+const OrderStatus = {
+	OrderCharged: "active",
+	OrderRefunded: "active",
+	OrderChargedBack: "active",
+	OrderDeclined: "active",
+	OrderPartiallyRefunded: "active",
+	SubscriptionChargeSucceed: "active",
+	SubscriptionChargeFailed: "active",
+	SubscriptionSuspended: "active",
+	SubscriptionRenewed: "active",
+	SubscriptionTerminated: "active",
+	SubscriptionFinished: "active",
+	LicenseRequested: "active",
+	TrialCharge: "active",
+	OrderChargebackIsWon: "active",
+	OrderCustomerInformationChanged: "active",
+	InstantLeadNotification: "active",
+	OrderOnWaiting: "active",
+	SubscriptionPaymentInfoChanged: "active"
+};
 
 const parsePayproOrder = (payproOrder: string) => {
 	const payproOrderData = payproOrder.split("&").reduce((acc, item) => {
@@ -38,13 +62,16 @@ export async function POST(request: NextRequest) {
 		status: "active",
 		parent_order_id: Number(payproOrderData.ORDER_ID),
 		order_id: Number(payproOrderData.ORDER_ITEM_ID),
-		product_id: 1,
-		generated_hash: payproOrderData.HASH,
+		product_id: Number(payproOrderData.PRODUCT_ID),
+		generated_purchase_code: payproOrderData.HASH,
 		currency: payproOrderData.ORDER_CURRENCY_CODE,
-		price: Number(payproOrderData.AMOUNT),
-		billing_info: payproOrderData.CUSTOMER_NAME,
-		billing_mail: payproOrderData.CUSTOMER_EMAIL,
-		created: Date.now()
+		price: Number(payproOrderData.ORDER_ITEM_UNIT_PRICE),
+		billing_info: {
+			billing_firstname: payproOrderData.CUSTOMER_FIRST_NAME,
+			billing_lastname: payproOrderData.CUSTOMER_LAST_NAME,
+			billing_company: payproOrderData.COMPANY_NAME
+		},
+		billing_email: payproOrderData.CUSTOMER_EMAIL
 	};
 	fetch("https://api.get-atomx.com/atomx/v1/webhook_esubs", {
 		method: "POST",

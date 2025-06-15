@@ -69,6 +69,7 @@ export async function POST(request: NextRequest) {
 		billing_company: payproOrderData.COMPANY_NAME,
 		billing_email: payproOrderData.CUSTOMER_EMAIL
 	};
+	console.log(JSON.stringify(atomPayload, null, 2));
 	fetch("https://api.get-atomx.com/atomx/v1/webhook_esubs", {
 		method: "POST",
 		headers: {

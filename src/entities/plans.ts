@@ -1,5 +1,5 @@
 type Plan = {
-	id: number;
+	id: number[];
 	title: string;
 	description: string;
 	price: number;
@@ -10,8 +10,8 @@ type Plan = {
 
 export const plans: Plan[] = [
 	{
-		id: 1,
-		title: "Free",
+		id: [113884],
+		title: "Trial",
 		description: "During this phase the design is developed\nto meet the required technical standards to",
 		price: 0,
 		per: "",
@@ -24,10 +24,10 @@ export const plans: Plan[] = [
 		action: "#"
 	},
 	{
-		id: 2,
+		id: [111867, 113886],
 		title: "Pro",
 		description: "During this phase the design is developed\nto meet the required technical standards to",
-		price: 19,
+		price: 19.9,
 		per: "month",
 		benefits: [
 			"Core engagement survey",
@@ -38,7 +38,7 @@ export const plans: Plan[] = [
 		action: "#"
 	},
 	{
-		id: 3,
+		id: [113887],
 		title: "Infinite",
 		description: "During this phase the design is developed\nto meet the required technical standards to",
 		price: 250,

@@ -15,11 +15,9 @@ interface AtomXPaymentData {
 	generated_purchase_code: string;
 	currency: string;
 	price: number;
-	billing_info: {
-		billing_firstname: string;
-		billing_lastname: string;
-		billing_company: string;
-	};
+	billing_firstname: string;
+	billing_lastname: string;
+	billing_company: string;
 	billing_email: string;
 }
 
@@ -66,11 +64,9 @@ export async function POST(request: NextRequest) {
 		generated_purchase_code: payproOrderData.HASH,
 		currency: payproOrderData.ORDER_CURRENCY_CODE,
 		price: Number(payproOrderData.ORDER_ITEM_UNIT_PRICE),
-		billing_info: {
-			billing_firstname: payproOrderData.CUSTOMER_FIRST_NAME,
-			billing_lastname: payproOrderData.CUSTOMER_LAST_NAME,
-			billing_company: payproOrderData.COMPANY_NAME
-		},
+		billing_firstname: payproOrderData.CUSTOMER_FIRST_NAME,
+		billing_lastname: payproOrderData.CUSTOMER_LAST_NAME,
+		billing_company: payproOrderData.COMPANY_NAME,
 		billing_email: payproOrderData.CUSTOMER_EMAIL
 	};
 	fetch("https://api.get-atomx.com/atomx/v1/webhook_esubs", {

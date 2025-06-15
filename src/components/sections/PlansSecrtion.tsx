@@ -4,6 +4,7 @@ import { plans, styles } from "@/entities/plans";
 import { CheckCircle } from "@mui/icons-material";
 import {
 	Button,
+	Dialog,
 	FormControlLabel,
 	List,
 	ListItem,
@@ -28,8 +29,18 @@ const buttonTitle: Record<string, string> = {
 	Infinite: "Buy Now"
 };
 
+type UserData = {
+	firstName: string;
+	lastName: string;
+	email: string;
+};
+
+const purchaseLink = (userData: UserData) =>
+	`https://store.payproglobal.com/checkout?products[1][id]=111867&page-template=12342&currency=USD&billing-first-name=${userData.firstName}&billing-last-name=${userData.lastName}&billing-email=${userData.email}`;
+
 export default function PlansSection() {
 	const [billingYearly, setBillingYearly] = useState(true);
+	const [open, setOpen] = useState(false);
 	return (
 		<Wrapper component='section' sx={styles.section} fullWidth>
 			<Title>Compare our plans</Title>
@@ -83,7 +94,13 @@ export default function PlansSection() {
 										);
 									})}
 								</List>
-								<Button fullWidth href={plan.action} variant='contained' sx={styles.actionButton}>
+								<Button
+									fullWidth
+									href={plan.action}
+									variant='contained'
+									sx={styles.actionButton}
+									onClick={() => setOpen(true)}
+								>
 									{buttonTitle[plan.title]}
 								</Button>
 							</Wrapper>
@@ -91,6 +108,12 @@ export default function PlansSection() {
 					);
 				})}
 			</Wrapper>
+			<Dialog open={open} onClose={() => setOpen(false)} fullWidth>
+				<iframe
+					src={purchaseLink({ firstName: "John", lastName: "Doe", email: "john@doe.com" })}
+					style={{ width: "100%", height: "100%", border: "none" }}
+				/>
+			</Dialog>
 		</Wrapper>
 	);
 }

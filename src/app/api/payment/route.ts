@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
-			HTTP_WC_ATOMX_SOURCE: HTTP_WC_ATOMX_SOURCE
+			'WC-AtomX-Source': HTTP_WC_ATOMX_SOURCE
 		},
 		body: JSON.stringify(atomPayload)
 	}).catch((error) => {

@@ -5,10 +5,9 @@ import { setCsrfToken } from "@/lib/csrf";
 import { Home, Visibility, VisibilityOff } from "@mui/icons-material";
 import { Alert, Box, Button, CircularProgress, IconButton, Link, TextField, Typography } from "@mui/material";
 import NextLink from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { Wrapper } from "../layout/Wrapper";
-import StyledLink from "../ui/StyledLink";
 
 interface LoginFormData {
 	email: string;
@@ -68,12 +67,12 @@ export const styles = {
 		flexDirection: "column",
 		gap: "1rem",
 		width: "100%",
-		height: "100%",
+		height: "500px",
 		background: "var(--background-gradient)"
 	}
 };
 
-export default function LoginForm() {
+export default function LoginForm({ after }: { after?: string }) {
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [csrfToken, setCsrfTokenState] = useState("");
@@ -110,7 +109,8 @@ export default function LoginForm() {
 			const user = await login(formValues.email, formValues.password, csrfToken);
 
 			if (user) {
-				push("/account");
+				localStorage.setItem("ops", user.user_id);
+				window.location.replace(after ? `/charge-payment?after=${after}` : "/account");
 			} else {
 				setPasswordError(true);
 				setIsLoading(false);
@@ -160,9 +160,11 @@ export default function LoginForm() {
 				)}
 
 				<SubmitButton isLoading={isLoading} />
-				<Typography mt={"1rem"} textAlign={"center"} width={"100%"}>
-					Have no account yet? <StyledLink href={"/signup"}>Sign Up</StyledLink>
-				</Typography>
+				<NextLink href={`/signup${after ? `?after=${after}` : ""}`} passHref legacyBehavior>
+					<Button variant='outlined' fullWidth href=''>
+						<Typography textAlign={"center"}>Have no account yet? Sign Up</Typography>
+					</Button>
+				</NextLink>
 			</Box>
 		</Wrapper>
 	);

@@ -27,7 +27,9 @@ export default function NavBar() {
 
 	const handleLogout = async () => {
 		await logout();
-		if (pathname?.includes("/account")) router.push("/");
+		localStorage.removeItem("ops");
+		router.push("/login");
+		window.location.reload();
 	};
 
 	return (

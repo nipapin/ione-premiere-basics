@@ -2,9 +2,9 @@
 
 import { cookies } from "next/headers";
 import { headers } from "next/headers";
-import { createClient } from "./supabase/server";
-import { Session } from "@/types";
+import { Session } from "@/types/interfaces";
 import crypto from "crypto";
+import { query } from "@/app/database/postgre";
 
 const SESSION_COOKIE = "odin-pro-session";
 const SESSION_ID_COOKIE = "odin-pro-session-id";
@@ -14,7 +14,6 @@ export async function createSession(user_id: string): Promise<Session> {
 	"use server";
 	const cookieStore = await cookies();
 	const headersList = await headers();
-	const supabase = await createClient(cookies());
 
 	// Generate a unique session ID
 	const session_id = crypto.randomBytes(32).toString("hex");
@@ -23,38 +22,31 @@ export async function createSession(user_id: string): Promise<Session> {
 	const ip_address = headersList.get("x-forwarded-for") || "unknown";
 	const user_agent = headersList.get("user-agent") || "unknown";
 
-	// Create session record using service role
-	const { data, error } = await supabase
-		.from("sessions")
-		.insert({
+	const data = await query(
+		"INSERT INTO sessions (user_id, session_id, ip_address, user_agent, created_at, expires_at) VALUES ($1, $2, $3, $4, $5, $6)",
+		[
 			user_id,
 			session_id,
 			ip_address,
 			user_agent,
-			created_at: new Date().toISOString(),
-			expires_at: new Date(Date.now() + SESSION_EXPIRY * 1000).toISOString(),
-		})
-		.select()
-		.single();
-
-	if (error) {
-		console.error("Failed to create session:", error);
-		throw new Error("Failed to create session");
-	}
+			new Date().toISOString(),
+			new Date(Date.now() + SESSION_EXPIRY * 1000).toISOString()
+		]
+	).then((res) => res[0]);
 
 	// Set secure cookies
 	cookieStore.set(SESSION_COOKIE, user_id, {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",
 		sameSite: "strict",
-		maxAge: SESSION_EXPIRY,
+		maxAge: SESSION_EXPIRY
 	});
 
 	cookieStore.set(SESSION_ID_COOKIE, session_id, {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",
 		sameSite: "strict",
-		maxAge: SESSION_EXPIRY,
+		maxAge: SESSION_EXPIRY
 	});
 
 	return data;
@@ -64,7 +56,6 @@ export async function validateSession(): Promise<Session | null> {
 	"use server";
 	const cookieStore = await cookies();
 	const headersList = await headers();
-	const supabase = await createClient(cookies());
 
 	const user_id = cookieStore.get(SESSION_COOKIE)?.value;
 	const session_id = cookieStore.get(SESSION_ID_COOKIE)?.value;
@@ -77,19 +68,12 @@ export async function validateSession(): Promise<Session | null> {
 	const ip_address = headersList.get("x-forwarded-for") || "unknown";
 	const user_agent = headersList.get("user-agent") || "unknown";
 
-	// Validate session without deleting it
-	const { data, error } = await supabase
-		.from("sessions")
-		.select()
-		.eq("user_id", user_id)
-		.eq("session_id", session_id)
-		.eq("ip_address", ip_address)
-		.eq("user_agent", user_agent)
-		.gt("expires_at", new Date().toISOString())
-		.single();
+	const data = await query(
+		"SELECT * FROM sessions WHERE user_id = $1 AND session_id = $2 AND ip_address = $3 AND user_agent = $4 AND expires_at > $5",
+		[user_id, session_id, ip_address, user_agent, new Date().toISOString()]
+	).then((res) => res[0]);
 
-	if (error || !data) {
-		// Session is invalid or expired, but we don't delete it
+	if (!data) {
 		return null;
 	}
 
@@ -99,10 +83,8 @@ export async function validateSession(): Promise<Session | null> {
 export async function deleteSession(user_id: string, session_id: string): Promise<void> {
 	"use server";
 	const cookieStore = await cookies();
-	const supabase = await createClient(cookies());
 
-	// Delete session from database
-	await supabase.from("sessions").delete().eq("user_id", user_id).eq("session_id", session_id);
+	await query("DELETE FROM sessions WHERE user_id = $1 AND session_id = $2", [user_id, session_id]);
 
 	// Clear cookies
 	cookieStore.delete(SESSION_COOKIE);
@@ -112,10 +94,9 @@ export async function deleteSession(user_id: string, session_id: string): Promis
 export async function deleteAllUserSessions(user_id: string): Promise<void> {
 	"use server";
 	const cookieStore = await cookies();
-	const supabase = await createClient(cookies());
 
 	// Delete all sessions for the user
-	await supabase.from("sessions").delete().eq("user_id", user_id);
+	await query("DELETE FROM sessions WHERE user_id = $1", [user_id]);
 
 	// Clear cookies
 	cookieStore.delete(SESSION_COOKIE);

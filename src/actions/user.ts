@@ -1,9 +1,9 @@
 "use server";
+import { query } from "@/app/database/postgre";
 import { validateCsrfToken } from "@/lib/csrf";
 import { sendEmail } from "@/lib/email";
 import { createSession, deleteAllUserSessions } from "@/lib/session";
-import { createClient } from "@/lib/supabase/server";
-import { User } from "@/types";
+import { User } from "@/types/interfaces";
 import bcrypt from "bcrypt";
 import { cookies } from "next/headers";
 
@@ -18,34 +18,20 @@ export const create = async (
 		throw new Error("Invalid CSRF token");
 	}
 
-	const cookieStore = cookies();
-	const supabase = await createClient(cookieStore);
-
 	const [firstName, lastName] = name.split(" ");
 
 	const hashedPassword = await bcrypt.hash(_password, 10);
 	const confirmationToken = crypto.randomUUID();
-	// Insert user and get the UUID
-	const { data, error } = await supabase
-		.from("users")
-		.insert({
-			email: email.toLowerCase().trim(),
-			password: hashedPassword,
-			name: firstName,
-			lastname: lastName || "",
-			confirmtoken: confirmationToken
-		})
-		.select("user_id, email, name, lastname, confirmtoken");
 
-	if (error) {
-		console.error("Supabase error:", error);
-		throw error;
-	}
+	const data = await query(
+		`INSERT INTO users (email, password, name, lastname, confirmtoken) VALUES ($1, $2, $3, $4, $5) RETURNING user_id, email, name, lastname, confirmtoken`,
+		[email.toLowerCase().trim(), hashedPassword, firstName, lastName || "", confirmationToken]
+	).then((res) => res[0]);
 
 	// Create a new session for the user
-	await createSession(data[0].user_id);
+	await createSession(data.user_id);
 
-	return data[0];
+	return data;
 };
 
 export const login = async (email: string, password: string, csrfToken: string): Promise<User | null> => {
@@ -54,14 +40,9 @@ export const login = async (email: string, password: string, csrfToken: string):
 		throw new Error("Invalid CSRF token");
 	}
 
-	const cookieStore = cookies();
-	const supabase = await createClient(cookieStore);
-
-	const { data, error } = await supabase
-		.from("users")
-		.select("user_id, email, password, name, lastname")
-		.eq("email", email.toLowerCase().trim())
-		.single();
+	const data = await query(`SELECT user_id, email, password, name, lastname FROM users WHERE email = $1`, [
+		email.toLowerCase().trim()
+	]).then((res) => res[0]);
 
 	if (!data) {
 		return null;
@@ -73,10 +54,7 @@ export const login = async (email: string, password: string, csrfToken: string):
 		return null;
 	}
 
-	if (error) {
-		console.error("Supabase error:", error);
-		throw error;
-	}
+	console.log("logged in user", data);
 
 	const userData = {
 		user_id: data.user_id,
@@ -92,27 +70,12 @@ export const login = async (email: string, password: string, csrfToken: string):
 };
 
 export const get = async (user_id: string): Promise<User | null> => {
-	const cookieStore = cookies();
-	const supabase = await createClient(cookieStore);
-
-	// Validate the session
-	// const session = await validateSession();
-	// if (!session || session.user_id !== user_id) {
-	// 	return null;
-	// }
-
-	const { data, error } = await supabase
-		.from("users")
-		.select("user_id, email, name, lastname")
-		.eq("user_id", user_id)
-		.single();
+	const data = await query(`SELECT user_id, email, name, lastname, paypro_customer_id FROM users WHERE user_id = $1`, [
+		user_id
+	]).then((res) => res[0]);
 
 	if (!data) {
 		return null;
-	}
-
-	if (error) {
-		throw error;
 	}
 
 	return data;
@@ -131,29 +94,18 @@ export const logout = async (): Promise<boolean> => {
 };
 
 export const isExist = async (email: string): Promise<boolean> => {
-	const cookieStore = cookies();
-	const supabase = await createClient(cookieStore);
-
-	const { data, error } = await supabase.from("users").select("user_id").eq("email", email).maybeSingle();
-
-	if (error) {
-		throw error;
-	}
-
+	const data = await query(`SELECT user_id FROM users WHERE email = $1`, [email.toLowerCase().trim()]).then(
+		(res) => res[0]
+	);
 	return !!data;
 };
 
 export const sendConfirmationEmail = async (email: string, confirmationToken: string): Promise<boolean> => {
-	const cookieStore = cookies();
-	const supabase = await createClient(cookieStore);
+	const user = await query(`SELECT user_id, email, name FROM users WHERE email = $1`, [
+		email.toLowerCase().trim()
+	]).then((res) => res[0]);
 
-	const { data: user, error } = await supabase
-		.from("users")
-		.select("user_id, email, name")
-		.eq("email", email.toLowerCase().trim())
-		.single();
-
-	if (error || !user) {
+	if (!user) {
 		return false;
 	}
 
@@ -174,38 +126,27 @@ export const sendConfirmationEmail = async (email: string, confirmationToken: st
 };
 
 export const confirmAccount = async (token: string): Promise<boolean> => {
-	const cookieStore = cookies();
-	const supabase = await createClient(cookieStore);
+	const data = await query(
+		`UPDATE users SET confirmtoken = null, emailconfirmed = true WHERE confirmtoken = $1 OR emailconfirmed = true RETURNING user_id, email, name, lastname, confirmtoken, emailconfirmed`,
+		[token]
+	).then((res) => res[0]);
 
-	const { data, error } = await supabase
-		.from("users")
-		.update({ confirmtoken: null, emailconfirmed: true })
-		.or(`confirmtoken.eq.${token},emailconfirmed.eq.true`)
-		.select("user_id, email, name, lastname, confirmtoken, emailconfirmed");
-
-	if (error) {
-		throw error;
-	}
-
-	if (!data[0]) {
+	if (!data) {
 		return false;
 	}
 
-	await createSession(data[0].user_id);
+	await createSession(data.user_id);
 
 	return true;
 };
 
 export const checkPassword = async (password: string): Promise<boolean> => {
-	const cookieStore = cookies();
-	const supabase = await createClient(cookieStore);
+	const cookieStore = await cookies();
+	const user_id = cookieStore.get("odin-pro-session")?.value;
 
-	const user_id = (await cookieStore).get("odin-pro-session")?.value;
+	const data = await query(`SELECT password FROM users WHERE user_id = $1`, [user_id]).then((res) => res[0]);
 
-	const { data, error } = await supabase.from("users").select("password").eq("user_id", user_id).single();
-
-	if (error) {
-		console.error("Supabase error:", error);
+	if (!data) {
 		return false;
 	}
 
@@ -214,43 +155,26 @@ export const checkPassword = async (password: string): Promise<boolean> => {
 };
 
 export const updatePassword = async (password: string, email?: string): Promise<boolean> => {
-	const cookieStore = cookies();
-	const supabase = await createClient(cookieStore);
-
-	const user_id = (await cookieStore).get("odin-pro-session")?.value;
+	const cookieStore = await cookies();
+	const user_id = cookieStore.get("odin-pro-session")?.value;
 
 	const encryptedPassword = await bcrypt.hash(password, 10);
 	if (email) {
-		const { error } = await supabase.from("users").update({ password: encryptedPassword }).eq("email", email);
+		await query(`UPDATE users SET password = $1 WHERE email = $2`, [encryptedPassword, email]);
 
-		if (error) {
-			console.error("Supabase error:", error);
-			return false;
-		}
+		return true;
 	} else {
-		const { error } = await supabase.from("users").update({ password: encryptedPassword }).eq("user_id", user_id);
+		await query(`UPDATE users SET password = $1 WHERE user_id = $2`, [encryptedPassword, user_id]);
 
-		if (error) {
-			console.error("Supabase error:", error);
-			return false;
-		}
+		return true;
 	}
-
-	return true;
 };
 
 export const updateName = async (name: string, lastname: string): Promise<boolean> => {
-	const cookieStore = cookies();
-	const supabase = await createClient(cookieStore);
+	const cookieStore = await cookies();
+	const user_id = cookieStore.get("odin-pro-session")?.value;
 
-	const user_id = (await cookieStore).get("odin-pro-session")?.value;
-
-	const { error } = await supabase.from("users").update({ name, lastname }).eq("user_id", user_id);
-
-	if (error) {
-		console.error("Supabase error:", error);
-		return false;
-	}
+	await query(`UPDATE users SET name = $1, lastname = $2 WHERE user_id = $3`, [name, lastname, user_id]);
 
 	return true;
 };
@@ -258,10 +182,9 @@ export const updateName = async (name: string, lastname: string): Promise<boolea
 export const sendUpdateEmail = async (previousEmail: string, email: string): Promise<boolean> => {
 	if (!Boolean(email)) return false;
 
-	const cookieStore = cookies();
-	const supabase = await createClient(cookieStore);
+	const cookieStore = await cookies();
+	const user_id = cookieStore.get("odin-pro-session")?.value;
 
-	const user_id = (await cookieStore).get("odin-pro-session")?.value;
 	const emailIsBusy = await isExist(email);
 
 	if (emailIsBusy) {
@@ -269,12 +192,7 @@ export const sendUpdateEmail = async (previousEmail: string, email: string): Pro
 	}
 
 	const confirmationToken = crypto.randomUUID();
-	const { error } = await supabase.from("users").update({ confirmtoken: confirmationToken }).eq("user_id", user_id);
-
-	if (error) {
-		console.error("Supabase error:", error);
-		return false;
-	}
+	await query(`UPDATE users SET confirmtoken = $1 WHERE user_id = $2`, [confirmationToken, user_id]);
 
 	await sendEmail(
 		previousEmail,
@@ -298,43 +216,26 @@ export const sendUpdateEmail = async (previousEmail: string, email: string): Pro
 };
 
 export const confirmUpdateEmail = async (token: string): Promise<boolean> => {
-	const cookieStore = cookies();
-	const supabase = await createClient(cookieStore);
-
-	const { data, error } = await supabase
-		.from("users")
-		.select("user_id, email, name, lastname, confirmtoken, emailconfirmed")
-		.eq("confirmtoken", token)
-		.single();
-
-	if (error) {
-		console.error("Supabase error:", error);
-		return false;
-	}
+	const data = await query(
+		`SELECT user_id, email, name, lastname, confirmtoken, emailconfirmed FROM users WHERE confirmtoken = $1`,
+		[token]
+	).then((res) => res[0]);
 
 	if (!data) {
 		return false;
 	}
 
+	query(`UPDATE users SET confirmtoken = null, emailconfirmed = true WHERE confirmtoken = $1`, [token]);
+
 	return true;
 };
 
 export const sendResetPasswordEmail = async (email: string): Promise<boolean> => {
-	const cookieStore = cookies();
-	const supabase = await createClient(cookieStore);
-
 	const confirmationToken = crypto.randomUUID();
-	const { data, error } = await supabase
-		.from("users")
-		.update({ confirmtoken: confirmationToken })
-		.eq("email", email)
-		.select("name")
-		.single();
-
-	if (error) {
-		console.error("Supabase error:", error);
-		return false;
-	}
+	const data = await query(`UPDATE users SET confirmtoken = $1 WHERE email = $2 RETURNING name`, [
+		confirmationToken,
+		email
+	]).then((res) => res[0]);
 
 	if (!data) {
 		return false;
@@ -355,26 +256,16 @@ export const sendResetPasswordEmail = async (email: string): Promise<boolean> =>
 };
 
 export const confirmResetPassword = async (email: string, confirmationCode: string): Promise<boolean> => {
-	const cookieStore = cookies();
-	const supabase = await createClient(cookieStore);
-
-	const { data, error } = await supabase
-		.from("users")
-		.select("*")
-		.eq("confirmtoken", confirmationCode)
-		.eq("email", email)
-		.single();
-
-	if (error) {
-		console.error("Supabase error:", error);
-		return false;
-	}
+	const data = await query(`SELECT * FROM users WHERE confirmtoken = $1 AND email = $2`, [
+		confirmationCode,
+		email
+	]).then((res) => res[0]);
 
 	if (!data) {
 		return false;
 	}
 
-	await supabase.from("users").update({ confirmtoken: null }).eq("user_id", data.user_id);
+	query(`UPDATE users SET confirmtoken = null WHERE user_id = $1`, [data.user_id]);
 
 	return true;
 };

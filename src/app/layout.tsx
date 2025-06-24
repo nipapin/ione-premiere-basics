@@ -37,7 +37,7 @@ export default async function RootLayout({
 			<body>
 				<AppRouterCacheProvider options={{ key: "odin" }}>
 					<NavBarBoundingProvider>
-						<UserWrapper initialUser={initialUser}>
+						<UserWrapper initialUser={initialUser} userID={user_id}>
 							<ThemeWrapper>
 								<Box sx={{ width: "100vw", overflowX: "hidden", maxWidth: "100%" }}>
 									<NavBar />

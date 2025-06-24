@@ -7,7 +7,7 @@ import FAQSection from "@/components/sections/FAQSection";
 import Hero from "@/components/sections/HeroSection";
 import PartnersShowcase from "@/components/sections/PartnersShowcaseSection";
 import PeopleCommentsSection from "@/components/sections/PeopleCommentsSection";
-import PlansSection from "@/components/sections/PlansSecrtion";
+import PlansSection from "@/components/sections/PlansSection";
 import PowerfulTools from "@/components/sections/PowerfulToolsSection";
 import Showcase from "@/components/sections/ShowcaseSection";
 import StatisticShowcase from "@/components/sections/StatisticShowcaseSection";

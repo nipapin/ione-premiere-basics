@@ -1,10 +1,12 @@
 "use client";
 
+import { useUser } from "@/contexts/UserWrapper";
 import { plans, styles } from "@/entities/plans";
 import { CheckCircle } from "@mui/icons-material";
 import {
 	Button,
 	FormControlLabel,
+	Hidden,
 	List,
 	ListItem,
 	ListItemIcon,
@@ -12,9 +14,10 @@ import {
 	Switch,
 	Typography
 } from "@mui/material";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { Wrapper } from "../layout/Wrapper";
 import Title from "../ui/Title";
+import { useRouter } from "next/navigation";
 
 const formatPrice = (price: number, billingYearly: boolean, title: string) => {
 	if (title === "Trial") return "Free";
@@ -35,14 +38,29 @@ type UserData = {
 	lastName: string;
 	email: string;
 	productId: number;
+	user_id: string;
 };
 
-const purchaseLink = (userData: UserData) =>
-	`https://store.payproglobal.com/checkout?products[1][id]=${userData.productId}&page-template=13366&currency=USD&billing-first-name=${userData.firstName}&billing-last-name=${userData.lastName}&billing-email=${userData.email}`;
+const purchaseLink = (userData: UserData) => {
+	const payload = Buffer.from(
+		Object.entries(userData)
+			.map(([key, value]) => `${key}=${value}`)
+			.join("&")
+	).toString("base64");
+	return `/charge-payment?payload=${payload}`;
+};
 
 export default function PlansSection() {
+	const user = useUser();
+	const router = useRouter();
 	const [billingYearly, setBillingYearly] = useState(true);
 	const [open, setOpen] = useState(false);
+
+	const followPurchase = (productId: number) => () => {
+		const hash = Buffer.from(productId.toString()).toString("base64");
+		router.push(user ? `/charge-payment?after=${hash}` : `/signup?after=${hash}`);
+	};
+
 	return (
 		<Wrapper component='section' sx={styles.section} fullWidth>
 			<Title>Compare our plans</Title>
@@ -98,19 +116,7 @@ export default function PlansSection() {
 										);
 									})}
 								</List>
-								<Button
-									fullWidth
-									// href={plan.action}
-									variant='contained'
-									sx={styles.actionButton}
-									href={purchaseLink({
-										firstName: "Nikita",
-										lastName: "Papin",
-										email: "papin201212@gmail.com",
-										productId: key
-									})}
-									target='_blank'
-								>
+								<Button fullWidth variant='contained' sx={styles.actionButton} onClick={followPurchase(key)}>
 									{buttonTitle[plan.title]}
 								</Button>
 							</Wrapper>

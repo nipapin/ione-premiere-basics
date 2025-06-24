@@ -3,8 +3,7 @@
 import type { MDXComponents } from "mdx/types";
 import { Box, Divider, Link, List, ListItem, ListItemText, Paper, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import SyntaxHighlighter from "react-syntax-highlighter";
-import { dark } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { Highlight, themes } from "prism-react-renderer";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
 	padding: theme.spacing(2),
@@ -138,20 +137,32 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
 			const match = /language-(\w+)/.exec(className || "");
 			return match ? (
 				<Box sx={{ mb: "1.5rem", borderRadius: "0.5rem", overflow: "hidden" }}>
-					<SyntaxHighlighter
+					<Highlight
+						theme={themes.dracula}
+						code={String(children)}
 						language={match[1]}
-						PreTag='div'
-						style={dark}
-						customStyle={{
-							margin: 0,
-							borderRadius: "0.5rem",
-							fontSize: "0.95rem",
-							padding: "1rem"
-						}}
-						{...properties}
 					>
-						{String(children)}
-					</SyntaxHighlighter>
+						{({ className, style, tokens, getLineProps, getTokenProps }) => (
+							<pre
+								className={className}
+								style={{
+									...style,
+									margin: 0,
+									borderRadius: "0.5rem",
+									fontSize: "0.95rem",
+									padding: "1rem"
+								}}
+							>
+								{tokens.map((line, i) => (
+									<div key={i} {...getLineProps({ line })}>
+										{line.map((token, key) => (
+											<span key={key} {...getTokenProps({ token })} />
+										))}
+									</div>
+								))}
+							</pre>
+						)}
+					</Highlight>
 				</Box>
 			) : (
 				<code

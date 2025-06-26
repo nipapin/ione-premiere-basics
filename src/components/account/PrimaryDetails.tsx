@@ -3,6 +3,7 @@ import { InfoOutlined } from "@mui/icons-material";
 import { Box, Button, Divider, Skeleton, Tooltip, Typography } from "@mui/material";
 import { PaymentDetails } from "./PaymentDetails";
 import { Seat } from "./Seat";
+import ManageSeats from "./ManageSeats";
 
 const subscriptionDetails = [
 	{ id: 1, label: "Status", key: "status" },
@@ -18,17 +19,14 @@ const subscriptionStyle = (pending: boolean) => ({
 });
 
 export default function PrimaryDetails({ subscription, user, pending }: PrimaryDetailsProps) {
-	const addSeats = () => {
-		fetch("/api/subscription/add-seats", {
+	const manageSeats = () => {
+		fetch("/api/subscription/seats/manage", {
 			method: "POST",
 			body: JSON.stringify({
 				user,
-				quantity: Number(subscription?.quantity)
+				subscription
 			})
-		})
-			.then((res) => res.json())
-			.then(console.log)
-			.catch(console.error);
+		});
 	};
 
 	return (
@@ -93,9 +91,7 @@ export default function PrimaryDetails({ subscription, user, pending }: PrimaryD
 						</Typography>
 					</Typography>
 				</Box>
-				<Button variant='contained' sx={{ borderRadius: "0.5rem" }} onClick={addSeats}>
-					Add / Remove
-				</Button>
+				<ManageSeats />
 			</Box>
 			<Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
 				{subscription?.seats.map((seat, index) => (

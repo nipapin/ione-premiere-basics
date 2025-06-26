@@ -38,3 +38,11 @@ export interface Session {
 	created_at: string;
 	expires_at: string;
 }
+
+export interface Product {
+	logoUrl: string;
+	name: string;
+	displayPrice: number;
+	quantity: number;
+	daysBeforeCharge: number;
+}

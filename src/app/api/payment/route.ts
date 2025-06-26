@@ -77,6 +77,8 @@ export async function POST(request: NextRequest) {
 	);
 
 	const odinSubscription = {
+		product_id: payproOrderData.PRODUCT_ID,
+		order_id: payproOrderData.ORDER_ID,
 		subscription_id: payproOrderData.SUBSCRIPTION_ID,
 		status: OrderStatus[payproOrderData.IPN_TYPE_NAME],
 		invoice: payproOrderData.INVOICE_LINK,
@@ -87,12 +89,15 @@ export async function POST(request: NextRequest) {
 		user_id: user?.user_id || "2e748653-5058-42da-a8d4-b227e0143e92",
 		customer_id: payproOrderData.CUSTOMER_ID,
 		order_item_name: payproOrderData.ORDER_ITEM_NAME,
-		seats: Array.from({ length: Number(payproOrderData.PRODUCT_QUANTITY) }).map((_) => "")
+		seats: Array.from({ length: Number(payproOrderData.PRODUCT_QUANTITY) }).map((_, index) =>
+			Boolean(index) ? "" : user?.email || "papin201212@gmail.com"
+		)
 	};
 
 	query(
-		`INSERT INTO subscriptions (subscription_id, status, invoice, is_trial, trial_period_till, next_charge_date, quantity, user_id, customer_id, order_item_name, seats) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+		`INSERT INTO subscriptions (order_id, subscription_id, status, invoice, is_trial, trial_period_till, next_charge_date, quantity, user_id, customer_id, order_item_name, seats, product_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
 		[
+			odinSubscription.order_id,
 			odinSubscription.subscription_id,
 			odinSubscription.status,
 			odinSubscription.invoice,
@@ -103,18 +108,15 @@ export async function POST(request: NextRequest) {
 			odinSubscription.user_id,
 			odinSubscription.customer_id,
 			odinSubscription.order_item_name.replace(/\+/g, " "),
-			odinSubscription.seats
+			odinSubscription.seats,
+			odinSubscription.product_id
 		]
-	)
-		.then(console.log)
-		.catch(console.error);
+	);
 
 	query(`UPDATE users SET paypro_customer_id = $1 WHERE user_id = $2`, [
 		odinSubscription.customer_id,
 		odinSubscription.user_id
-	])
-		.then(console.log)
-		.catch(console.error);
+	]);
 
 	fetch("https://api.get-atomx.com/atomx/v1/webhook_esubs", {
 		method: "POST",

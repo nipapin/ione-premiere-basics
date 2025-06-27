@@ -25,7 +25,10 @@ const getProduct = async (user_id: string) => {
 		})
 	})
 		.then((res) => res.json())
-		.then(({ response: { productPricings } }) => productPricings[0]);
+		.then((data) => {
+			console.log(data);
+			return data.response.productPricings[0];
+		});
 
 	const { logoUrl, name, displayPrice } = product;
 	const daysBeforeCharge = Math.ceil(
@@ -65,11 +68,7 @@ export async function POST(request: NextRequest) {
 	}
 
 	if (quantity < subscription.quantity) {
-		await query(`UPDATE subscriptions SET next_quantity = $1, seats = $2 WHERE user_id = $3`, [
-			String(quantity),
-			subscription.seats.slice(0, quantity),
-			user_id
-		]);
+		await query(`UPDATE subscriptions SET next_quantity = $1 WHERE user_id = $2`, [String(quantity), user_id]);
 	} else if (quantity > subscription.quantity) {
 		await query(`UPDATE subscriptions SET next_quantity = $1, quantity = $1, seats = $2 WHERE user_id = $3`, [
 			String(quantity),

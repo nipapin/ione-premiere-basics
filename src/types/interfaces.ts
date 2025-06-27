@@ -44,5 +44,6 @@ export interface Product {
 	name: string;
 	displayPrice: number;
 	quantity: number;
+	next_quantity: number;
 	daysBeforeCharge: number;
 }

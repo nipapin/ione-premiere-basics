@@ -62,12 +62,25 @@ export const PaymentDetails = () => {
 		setReason("");
 	};
 
+	const getPaymentDetails = () => {
+		fetch("/api/subscription/payment-details")
+			.then((res) => res.json())
+			.then((data) => {
+				console.log(data);
+			});
+	};
+
 	return (
 		<>
 			<Typography variant='h2' fontWeight={"bold"} fontSize={"1.2rem"}>
 				Payment details
 			</Typography>
-			<Button variant='contained' sx={{ borderRadius: "0.5rem", mt: "1rem" }} endIcon={<OpenInNew />}>
+			<Button
+				variant='contained'
+				sx={{ borderRadius: "0.5rem", mt: "1rem" }}
+				endIcon={<OpenInNew />}
+				onClick={getPaymentDetails}
+			>
 				View payment details
 			</Button>
 			<Button

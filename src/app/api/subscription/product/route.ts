@@ -35,7 +35,14 @@ const getProduct = async (user_id: string) => {
 		(parseDate(subscription.next_charge_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
 	);
 
-	return { logoUrl, name, displayPrice, quantity: subscription.next_quantity, daysBeforeCharge };
+	return {
+		logoUrl,
+		name,
+		displayPrice,
+		quantity: subscription.quantity,
+		next_quantity: subscription.next_quantity,
+		daysBeforeCharge
+	};
 };
 
 export async function GET() {

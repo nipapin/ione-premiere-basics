@@ -1,5 +1,5 @@
 import { Product } from "@/types/interfaces";
-import { Add, Remove, Close, Check, Error, CheckCircle } from "@mui/icons-material";
+import { Add, CheckCircle, Close, Error, Remove } from "@mui/icons-material";
 import {
 	Alert,
 	Avatar,
@@ -9,6 +9,7 @@ import {
 	CardActions,
 	CardContent,
 	CardHeader,
+	Chip,
 	CircularProgress,
 	Collapse,
 	Dialog,
@@ -26,6 +27,21 @@ const formatPrice = (price: number) => {
 	return Math.max(0, price).toLocaleString("en-US", { style: "currency", currency: "USD" }) + " per seat";
 };
 
+const getDiscount = (quantity: number) => {
+	if (quantity >= 5 && quantity <= 10) {
+		return 0.9;
+	} else if (quantity > 10 && quantity <= 20) {
+		return 0.8;
+	} else if (quantity > 20) {
+		return 0.7;
+	}
+	return 1;
+};
+
+const applyDiscount = (price: number, quantity: number) => {
+	return price * getDiscount(quantity);
+};
+
 const PaperCard = styled(Paper)(({ theme }) => ({
 	padding: "1rem",
 	display: "flex",
@@ -38,16 +54,26 @@ export default function ManageSeats() {
 	const [open, setOpen] = useState(false);
 	const [product, setProduct] = useState<Product>();
 	const [quantity, setQuantity] = useState<number>(product?.quantity || 1);
+	const [nextQuantity, setNextQuantity] = useState<number>(product?.next_quantity || 1);
 	const [pending, setPending] = useState(true);
 	const [show, setShow] = useState(false);
 	const [error, setError] = useState<string>("");
+	const [discount, setDiscount] = useState<number>(1);
+	const [chargeDiscount, setChargeDiscount] = useState<number>(1);
 
 	const manageSeats = () => {
 		setOpen(true);
 	};
 
 	const changeQuantity = (value: number) => () => {
-		setQuantity((prev) => Math.max(1, prev + value));
+		setNextQuantity((prev) => {
+			const newQuantity = Math.max(1, prev + value);
+			if (product) {
+				setDiscount(getDiscount(newQuantity));
+				setChargeDiscount(getDiscount(newQuantity - product.next_quantity));
+			}
+			return newQuantity;
+		});
 	};
 
 	const handleChangeSeats = () => {
@@ -56,8 +82,12 @@ export default function ManageSeats() {
 		fetch(`/api/subscription/product`, {
 			method: "POST",
 			body: JSON.stringify({
-				quantity,
-				charge: (product.displayPrice * (quantity - 1) * product.daysBeforeCharge) / 30
+				quantity: nextQuantity,
+				charge:
+					(applyDiscount(product.displayPrice, nextQuantity - product.quantity) *
+						(nextQuantity - product.quantity) *
+						product.daysBeforeCharge) /
+					30
 			})
 		})
 			.then((res) => res.json())
@@ -66,6 +96,9 @@ export default function ManageSeats() {
 				if (data.success) {
 					setProduct(data.product);
 					setQuantity(data.product.quantity);
+					setNextQuantity(data.product.next_quantity);
+					setDiscount(getDiscount(data.product.next_quantity));
+					setChargeDiscount(getDiscount(data.product.next_quantity - data.product.quantity));
 				} else {
 					setError(data.error);
 				}
@@ -86,6 +119,9 @@ export default function ManageSeats() {
 			const data = await response.json();
 			setProduct(data);
 			setQuantity(data.quantity);
+			setNextQuantity(data.next_quantity);
+			setDiscount(getDiscount(data.next_quantity));
+			setChargeDiscount(getDiscount(data.next_quantity - data.quantity));
 		};
 		fetchProduct().finally(() => setPending(false));
 	}, [open]);
@@ -104,7 +140,7 @@ export default function ManageSeats() {
 				<Card sx={{ p: "1rem 0.5rem" }}>
 					<CardHeader
 						title='Change Subscription Seats'
-						subheader={`Adjust number of seats for your subscription item.\nChanges will take effect on your next billing cycle.`}
+						subheader={`Changes will take effect on your next billing cycle.\nPayment will be charged immediately from your current balance.`}
 						action={
 							<IconButton onClick={handleClose}>
 								<Close />
@@ -128,7 +164,7 @@ export default function ManageSeats() {
 										<Typography variant='body1' fontSize={"0.875rem"} sx={{ opacity: 0.75 }}>
 											Current:{" "}
 											<Typography component='span' fontWeight={"bold"}>
-												{product.quantity} seat{product.quantity > 1 ? "s" : ""}
+												{quantity} seat{quantity > 1 ? "s" : ""}
 											</Typography>
 										</Typography>
 									</Box>
@@ -153,8 +189,17 @@ export default function ManageSeats() {
 									<Remove />
 								</IconButton>
 								<TextField
-									value={quantity}
-									onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
+									value={nextQuantity}
+									onChange={(e) => {
+										setNextQuantity((prev) => {
+											const newQuantity = Math.max(1, Number(e.target.value));
+											if (product) {
+												setDiscount(getDiscount(newQuantity));
+												setChargeDiscount(getDiscount(newQuantity - product.next_quantity));
+											}
+											return newQuantity;
+										});
+									}}
 									size='small'
 									slotProps={{ input: { sx: { textAlign: "center", width: "6rem" } } }}
 								/>
@@ -174,7 +219,18 @@ export default function ManageSeats() {
 								<Typography variant='body1'>Next billing charge:</Typography>
 								{product ? (
 									<Typography variant='body1' ml={"auto"}>
-										{formatPrice(product.displayPrice * quantity)}
+										{discount < 1 ? (
+											<Chip
+												component='span'
+												label={`${Math.round((1 - discount) * 100)}% off`}
+												size='small'
+												sx={{ mr: "0.5rem", fontWeight: "bold" }}
+												color='primary'
+											/>
+										) : (
+											<></>
+										)}
+										{formatPrice(applyDiscount(product.displayPrice, nextQuantity) * nextQuantity)}
 									</Typography>
 								) : (
 									<Skeleton variant='text' width={"8rem"} height={"1.5rem"} />
@@ -186,8 +242,22 @@ export default function ManageSeats() {
 								</Typography>
 								{product ? (
 									<Typography variant='body1' ml={"auto"} fontWeight={"bold"}>
+										{chargeDiscount < 1 ? (
+											<Chip
+												component='span'
+												label={`${Math.round((1 - chargeDiscount) * 100)}% off`}
+												size='small'
+												sx={{ mr: "0.5rem", fontWeight: "bold" }}
+												color='primary'
+											/>
+										) : (
+											<></>
+										)}
 										{formatPrice(
-											(product.displayPrice * (quantity - product.quantity) * product.daysBeforeCharge) / 30
+											(applyDiscount(product.displayPrice, nextQuantity - product.next_quantity) *
+												(nextQuantity - product.next_quantity) *
+												product.daysBeforeCharge) /
+												30
 										)}
 									</Typography>
 								) : (
@@ -225,7 +295,7 @@ export default function ManageSeats() {
 						<Button
 							variant='contained'
 							sx={{ borderRadius: "0.5rem" }}
-							disabled={!product || quantity === product.quantity || pending}
+							disabled={!product || nextQuantity === product.quantity || pending}
 							onClick={handleChangeSeats}
 							endIcon={pending ? <CircularProgress size={"1rem"} /> : undefined}
 						>

@@ -155,7 +155,7 @@ export default function SignupForm({ after, referal_code }: { after?: string; re
 				<Typography
 					variant='h1'
 					fontSize='3rem'
-					py='2rem'
+					pb='2rem'
 					width='100%'
 					textAlign='center'
 					sx={{ "& span": { fontWeight: 400, textWrap: "nowrap" } }}

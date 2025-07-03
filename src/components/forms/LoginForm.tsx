@@ -5,7 +5,6 @@ import { setCsrfToken } from "@/lib/csrf";
 import { Home, Visibility, VisibilityOff } from "@mui/icons-material";
 import { Alert, Box, Button, CircularProgress, IconButton, Link, TextField, Typography } from "@mui/material";
 import NextLink from "next/link";
-import { redirect, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { Wrapper } from "../layout/Wrapper";
 
@@ -57,9 +56,10 @@ const SubmitButton = ({ isLoading }: { isLoading: boolean }) => (
 export const styles = {
 	wrapper: {
 		width: "100%",
-		height: "100%",
+		height: "fit-content",
 		maxWidth: "600px",
-		px: { md: 0, xs: "1rem" }
+		px: { md: 0, xs: "1rem" },
+		my: "auto"
 	},
 	box: {
 		padding: { md: "2rem", xs: "1rem" },
@@ -67,7 +67,7 @@ export const styles = {
 		flexDirection: "column",
 		gap: "1rem",
 		width: "100%",
-		height: "500px",
+		height: "100%",
 		background: "var(--background-gradient)"
 	}
 };
@@ -78,7 +78,6 @@ export default function LoginForm({ after }: { after?: string }) {
 	const [csrfToken, setCsrfTokenState] = useState("");
 	const [emailError, setEmailError] = useState(false);
 	const [passwordError, setPasswordError] = useState(false);
-	const { push } = useRouter();
 
 	useEffect(() => {
 		// Generate a random token for CSRF protection
@@ -131,7 +130,7 @@ export default function LoginForm({ after }: { after?: string }) {
 						<Home />
 					</IconButton>
 				</NextLink>
-				<Typography variant='h1' fontSize={{ md: "3rem", xs: "2rem" }} py={"5rem"} width={"100%"} textAlign={"center"}>
+				<Typography variant='h1' fontSize={{ md: "3rem", xs: "2rem" }} pb={"2rem"} width={"100%"} textAlign={"center"}>
 					Welcome Back!
 				</Typography>
 				<TextField

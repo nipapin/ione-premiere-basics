@@ -19,9 +19,11 @@ interface ISeat {
 	index: number;
 	user: User | null;
 	seat: string;
+	showExpired: boolean;
+	until: string;
 }
 
-export const Seat = ({ index, user, seat }: ISeat) => {
+export const Seat = ({ index, user, seat, showExpired, until }: ISeat) => {
 	const [edit, setEdit] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [email, setEmail] = useState(seat);
@@ -87,7 +89,14 @@ export const Seat = ({ index, user, seat }: ISeat) => {
 
 	return (
 		<Box display={"flex"} flexDirection={"column"} gap={"1rem"}>
-			<Typography>Seat {index + 1}</Typography>
+			<Typography>
+				Seat {index + 1}{" "}
+				{showExpired && (
+					<Typography component={"span"} fontSize={"0.8rem"} fontWeight={"200"} color='primary'>
+						{until}
+					</Typography>
+				)}
+			</Typography>
 			<Box display={"flex"} flexDirection={"row"} gap={"0.5rem"} alignItems={"center"}>
 				<TextField
 					disabled={index === 0 || !edit}

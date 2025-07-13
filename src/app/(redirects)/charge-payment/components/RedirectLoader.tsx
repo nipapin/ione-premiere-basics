@@ -21,7 +21,7 @@ const boxStyles = {
 
 export default function RedirectLoader({ productID }: { productID: string }) {
 	const user = useUser();
-	const redirectURL = `https://store.payproglobal.com/checkout?products[1][id]=${productID}&page-template=20339&currency=USD&billing-first-name=${user?.name}&billing-last-name=${user?.lastname}&billing-email=${user?.email}&x-odin-user-id=${user?.user_id}`;
+	const redirectURL = `https://store.payproglobal.com/checkout?products[1][id]=${productID}&page-template=20409&currency=USD&billing-first-name=${user?.name}&billing-last-name=${user?.lastname}&billing-email=${user?.email}&x-odin-user-id=${user?.user_id}`;
 
 	useEffect(() => {
 		window.location.href = redirectURL;

@@ -1,21 +1,23 @@
 "use client";
 
 import { useUser } from "@/contexts/UserWrapper";
-import { Close, OpenInNew } from "@mui/icons-material";
+import { Close, Info, InfoOutlined, OpenInNew } from "@mui/icons-material";
 import {
+	Alert,
 	Box,
 	Button,
 	Checkbox,
 	Collapse,
 	Dialog,
 	DialogContent,
-	DialogTitle,
 	Divider,
 	FormControlLabel,
 	IconButton,
 	TextField,
+	Tooltip,
 	Typography
 } from "@mui/material";
+import NextLink from "next/link";
 import { useState } from "react";
 
 const variants = [
@@ -72,17 +74,41 @@ export const PaymentDetails = () => {
 
 	return (
 		<>
-			<Typography variant='h2' fontWeight={"bold"} fontSize={"1.2rem"}>
-				Payment details
-			</Typography>
-			<Button
-				variant='contained'
-				sx={{ borderRadius: "0.5rem", mt: "1rem" }}
-				endIcon={<OpenInNew />}
-				onClick={getPaymentDetails}
+			<Typography
+				variant='h2'
+				fontWeight={"bold"}
+				fontSize={"1.2rem"}
+				sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
 			>
-				View payment details
-			</Button>
+				Payment details
+				<Tooltip
+					title={`If you want to log in for the first time, you should use your email address to reset your password.\n\nAfterwards, you can use this password and email address to log into your account.`}
+					slotProps={{
+						tooltip: {
+							sx: {
+								fontSize: "1rem",
+								backgroundColor: "background.paper",
+								p: "1rem",
+								borderRadius: "0.5rem",
+								border: "1px solid var(--primary)",
+								whiteSpace: "pre-line"
+							}
+						}
+					}}
+				>
+					<InfoOutlined sx={{ cursor: "pointer" }} />
+				</Tooltip>
+			</Typography>
+			<NextLink href={"https://cc.payproglobal.com/Customer/Account/Login"} passHref target='_blank'>
+				<Button
+					variant='contained'
+					sx={{ borderRadius: "0.5rem", mt: "1rem" }}
+					endIcon={<OpenInNew />}
+					onClick={getPaymentDetails}
+				>
+					View payment details
+				</Button>
+			</NextLink>
 			<Button
 				variant='text'
 				size='small'

@@ -3,6 +3,7 @@ export interface ISubscriptionDetails {
 	order_item_name: string;
 	next_charge_date: string;
 	quantity: number;
+	next_quantity: number;
 	subscription_id: string;
 	seats: string[];
 	type: "primary" | "invite" | "none";

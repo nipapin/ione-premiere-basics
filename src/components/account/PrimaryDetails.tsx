@@ -1,9 +1,9 @@
 import { ISubscriptionDetails, PrimaryDetailsProps } from "@/types/interfaces";
 import { InfoOutlined } from "@mui/icons-material";
-import { Box, Button, Divider, Skeleton, Tooltip, Typography } from "@mui/material";
+import { Box, Divider, Skeleton, Tooltip, Typography } from "@mui/material";
+import ManageSeats from "./ManageSeats";
 import { PaymentDetails } from "./PaymentDetails";
 import { Seat } from "./Seat";
-import ManageSeats from "./ManageSeats";
 
 const subscriptionDetails = [
 	{ id: 1, label: "Status", key: "status" },
@@ -19,16 +19,6 @@ const subscriptionStyle = (pending: boolean) => ({
 });
 
 export default function PrimaryDetails({ subscription, user, pending }: PrimaryDetailsProps) {
-	const manageSeats = () => {
-		fetch("/api/subscription/seats/manage", {
-			method: "POST",
-			body: JSON.stringify({
-				user,
-				subscription
-			})
-		});
-	};
-
 	return (
 		<Box>
 			<Typography variant='h1' fontWeight='bold' fontSize={"1.2rem"}>
@@ -94,9 +84,19 @@ export default function PrimaryDetails({ subscription, user, pending }: PrimaryD
 				<ManageSeats />
 			</Box>
 			<Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-				{subscription?.seats.map((seat, index) => (
-					<Seat key={index} index={index} user={user} seat={seat} />
-				))}
+				{subscription?.seats.map((seat, index) => {
+					const showExpired = index + 1 > subscription?.next_quantity;
+					return (
+						<Seat
+							key={index}
+							index={index}
+							user={user}
+							seat={seat}
+							showExpired={showExpired}
+							until={subscription?.next_charge_date}
+						/>
+					);
+				})}
 			</Box>
 			<Divider sx={{ my: "1rem" }} />
 			<PaymentDetails />

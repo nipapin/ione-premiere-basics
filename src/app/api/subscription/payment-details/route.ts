@@ -12,26 +12,20 @@ export async function GET(request: NextRequest) {
 
 	const user = await query(`SELECT * FROM users WHERE user_id = $1`, [user_id]).then((res) => res[0]);
 	const subscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1`, [user_id]).then((res) => res[0]);
+	const payload = {
+		customerEmail: user.email,
+		orderId: Number(subscription.order_id),
+		vendorId: Number(process.env.PAYPRO_VENDOR_ACCOUNT_ID),
+		apiSecretKey: process.env.PAYPRO_API_SECRET_KEY
+	};
 
-	await fetch(`https://store.payproglobal.com/api/Customers/SendOnetimeLoginEmail`, {
+	const response = await fetch(`https://store.payproglobal.com/api/Customers/SendOnetimeLoginEmail`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json"
 		},
-		body: JSON.stringify({
-			customerEmail: user.email,
-			vendorId: process.env.PAYPRO_VENDOR_ID,
-			apiSecretKey: process.env.PAYPRO_API_SECRET_KEY
-		})
-	})
-		.then((res) => res.json())
-		.then((data) => {
-			if (data.isSuccess) {
-				console.log(data);
-			} else {
-				console.log(data.errors);
-			}
-		});
+		body: JSON.stringify(payload)
+	}).then((res) => res.json());
 
-	return NextResponse.json(subscription);
+	return NextResponse.json(response);
 }

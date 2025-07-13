@@ -191,7 +191,7 @@ export const sendUpdateEmail = async (previousEmail: string, email: string): Pro
 		return false;
 	}
 
-	const confirmationToken = crypto.randomUUID();
+	const confirmationToken = Math.random().toString(36).substring(2, 6).toUpperCase();
 	await query(`UPDATE users SET confirmtoken = $1 WHERE user_id = $2`, [confirmationToken, user_id]);
 
 	await sendEmail(

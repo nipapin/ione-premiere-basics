@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
 
 	console.log("STATUS", checkoutData.ORDER_STATUS);
 
-	return ["Processed", "Suspended"].includes(checkoutData.ORDER_STATUS)
+	return ["Processed", "Suspended", "Waiting"].includes(checkoutData.ORDER_STATUS)
 		? redirect("/payment/success")
 		: redirect("/payment/failed");
 }

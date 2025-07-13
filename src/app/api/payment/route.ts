@@ -57,7 +57,7 @@ const parsePayproOrder = (payproOrder: string) => {
 export async function POST(request: NextRequest) {
 	const payproOrder = await request.text();
 	const payproOrderData = parsePayproOrder(payproOrder);
-	console.log(payproOrderData);
+
 	const atomPayload: AtomXPaymentData = {
 		status: OrderStatus[payproOrderData.IPN_TYPE_NAME],
 		parent_order_id: Number(payproOrderData.ORDER_ID),
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
 		billing_email: payproOrderData.CUSTOMER_EMAIL
 	};
 
-	const user = await query(`SELECT user_id FROM users WHERE email = $1`, [payproOrderData.CUSTOMER_EMAIL]).then(
+	const user = await query(`SELECT user_id, email FROM users WHERE email = $1`, [payproOrderData.CUSTOMER_EMAIL]).then(
 		(res) => res[0]
 	);
 

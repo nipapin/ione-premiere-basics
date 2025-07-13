@@ -1,3 +1,4 @@
+import { query } from "@/app/database/postgre";
 import { createClient } from "@/lib/supabase/server";
 import bcrypt from "bcrypt";
 import { cookies } from "next/headers";
@@ -40,9 +41,9 @@ export async function POST(request: Request) {
 			);
 		}
 
-		const { data, error } = await supabase.from("users").select("*").eq("email", email).single();
+		const data = await query(`SELECT * FROM users WHERE email = $1`, [email]).then((res) => res[0]);
 
-		if (error || !data) {
+		if (!data) {
 			return withCORSHeaders(
 				new Response(JSON.stringify({ message: "User with this email not found" }), {
 					status: 404
@@ -67,8 +68,7 @@ export async function POST(request: Request) {
 						message: "User authenticated successfully",
 						id: data.id,
 						status: data.status,
-						max_devices: data.max_devices,
-						assigned_sub_id: 3159
+						max_devices: data.max_devices
 					},
 					payload: {}
 				}),

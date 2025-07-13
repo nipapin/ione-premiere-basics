@@ -20,7 +20,6 @@ export async function GET(request: NextRequest) {
 		},
 		body: JSON.stringify({
 			customerEmail: user.email,
-			orderId: subscription.order_id,
 			vendorId: process.env.PAYPRO_VENDOR_ID,
 			apiSecretKey: process.env.PAYPRO_API_SECRET_KEY
 		})

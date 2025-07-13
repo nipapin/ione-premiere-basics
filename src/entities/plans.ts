@@ -10,7 +10,7 @@ type Plan = {
 
 export const plans: Plan[] = [
 	{
-		id: [113884],
+		id: [/*113884*/ 114910],
 		title: "Trial",
 		description: "During this phase the design is developed\nto meet the required technical standards to",
 		price: 0,

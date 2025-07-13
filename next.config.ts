@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
 				"193.164.128.81",
 				"odin-pro.com",
 				"api.get-atomx.com",
-				"e914-2605-e440-2-00-3-1fc.ngrok-free.app"
+				"edf59fb992bf.ngrok-free.app"
 			]
 		}
 	}

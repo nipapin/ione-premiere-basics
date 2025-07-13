@@ -7,5 +7,9 @@ export async function POST(req: NextRequest) {
 		data.split("&").map((item) => item.split("=").map(decodeURIComponent))
 	);
 
-	return checkoutData.ORDER_STATUS === "Processed" ? redirect("/payment/success") : redirect("/payment/failed");
+	console.log("STATUS", checkoutData.ORDER_STATUS);
+
+	return ["Processed", "Suspended"].includes(checkoutData.ORDER_STATUS)
+		? redirect("/payment/success")
+		: redirect("/payment/failed");
 }

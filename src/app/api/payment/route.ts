@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const HTTP_WC_ATOMX_SOURCE = "195bb24881ae34";
 
-type AtomXPaymentStatus = "active" | "on-hold" | "pending-cancel" | "cancelled" | "expired";
+type AtomXPaymentStatus = "active" | "on-hold" | "pending-cancel" | "cancelled" | "expired" | "failed";
 type AtomXPaymentType = "Personal" | "Business" | "Team";
 
 interface AtomXPaymentData {
@@ -31,7 +31,7 @@ const OrderStatus: Record<string, AtomXPaymentStatus> = {
 	OrderDeclined: "active",
 	OrderPartiallyRefunded: "active",
 	SubscriptionChargeSucceed: "active",
-	SubscriptionChargeFailed: "active",
+	SubscriptionChargeFailed: "failed",
 	SubscriptionSuspended: "active",
 	SubscriptionRenewed: "active",
 	SubscriptionTerminated: "cancelled",

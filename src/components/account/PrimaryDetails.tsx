@@ -22,7 +22,7 @@ export default function PrimaryDetails({ subscription, user, pending }: PrimaryD
 	return (
 		<Box>
 			<Typography variant='h1' fontWeight='bold' fontSize={"1.2rem"}>
-				Subscription details
+				Order details
 			</Typography>
 			<Divider sx={{ my: "1rem" }} />
 			<Box display={"flex"} flexDirection={"column"} gap={"1rem"} my={"1rem"}>

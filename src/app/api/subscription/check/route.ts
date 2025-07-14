@@ -11,5 +11,8 @@ export async function GET(req: NextRequest) {
 	const userSubscription = await query("SELECT * FROM subscriptions WHERE user_id = $1", [userId]).then(
 		(res) => res[0]
 	);
+	if (!userSubscription) {
+		return NextResponse.json({ error: "Subscription not found" }, { status: 404 });
+	}
 	return NextResponse.json(userSubscription);
 }

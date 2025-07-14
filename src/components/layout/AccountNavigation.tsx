@@ -23,7 +23,7 @@ const menuItems: MenuItem[] = [
 	},
 	{
 		id: 2,
-		title: "Subscription",
+		title: "Orders",
 		route: "/account/subscription"
 	},
 	{

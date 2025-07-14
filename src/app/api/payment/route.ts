@@ -28,7 +28,7 @@ const OrderStatus: Record<string, AtomXPaymentStatus> = {
 	OrderCharged: "active",
 	OrderRefunded: "active",
 	OrderChargedBack: "active",
-	OrderDeclined: "active",
+	OrderDeclined: "failed",
 	OrderPartiallyRefunded: "active",
 	SubscriptionChargeSucceed: "active",
 	SubscriptionChargeFailed: "failed",
@@ -57,7 +57,7 @@ const parsePayproOrder = (payproOrder: string) => {
 export async function POST(request: NextRequest) {
 	const payproOrder = await request.text();
 	const payproOrderData = parsePayproOrder(payproOrder);
-
+	console.log(payproOrderData);
 	const atomPayload: AtomXPaymentData = {
 		status: OrderStatus[payproOrderData.IPN_TYPE_NAME],
 		parent_order_id: Number(payproOrderData.ORDER_ID),
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
 		`INSERT INTO subscriptions (order_id, subscription_id, status, invoice, is_trial, trial_period_till, next_charge_date, quantity, user_id, customer_id, order_item_name, seats, product_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
 		[
 			odinSubscription.order_id,
-			odinSubscription.subscription_id,
+			odinSubscription.subscription_id || odinSubscription.order_id,
 			odinSubscription.status,
 			odinSubscription.invoice,
 			odinSubscription.is_trial,

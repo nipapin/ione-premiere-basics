@@ -16,14 +16,14 @@ export default function SubscriptionDetails() {
 
 	useEffect(() => {
 		const formatDate = (date: string) => {
-			return (
-				"until " +
-				new Date(date.split("+").join(" ")).toLocaleDateString("en-US", {
-					month: "long",
-					day: "numeric",
-					year: "numeric"
-				})
-			);
+			return date
+				? "until " +
+						new Date(date.split("+").join(" ")).toLocaleDateString("en-US", {
+							month: "long",
+							day: "numeric",
+							year: "numeric"
+						})
+				: "Lifetime";
 		};
 		const fetchDetails = async () => {
 			const response = await fetch("/api/subscription/details", {
@@ -71,7 +71,7 @@ export default function SubscriptionDetails() {
 		details[subscription?.type as keyof typeof details] || (
 			<Box>
 				<Typography variant='h1' fontWeight='bold' fontSize={"1.2rem"}>
-					Subscription details
+					Order details
 				</Typography>
 				<Divider sx={{ my: "1rem" }} />
 				<Box display={"flex"} flexDirection={"column"} gap={"0.5rem"}>

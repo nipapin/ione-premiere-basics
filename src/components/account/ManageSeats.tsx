@@ -61,6 +61,8 @@ export default function ManageSeats() {
 	const [discount, setDiscount] = useState<number>(1);
 	const [chargeDiscount, setChargeDiscount] = useState<number>(1);
 
+	console.log(product);
+
 	const manageSeats = () => {
 		setOpen(true);
 	};
@@ -139,8 +141,10 @@ export default function ManageSeats() {
 			>
 				<Card sx={{ p: "1rem 0.5rem" }}>
 					<CardHeader
-						title='Change Subscription Seats'
-						subheader={`Changes will take effect on your next billing cycle.\nPayment will be charged immediately from your current balance.`}
+						title='Change Order Seats'
+						subheader={`${
+							product?.name !== "Odin Pro Lifetime" ? "Changes will take effect on your next billing cycle.\n" : ""
+						}Payment will be charged immediately from your current balance.`}
 						action={
 							<IconButton onClick={handleClose}>
 								<Close />
@@ -215,9 +219,9 @@ export default function ManageSeats() {
 							</Stack>
 						)}
 						<PaperCard variant='outlined' sx={{ flexDirection: "column", mt: "1rem" }}>
-							<Stack direction='row' alignItems='center' gap='0.5rem' width={"100%"}>
-								<Typography variant='body1'>Next billing charge:</Typography>
-								{product ? (
+							{product && product.name !== "Odin Pro Lifetime" && (
+								<Stack direction='row' alignItems='center' gap='0.5rem' width={"100%"}>
+									<Typography variant='body1'>Next billing charge:</Typography>
 									<Typography variant='body1' ml={"auto"}>
 										{discount < 1 ? (
 											<Chip
@@ -232,10 +236,9 @@ export default function ManageSeats() {
 										)}
 										{formatPrice(applyDiscount(product.displayPrice, nextQuantity) * nextQuantity)}
 									</Typography>
-								) : (
-									<Skeleton variant='text' width={"8rem"} height={"1.5rem"} />
-								)}
-							</Stack>
+								</Stack>
+							)}
+
 							<Stack direction='row' alignItems='center' gap='0.5rem' width={"100%"}>
 								<Typography variant='body1' fontWeight={"bold"}>
 									You will be charged now for:
@@ -253,12 +256,16 @@ export default function ManageSeats() {
 										) : (
 											<></>
 										)}
-										{formatPrice(
-											(applyDiscount(product.displayPrice, nextQuantity - product.next_quantity) *
-												(nextQuantity - product.next_quantity) *
-												product.daysBeforeCharge) /
-												30
-										)}
+										{product.name === "Odin Pro Lifetime"
+											? formatPrice(
+													applyDiscount(product.displayPrice, nextQuantity) * (nextQuantity - product.next_quantity)
+											  )
+											: formatPrice(
+													(applyDiscount(product.displayPrice, nextQuantity - product.next_quantity) *
+														(nextQuantity - product.next_quantity) *
+														product.daysBeforeCharge) /
+														30
+											  )}
 									</Typography>
 								) : (
 									<Skeleton variant='text' width={"8rem"} height={"1.5rem"} />

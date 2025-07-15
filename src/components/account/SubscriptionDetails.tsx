@@ -54,13 +54,13 @@ export default function SubscriptionDetails() {
 		none: (
 			<Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
 				<Typography variant='h1' fontWeight='bold' fontSize={"1.2rem"}>
-					Subscription details
+					Order details
 				</Typography>
 				<Divider sx={{ my: "1rem" }} />
-				<Typography>{`You don't have an active subscription.`}</Typography>
+				<Typography>{`You don't have any products.`}</Typography>
 				<NextLink href='/pricing' passHref legacyBehavior>
 					<Button variant='contained' sx={{ borderRadius: "0.5rem" }}>
-						Subscribe
+						Order now
 					</Button>
 				</NextLink>
 			</Box>

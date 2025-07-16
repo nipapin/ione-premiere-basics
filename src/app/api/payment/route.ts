@@ -57,7 +57,7 @@ const parsePayproOrder = (payproOrder: string) => {
 export async function POST(request: NextRequest) {
 	const payproOrder = await request.text();
 	const payproOrderData = parsePayproOrder(payproOrder);
-	console.log(payproOrderData);
+
 	const atomPayload: AtomXPaymentData = {
 		status: OrderStatus[payproOrderData.IPN_TYPE_NAME],
 		parent_order_id: Number(payproOrderData.ORDER_ID),

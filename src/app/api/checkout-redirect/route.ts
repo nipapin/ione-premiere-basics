@@ -19,6 +19,8 @@ export async function POST(req: NextRequest) {
 	if (payproPayloadData.ORDER_STATUS === "Canceled") {
 		redirect("/payment/failed");
 	}
-
+	if (payproPayloadData.ORDER_STATUS === "Waiting") {
+		redirect("/payment/waiting");
+	}
 	return redirect("/payment");
 }

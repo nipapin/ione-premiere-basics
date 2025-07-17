@@ -1,4 +1,5 @@
 import { query } from "@/app/database/postgre";
+import { sendEmail } from "@/lib/email";
 import { NextRequest, NextResponse } from "next/server";
 
 const HTTP_WC_ATOMX_SOURCE = "195bb24881ae34";
@@ -117,6 +118,10 @@ export async function POST(request: NextRequest) {
 		odinSubscription.customer_id,
 		odinSubscription.user_id
 	]);
+
+	if (odinSubscription.status === "active") {
+		sendEmail(user?.email, "Your subscription is active", `<p>Your subscription is active</p>`);
+	}
 
 	fetch("https://api.get-atomx.com/atomx/v1/webhook_esubs", {
 		method: "POST",

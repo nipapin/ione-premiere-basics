@@ -24,7 +24,7 @@ export default function AboutSection() {
 					<Box
 						sx={{
 							width: "100%",
-							height: { sm: "20rem", height: "auto" },
+							height: { sm: "20rem", xs: "25rem" },
 							display: "flex",
 							flexDirection: { sm: "row", xs: "column" },
 							alignItems: "center",
@@ -32,7 +32,7 @@ export default function AboutSection() {
 							background: "var(--background-gradient)"
 						}}
 					>
-						<Box sx={{ width: "100%" }}>
+						<Box sx={{ width: "100%", zIndex: 2 }}>
 							<Box
 								component={"article"}
 								sx={{
@@ -52,35 +52,40 @@ export default function AboutSection() {
 								</Typography>
 							</Box>
 						</Box>
-						<Box sx={{ width: "100%", height: "100%" }}>
-							<Box
-								sx={{
-									height: "100%",
-									"& img": { height: "100%", maxWidth: "100%", objectFit: "cover" },
+						<Box
+							sx={{
+								position: "relative",
+								width: "100%",
+								height: "100%",
+								"& img": {
+									width: "100%",
+									height: "auto",
+									objectFit: "cover",
+									transform: {
+										lg: "rotate(10deg) translate(0, -20%) scale(1.2)",
+										md: "rotate(10deg) translate(0, -10%) scale(1.4)",
+										xs: "rotate(10deg) translate(15%, 0%) scale(1.5)"
+									},
 									position: "relative"
-								}}
-							>
-								<Box
-									sx={{
-										display: { sm: "none", xs: "block" },
-										position: "absolute",
-										top: -1,
-										left: 0,
-										width: "100%",
-										height: "100%",
-										background: "linear-gradient(to bottom, var(--background), transparent)"
-									}}
-								/>
-								<Image
-									src={
-										"https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//about-image-1.webp"
+								},
+								"&::before": {
+									content: '""',
+									position: "absolute",
+									display: { md: "none", xs: "block" },
+									top: 0,
+									left: 0,
+									width: "100%",
+									height: "100%",
+									background: "linear-gradient(to bottom, var(--background) 10%, transparent 50%)",
+									zIndex: 1,
+									transform: {
+										md: "rotate(10deg) translate(0, -20%) scale(1.2)",
+										xs: "rotate(10deg) translate(15%, 0%) scale(1.5)"
 									}
-									alt='about dashboard'
-									width={1168}
-									height={824}
-									loading='lazy'
-								/>
-							</Box>
+								}
+							}}
+						>
+							<Image src={"/images/cep.png"} alt='about dashboard' width={904} height={966} />
 						</Box>
 					</Box>
 				</Wrapper>
@@ -98,19 +103,26 @@ export default function AboutSection() {
 							flexDirection: "column",
 							alignItems: "center",
 							gap: "1rem",
-							justifyContent: "space-between",
+							justifyContent: "flex-end",
 							background: "var(--background-gradient)",
 							padding: "2rem 4rem",
-							"& img": {
-								height: "auto",
-								maxWidth: "100%",
-								aspectRatio: "16/9",
-								mt: { md: "-85px", xs: "-33px" },
-								transform: { md: "scale(1.4)", xs: "scale(2.2)" }
-							}
+							position: "relative"
 						}}
 					>
-						<Image src={"/images/about.png"} alt='about dashboard' width={1920} height={1080} />
+						<Box
+							sx={{
+								width: "100%",
+								height: "100%",
+								backgroundImage: "url(/images/about.png)",
+								backgroundSize: { lg: "120%", md: "150%", xs: "160%" },
+								backgroundPositionX: { lg: "48%", md: "50%", xs: "48%" },
+								backgroundPositionY: { lg: "-180px", md: "-160px", xs: "-126px" },
+								backgroundRepeat: "no-repeat",
+								position: "absolute",
+								top: 0,
+								left: 0
+							}}
+						/>
 						<Box
 							component={"article"}
 							sx={{ display: "flex", flexDirection: "column", gap: "0.5rem", alignItems: "center" }}
@@ -142,19 +154,25 @@ export default function AboutSection() {
 							flexDirection: "column",
 							alignItems: "center",
 							gap: "1rem",
-							justifyContent: "space-between",
+							justifyContent: "flex-end",
 							background: "var(--background-gradient)",
 							padding: "2rem 4rem",
-							"& img": { height: "100%", maxWidth: "100%", objectFit: "contain" }
+							position: "relative"
 						}}
 					>
-						<Image
-							src={
-								"https://static.shuffle.dev/components/preview/697340ff-5445-426e-84bf-57e856b9afbf/assets/public/nightsable-assets/images/features/cards.png"
-							}
-							alt='about dashboard'
-							width={344}
-							height={327}
+						<Box
+							sx={{
+								width: "100%",
+								height: "100%",
+								backgroundImage: "url(/images/aepr.png)",
+								backgroundSize: { lg: "120%", md: "150%", xs: "180%" },
+								backgroundPositionX: { lg: "48%", md: "50%", xs: "48%" },
+								backgroundPositionY: { lg: "-150px", md: "-140px", xs: "-125px" },
+								backgroundRepeat: "no-repeat",
+								position: "absolute",
+								top: 0,
+								left: 0
+							}}
 						/>
 						<Box
 							component={"article"}

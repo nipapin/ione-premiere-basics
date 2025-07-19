@@ -24,15 +24,25 @@ export async function OPTIONS() {
 }
 
 export async function POST(request: Request) {
-	// const headersList = await headers();
-	// const securityCode = headersList.get("AtomX-Secure-Check");
-
 	const cookieStore = cookies();
-	const supabase = await createClient(cookieStore);
 
 	const { email, password, type } = await request.json();
 
 	if (type === "login") {
+		/*
+		return
+		{
+			uuid,
+			email,
+			subscription: {
+				status: "active",
+				price: [1, 2].filter * 10
+			}
+		}
+		
+
+
+		*/
 		if (!email || !password) {
 			return withCORSHeaders(
 				new Response(JSON.stringify({ message: "Email or password is incorrect" }), {
@@ -78,6 +88,9 @@ export async function POST(request: Request) {
 	}
 
 	if (type === "recheck") {
+		/*
+		 */
+
 		if (!email) {
 			return withCORSHeaders(
 				new Response(JSON.stringify({ message: "Email or password is incorrect" }), {
@@ -85,23 +98,6 @@ export async function POST(request: Request) {
 				})
 			);
 		}
-
-		const { data, error } = await supabase.from("users").select("*").eq("email", email).single();
-
-		if (error || !data) {
-			return withCORSHeaders(
-				new Response(JSON.stringify({ message: "User with this email not found" }), {
-					status: 404
-				})
-			);
-		}
-
-		const response =
-			data.status === "active"
-				? { status: "active", max_devices: 2, message: "User has subscription", assigned_sub_id: 3159 }
-				: { status: null, max_devices: 0, message: "User does not have subscription" };
-
-		return withCORSHeaders(new Response(JSON.stringify(response), { status: 200 }));
 	}
 
 	return withCORSHeaders(

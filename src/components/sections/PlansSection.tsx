@@ -6,7 +6,6 @@ import { CheckCircle } from "@mui/icons-material";
 import {
 	Button,
 	FormControlLabel,
-	Hidden,
 	List,
 	ListItem,
 	ListItemIcon,
@@ -14,13 +13,13 @@ import {
 	Switch,
 	Typography
 } from "@mui/material";
-import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Wrapper } from "../layout/Wrapper";
 import Title from "../ui/Title";
-import { useRouter } from "next/navigation";
 
 const formatPrice = (price: number, billingYearly: boolean, title: string) => {
-	if (title === "Trial") return "Free";
+	if (title === "Free Trial") return "Free";
 	if (billingYearly && title === "Pro") return `$${Number((price * 0.8).toFixed(1))}`;
 	if (title === "Infinite")
 		return `$${Math.floor(Number(plans.find((plan) => plan.title === "Pro")?.price) * 36 * 0.6)}`;
@@ -28,9 +27,9 @@ const formatPrice = (price: number, billingYearly: boolean, title: string) => {
 };
 
 const buttonTitle: Record<string, string> = {
-	Trial: "7-day Free Trial",
-	Pro: "Subscribe",
-	Infinite: "Buy Now"
+	"Free Trial": "7-day Free Trial",
+	"Creator Plan": "Subscribe",
+	"Lifetime Access": "Buy Now"
 };
 
 type UserData = {
@@ -63,13 +62,13 @@ export default function PlansSection() {
 
 	return (
 		<Wrapper component='section' sx={styles.section} fullWidth>
-			<Title>Compare our plans</Title>
+			<Title>Choose the plan that fits your workflow</Title>
 			<Typography
 				sx={styles.subtitle}
-			>{`Premiere Basics is a strategic branding agency\nfocused on brand creation, rebrands, and brand`}</Typography>
+			>{`Whether you're just starting out or editing every day — there's a plan for you.\nGet access to professional tools, regular updates, and everything you need to create faster.`}</Typography>
 			<Wrapper sx={styles.plansGrid} fullWidth>
 				{plans.map((plan, index) => {
-					const isPro = plan.title === "Pro";
+					const isPro = plan.title === "Creator Plan";
 					const key: number = isPro ? plan.id[Number(billingYearly)] : plan.id[0];
 					return (
 						<Wrapper key={key} sx={styles.planCard} variant='animated' angleOffset={90 * index} fullWidth>

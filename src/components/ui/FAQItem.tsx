@@ -21,7 +21,7 @@ export default function FAQItem({ faq }: { faq: FAQ }) {
 				sx={{ color: "white", borderRadius: "1rem 1rem 0 0" }}
 				endIcon={open ? <ExpandLess /> : <ExpandMore />}
 			>
-				<Typography textAlign={"start"} width={"100%"} fontSize={"1.5rem"} fontWeight={200}>
+				<Typography textAlign={"start"} width={"100%"} fontSize={"1.3rem"} fontWeight={400}>
 					{faq.title}
 				</Typography>
 			</Button>

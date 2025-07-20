@@ -69,7 +69,7 @@ export default function DownloadPage() {
 					Download <b>Odin Pro</b> Extension.
 				</Title>
 				<Typography sx={styles.tagline}>
-					{`Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`}
+					{`Get started with Odin Pro in just a few clicks. Choose your operating system below to download the latest version of the extension and start editing faster today.`}
 				</Typography>
 				<Box sx={{ display: "grid", gridTemplateColumns: { md: "1fr 1fr", xs: "1fr" }, gap: "1rem", mt: "2rem" }}>
 					<Wrapper variant='animated' fullWidth>

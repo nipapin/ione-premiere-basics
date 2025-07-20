@@ -18,7 +18,7 @@ const styles = {
 export default function AboutSection() {
 	return (
 		<Box component={"section"} sx={styles.main}>
-			<Title>About</Title>
+			<Title>Features</Title>
 			<Box sx={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: "1rem" }}>
 				<Wrapper variant='animated' fullWidth sx={{ gridColumn: "span 6 / span 6" }}>
 					<Box
@@ -46,9 +46,9 @@ export default function AboutSection() {
 								<Typography
 									variant='h3'
 									sx={{ whiteSpace: "pre", fontSize: { sm: "2.5rem", xs: "2rem" } }}
-								>{`All you need\nin one plug-in`}</Typography>
+								>{`Everything you need,\nall in one place`}</Typography>
 								<Typography variant='body2'>
-									{`It is a long established fact that a reader will be distracted\nby the readable content of a page when looking at its layout.`}
+									{`From typography and transitions to social media presets and sound effects — everything is organized, categorized, and ready to use in your project!`}
 								</Typography>
 							</Box>
 						</Box>
@@ -130,12 +130,12 @@ export default function AboutSection() {
 							<Typography
 								variant='h3'
 								sx={{ whiteSpace: "pre", fontSize: { md: "2rem", sm: "1.5rem", xs: "1.5rem" } }}
-							>{`Updates every month`}</Typography>
+							>{`Apply anything with just one click`}</Typography>
 							<Typography
 								variant='body2'
 								sx={{ textAlign: "center", textWrap: "balance", fontSize: { lg: "1rem", sm: "0.8rem", xs: "0.8rem" } }}
 							>
-								{`It is a long established fact that a reader will be distracted\nby the readable content of a page when looking at its layout`}
+								{`Choose any element and drop it right into your timeline — instantly.`}
 							</Typography>
 						</Box>
 					</Box>
@@ -181,12 +181,12 @@ export default function AboutSection() {
 							<Typography
 								variant='h3'
 								sx={{ whiteSpace: "pre", fontSize: { md: "2rem", sm: "1.5rem", xs: "1.5rem" } }}
-							>{`Suitable for both software`}</Typography>
+							>{`Two programs. One powerful extension`}</Typography>
 							<Typography
 								variant='body2'
 								sx={{ textAlign: "center", textWrap: "balance", fontSize: { lg: "1rem", sm: "0.8rem", xs: "0.8rem" } }}
 							>
-								{`It is a long established fact that a reader will be distracted\nby the readable content of a page when looking at its layout`}
+								{`Works wherever your ideas take you — Premiere or After Effects.`}
 							</Typography>
 						</Box>
 					</Box>

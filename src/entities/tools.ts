@@ -9,28 +9,28 @@ export const powerfulTools: PowerfulTool[] = [
 	{
 		id: 1,
 		label: "Transitions",
-		media: "/videos/transitions.mp4"
+		media: "/videos/powerfultools/transitions.mp4"
 	},
 	{
 		id: 2,
 		label: "Effects",
-		media: "/videos/effects.mp4"
+		media: "/videos/powerfultools/effects.mp4"
 	},
 	{
 		id: 3,
 		label: "Motion Graphics",
-		media: "/videos/mg.mp4"
+		media: "/videos/powerfultools/motiongraphics.mp4"
 	},
 	{
 		id: 4,
 		label: "Sound FX",
-		media: "/videos/sfx.mp4",
+		media: "/videos/powerfultools/soundfx.mp4",
 		audio: true
 	},
 	{
 		id: 5,
 		label: "Assets",
-		media: "/videos/assets.mp4"
+		media: "/videos/powerfultools/assets.mp4"
 	}
 ];
 

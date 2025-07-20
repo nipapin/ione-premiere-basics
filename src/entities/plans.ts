@@ -11,43 +11,46 @@ type Plan = {
 export const plans: Plan[] = [
 	{
 		id: [/*113884*/ 114910],
-		title: "Trial",
-		description: "During this phase the design is developed\nto meet the required technical standards to",
+		title: "Free Trial",
+		description:
+			"Explore the full power of the extension for 7 days — transitions, titles, effects, and more.\nPerfect for testing it in real projects before committing",
 		price: 0,
 		per: "",
 		benefits: [
-			"Core engagement survey",
-			"Topic-based assessments",
-			"Custom topic-based assessments",
-			"Filterable heatmap & analytics"
+			"7-day full access to all features",
+			"Use across Premiere Pro & After Effects",
+			"No watermark, no limitations",
+			"One-click installation & editing"
 		],
 		action: "#"
 	},
 	{
 		id: [111867, 113886],
-		title: "Pro",
-		description: "During this phase the design is developed\nto meet the required technical standards to",
+		title: "Creator Plan",
+		description:
+			"Full access to all features, categories, and future updates.\nDesigned for creators who edit regularly and want top-tier performance without limits.",
 		price: 19.9,
 		per: "month",
 		benefits: [
-			"Core engagement survey",
-			"Topic-based assessments",
-			"Custom topic-based assessments",
-			"Filterable heatmap & analytics"
+			"Unlimited access to all features and categories",
+			"Regular monthly content updates",
+			"Fast support",
+			"Commercial use license"
 		],
 		action: "#"
 	},
 	{
 		id: [113887],
-		title: "Infinite",
-		description: "During this phase the design is developed\nto meet the required technical standards to",
+		title: "Lifetime Access",
+		description:
+			"Pay once and use the full extension forever — with free updates included.\nIdeal for professionals and teams who want long-term value and full control.",
 		price: 250,
 		per: "lifetime",
 		benefits: [
-			"Core engagement survey",
-			"Topic-based assessments",
-			"Custom topic-based assessments",
-			"Filterable heatmap & analytics"
+			"One-time payment, lifetime access",
+			"All current and future features unlocked",
+			"Priority support",
+			"Full commercial license for unlimited projects"
 		],
 		action: "#"
 	}
@@ -103,10 +106,10 @@ export const styles = {
 		mb: { xs: "1rem", md: "1.5rem" }
 	},
 	planDescription: {
-		whiteSpace: "pre",
+		textWrap: "wrap",
 		fontWeight: 200,
 		mb: { xs: "1.5rem", md: "2rem" },
-		fontSize: { xs: "0.8rem", sm: "0.865rem", md: "1rem" }
+		fontSize: { xs: "0.8rem", sm: "0.865rem", md: "0.9rem" }
 	},
 	planPrice: {
 		fontSize: { xs: "3rem", sm: "4rem" },

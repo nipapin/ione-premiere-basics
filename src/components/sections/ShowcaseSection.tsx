@@ -1,6 +1,6 @@
 "use client";
 
-import { rows, styles } from "@/entities/showcases";
+import { RowItem, rows, styles } from "@/entities/showcases";
 import { Box, Button, Stack, Typography, useScrollTrigger } from "@mui/material";
 import Link from "next/link";
 import { memo, useEffect, useMemo, useRef } from "react";
@@ -14,7 +14,7 @@ const videoCache = new Map<string, { video: HTMLVideoElement; lastUsed: number }
 const CACHE_LIMIT = 20; // Максимальное количество видео в кеше
 const CACHE_EXPIRY = 5 * 60 * 1000; // 5 минут в миллисекундах
 
-function getVideoClone(name: string): HTMLVideoElement {
+function getVideoClone(item: RowItem): HTMLVideoElement {
 	const now = Date.now();
 
 	// Очистка устаревших видео
@@ -26,59 +26,64 @@ function getVideoClone(name: string): HTMLVideoElement {
 		}
 	}
 
-	if (!videoCache.has(name)) {
+	if (!videoCache.has(item.source)) {
 		const video = document.createElement("video");
-		video.src = `https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media/graphics/${name}.webm`;
-		video.poster = `https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media/graphics/${name}.webp`;
+		video.src = item.source;
+		video.poster = item.poster;
 		video.muted = true;
 		video.loop = true;
 		video.preload = "metadata";
 		video.width = 256;
 		video.height = 144;
-		videoCache.set(name, { video, lastUsed: now });
+		videoCache.set(item.source, { video, lastUsed: now });
 	} else {
-		videoCache.get(name)!.lastUsed = now;
+		videoCache.get(item.source)!.lastUsed = now;
 	}
 
-	return videoCache.get(name)!.video.cloneNode(true) as HTMLVideoElement;
+	return videoCache.get(item.source)!.video.cloneNode(true) as HTMLVideoElement;
 }
 
-const ElementCard = memo(({ name }: { name: string }) => {
+const ElementCard = memo(({ item }: { item: RowItem }) => {
 	const videoRef = useRef<HTMLVideoElement | null>(null);
 
 	const togglePlay = useMemo(() => {
 		return (state: boolean) => () => {
 			if (!videoRef.current) return;
-			if (state) {
-				videoRef.current.currentTime = 0;
-				videoRef.current.play();
-			} else {
-				videoRef.current.currentTime = videoRef.current.duration;
-				videoRef.current.pause();
+			try {
+				if (state) {
+					videoRef.current.currentTime = 0;
+					videoRef.current.play();
+				} else {
+					if (videoRef.current.paused) return;
+					videoRef.current.currentTime = videoRef.current.duration;
+					videoRef.current.pause();
+				}
+			} catch (error) {
+				//silent
 			}
 		};
 	}, []);
 
 	useEffect(() => {
 		const currentVideo = videoRef.current;
-		if (currentVideo) {
-			const video = getVideoClone(name);
-			currentVideo.src = video.src;
-			currentVideo.poster = video.poster;
-			currentVideo.muted = true;
-			currentVideo.loop = true;
-			currentVideo.preload = "metadata";
-		}
+		if (!currentVideo) return;
+
+		const video = getVideoClone(item);
+		currentVideo.src = video.src;
+		currentVideo.poster = video.poster;
+		currentVideo.muted = true;
+		currentVideo.loop = true;
+		currentVideo.preload = "metadata";
 
 		return () => {
 			if (currentVideo) {
 				currentVideo.muted = true;
-				currentVideo.pause();
+				!currentVideo.paused && currentVideo.pause();
 				currentVideo.src = "";
 				currentVideo.poster = "";
 			}
 		};
-	}, [name]);
+	}, [item.source]);
 
 	return (
 		<video
@@ -127,10 +132,10 @@ export default function Showcase() {
 			<Box sx={styles.tracks} component={"section"}>
 				<Stack direction={"column"} gap={2} alignItems={"center"} mb={"2rem"}>
 					<Typography variant='h2' fontWeight={400}>
-						Showcase
+						Explore the contents
 					</Typography>
 					<Typography fontWeight={200} whiteSpace={"pre"} textAlign={"center"}>
-						{`The plugin is ideal for absolutely all professions\nwho want to achieve great results by creating attractive and effective videos`}
+						{`Preview real elements from the pack — animations, titles, transitions, and more.`}
 					</Typography>
 				</Stack>
 				<Box sx={styles.box}>
@@ -144,9 +149,9 @@ export default function Showcase() {
 								key={rowIndex}
 								ref={refs[rowIndex]}
 							>
-								{[...row, ...row].map((source, index) => (
+								{[...row, ...row].map((rowItem, index) => (
 									<Wrapper variant='animated' angleOffset={index * 36} key={index} sx={{ borderRadius: "1rem" }}>
-										<ElementCard name={source} />
+										<ElementCard item={rowItem} />
 									</Wrapper>
 								))}
 							</Stack>

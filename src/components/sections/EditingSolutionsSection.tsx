@@ -16,16 +16,19 @@ export default function EditingSolutions() {
 			<Box sx={styles.contentWrapper}>
 				<Box sx={styles.textWrapper}>
 					<Typography variant='h2' sx={{ ...styles.heading, display: { sm: "block", xs: "none" } }}>
-						{`Editing solutions\ndriving growth\nand efficiency`}
+						{`Smart features\nthat save you time`}
 					</Typography>
 					<Typography sx={{ ...styles.subheading, display: { sm: "block", xs: "none" } }}>
-						{`Our extension is a tool that outline your creative\nperformance and projections for you and your clients.`}
+						{`Discover powerful tools built to simplify your workflow.\nFrom quick customization to adaptive scaling and flexible timing.\nThis extension is made to move as fast as you do.`}
 					</Typography>
-					<Typography variant='h2' sx={{ ...styles.heading, display: { sm: "none", xs: "block" }, fontSize: "2rem", textAlign: "center" }}>
-						{`Editing solutions driving\ngrowth and efficiency`}
+					<Typography
+						variant='h2'
+						sx={{ ...styles.heading, display: { sm: "none", xs: "block" }, fontSize: "2rem", textAlign: "center" }}
+					>
+						{`Smart features\nthat save you time`}
 					</Typography>
 					<Typography sx={{ ...styles.subheading, display: { sm: "none", xs: "block" }, textAlign: "center" }}>
-						{`Our extension is a tool that outline your creative\nperformance and projections for you and your clients.`}
+						{`Discover powerful tools built to simplify your workflow.\nFrom quick customization to adaptive scaling and flexible timing.\nThis extension is made to move as fast as you do.`}
 					</Typography>
 				</Box>
 				<Stack direction='column' spacing={2} sx={styles.buttonStack}>
@@ -39,15 +42,17 @@ export default function EditingSolutions() {
 							}}
 							key={item.id}
 							variant='outlined'
+							fullWidth
 							onClick={() => setActive(index)}
+							startIcon={item.icon}
 						>
-							<Typography fontWeight={300}>{item.label}</Typography>
+							<Typography fontWeight={index === active ? 400 : 300}>{item.label}</Typography>
 						</Button>
 					))}
 				</Stack>
 			</Box>
 			<Wrapper variant='animated' sx={styles.imageWrapper}>
-				<Image src={toggleItems[active].media} alt={toggleItems[active].label} width={1280} height={720} priority />
+				<video src={toggleItems[active].media} autoPlay muted loop playsInline width={1280} height={720} />
 			</Wrapper>
 		</Box>
 	);

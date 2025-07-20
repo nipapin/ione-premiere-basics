@@ -58,34 +58,6 @@ export default function StatisticShowcase() {
 					);
 				})}
 			</Box>
-			{/* <Stack display={{ sm: "flex", xs: "none" }} direction='row' divider={<Divider flexItem orientation='vertical' />} spacing={2}>
-				{staticticItems.map((item) => {
-					return (
-						<Box key={item.id} sx={{ display: "flex", flexDirection: "column", gap: "1rem", alignItems: "center" }}>
-							<Typography variant='h2' fontWeight={400}>
-								{item.title}
-							</Typography>
-							<Typography textAlign={"center"} fontWeight={200}>
-								{item.label}
-							</Typography>
-						</Box>
-					);
-				})}
-			</Stack>
-			<Stack display={{ sm: "none", xs: "flex" }} direction='column' divider={<Divider flexItem orientation='horizontal' />} spacing={2}>
-				{staticticItems.map((item) => {
-					return (
-						<Box key={item.id} sx={{ display: "flex", flexDirection: "column", gap: "1rem", alignItems: "center" }}>
-							<Typography variant='h2' fontWeight={400}>
-								{item.title}
-							</Typography>
-							<Typography textAlign={"center"} fontWeight={200}>
-								{item.label}
-							</Typography>
-						</Box>
-					);
-				})}
-			</Stack> */}
 		</Box>
 	);
 }

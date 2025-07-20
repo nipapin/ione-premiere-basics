@@ -1,10 +1,27 @@
-const createRow = (...args: string[]) => [...args];
+export interface RowItem {
+	source: string;
+	poster: string;
+}
 
-export const rows: string[][] = [
-	createRow("element_1", "element_1", "element_1", "element_1", "element_1"),
-	createRow("element_1", "element_1", "element_1", "element_1", "element_1"),
-	createRow("element_1", "element_1", "element_1", "element_1", "element_1")
+type Row = RowItem[];
+
+const basePath = "/videos/showcase/Slide_";
+const sourceExtension = ".mp4";
+const posterExtension = ".png";
+const rowsCount = 3;
+const itemsPerRow = 5;
+
+const nf = (value: number) => value.toString().padStart(2, "0");
+
+const createRow = (rowIndex: number): Row => [
+	...Array.from({ length: itemsPerRow }).map((_, index) => {
+		const source = `${basePath}${nf(rowIndex * itemsPerRow + index + 1)}${sourceExtension}`;
+		const poster = `${basePath}${nf(rowIndex * itemsPerRow + index + 1)}${posterExtension}`;
+		return { source, poster };
+	})
 ];
+
+export const rows: Row[] = Array.from({ length: rowsCount }).map((_, index) => createRow(index));
 
 export const styles = {
 	tracks: {
@@ -29,6 +46,7 @@ export const styles = {
 		width: "100%",
 		maxWidth: "1280px",
 		overflow: "hidden",
+		py: "4px",
 		"&::before": {
 			content: `""`,
 			display: "block",

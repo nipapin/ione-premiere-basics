@@ -19,7 +19,8 @@ const theme = createTheme({
 		fontWeightRegular: 300,
 		fontWeightLight: 200,
 		allVariants: {
-			lineHeight: 1
+			lineHeight: 1,
+			letterSpacing: "0.01rem"
 		}
 	},
 	components: {

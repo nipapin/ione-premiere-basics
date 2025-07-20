@@ -5,11 +5,11 @@ type StaticticItem = {
 };
 
 export const staticticItems: StaticticItem[] = [
-	{ id: 1, title: "$1.5B+", label: "active listing wordlide" },
+	{ id: 1, title: "800+", label: "Ready-to-use assets" },
 	{
 		id: 2,
-		title: "100+",
-		label: "cities and towns with active Premiere Basics"
+		title: "50+",
+		label: "Unique categories"
 	},
-	{ id: 3, title: "75%", label: "assets Under Managment" }
+	{ id: 3, title: "90%", label: "Faster Editing" }
 ];

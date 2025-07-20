@@ -69,8 +69,10 @@ export default function Hero() {
 					</StyledLink>
 				</Typography>
 			</Box>
-			<Typography variant='h1' sx={styles.h1}>{`Discover the most powerful\ntime saver for video editing`}</Typography>
-			<Typography sx={styles.tagline}>{`Premiere Basics is a strategic branding agency\nfocused on brand creation, rebrands, and brand`}</Typography>
+			<Typography variant='h1' sx={styles.h1}>{`One extension to rule your\nentire editing process`}</Typography>
+			<Typography
+				sx={styles.tagline}
+			>{`Boost your workflow with high-performance assets and automation — right inside Premiere Pro & After Effects.`}</Typography>
 			<Box sx={{ ...styles.buttons }}>
 				<Link href={user ? "/download" : "/login"} passHref legacyBehavior>
 					<Button variant='contained' href=''>

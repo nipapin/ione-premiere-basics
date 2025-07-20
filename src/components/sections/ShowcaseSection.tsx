@@ -68,7 +68,7 @@ const ElementCard = memo(({ item }: { item: RowItem }) => {
 		const currentVideo = videoRef.current;
 		if (!currentVideo) return;
 
-		const video = getVideoClone(item);
+		const video = getVideoClone({ source: item.source, poster: item.poster });
 		currentVideo.src = video.src;
 		currentVideo.poster = video.poster;
 		currentVideo.muted = true;
@@ -78,12 +78,14 @@ const ElementCard = memo(({ item }: { item: RowItem }) => {
 		return () => {
 			if (currentVideo) {
 				currentVideo.muted = true;
-				!currentVideo.paused && currentVideo.pause();
+				if (!currentVideo.paused) {
+					currentVideo.pause();
+				}
 				currentVideo.src = "";
 				currentVideo.poster = "";
 			}
 		};
-	}, [item.source]);
+	}, [item.source, item.poster]);
 
 	return (
 		<video

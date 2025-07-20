@@ -15,7 +15,7 @@ export default function PowerfulTools() {
 
 	return (
 		<Box component='section' sx={styles.section}>
-			<Title>What's inside?</Title>
+			<Title>{`What's inside?`}</Title>
 			<Box sx={styles.toolsGrid}>
 				{powerfulTools.map((tool, index) => (
 					<Button

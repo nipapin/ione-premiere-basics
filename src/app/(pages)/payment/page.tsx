@@ -8,6 +8,7 @@ import { useEffect } from "react";
 
 export default function PaymentPage() {
 	const { push } = useRouter();
+
 	useEffect(() => {
 		const checkStatus = async () => {
 			const response = await fetch("/api/subscription/check");
@@ -20,7 +21,7 @@ export default function PaymentPage() {
 		};
 		const interval = setInterval(checkStatus, 5000);
 		return () => clearInterval(interval);
-	}, []);
+	});
 
 	return (
 		<Container maxWidth='lg'>

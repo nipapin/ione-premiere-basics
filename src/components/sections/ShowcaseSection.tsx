@@ -133,10 +133,15 @@ export default function Showcase() {
 		trigger && (
 			<Box sx={styles.tracks} component={"section"}>
 				<Stack direction={"column"} gap={2} alignItems={"center"} mb={"2rem"}>
-					<Typography variant='h2' fontWeight={400}>
-						Explore the contents
+					<Typography
+						variant='h2'
+						fontWeight={400}
+						textAlign={"center"}
+						fontSize={{ md: "3rem", sm: "2.5rem", xs: "2rem" }}
+					>
+						{`Explore the contents`}
 					</Typography>
-					<Typography fontWeight={200} whiteSpace={"pre"} textAlign={"center"}>
+					<Typography fontWeight={200} whiteSpace={"pre"} textAlign={"center"} sx={{ textWrap: "wrap" }}>
 						{`Preview real elements from the pack — animations, titles, transitions, and more.`}
 					</Typography>
 				</Stack>

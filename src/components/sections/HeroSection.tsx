@@ -72,7 +72,7 @@ export default function Hero() {
 			</Box>
 			<Typography variant='h1' sx={styles.h1}>{`One extension to rule your\nentire editing process`}</Typography>
 			<Typography
-				sx={styles.tagline}
+				sx={{ ...styles.tagline, textWrap: "balance", whiteSpace: { sm: "pre", xs: "discard" } }}
 			>{`Boost your workflow with high-performance assets and automation\nright inside Premiere Pro & After Effects.`}</Typography>
 			<Box sx={{ ...styles.buttons }}>
 				<Link href={user ? "/download" : "/login"} passHref legacyBehavior>

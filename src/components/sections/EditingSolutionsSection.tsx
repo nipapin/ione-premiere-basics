@@ -27,7 +27,16 @@ export default function EditingSolutions() {
 					>
 						{`Smart features\nthat save you time`}
 					</Typography>
-					<Typography sx={{ ...styles.subheading, display: { sm: "none", xs: "block" }, textAlign: "center" }}>
+					<Typography
+						sx={{
+							...styles.subheading,
+							display: { sm: "none", xs: "block" },
+							textAlign: "center",
+							textWrap: "balance",
+							whiteSpace: { sm: "pre", xs: "discard" },
+							width: "fit-content"
+						}}
+					>
 						{`Discover powerful tools built to simplify your workflow.\nFrom quick customization to adaptive scaling and flexible timing.\nThis extension is made to move as fast as you do.`}
 					</Typography>
 				</Box>

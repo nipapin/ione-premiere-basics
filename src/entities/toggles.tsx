@@ -76,8 +76,8 @@ export const styles = {
 			borderRadius: "8px",
 			boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)"
 		},
-		width: "auto",
-		height: "100%",
+		width: { xs: "100%", sm: "auto" },
+		height: { xs: "auto", sm: "100%" },
 		aspectRatio: "16/9",
 		m: "none",
 		ml: { xl: "auto", md: "none" }

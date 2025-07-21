@@ -54,7 +54,7 @@ export default function PlansSection() {
 		<Wrapper component='section' sx={styles.section} fullWidth>
 			<Title>{`Choose the plan\nthat fits your workflow`}</Title>
 			<Typography
-				sx={styles.subtitle}
+				sx={{ ...styles.subtitle, textWrap: "balance", whiteSpace: { sm: "pre", xs: "discard" } }}
 			>{`Whether you're just starting out or editing every day — there's a plan for you.\nGet access to professional tools, regular updates, and everything you need to create faster.`}</Typography>
 			<Wrapper sx={styles.plansGrid} fullWidth>
 				{plans.map((plan, index) => {

@@ -180,8 +180,13 @@ export default function AboutSection() {
 						>
 							<Typography
 								variant='h3'
-								sx={{ whiteSpace: "pre", fontSize: { md: "2rem", sm: "1.5rem", xs: "1.5rem" } }}
-							>{`Two programs. One powerful extension`}</Typography>
+								sx={{
+									fontSize: { md: "2rem", sm: "1.5rem", xs: "1.5rem" },
+									textWrap: "nowrap",
+									whiteSpace: "pre",
+									textAlign: "center"
+								}}
+							>{`Two programs.\nOne powerful extension`}</Typography>
 							<Typography
 								variant='body2'
 								sx={{ textAlign: "center", textWrap: "balance", fontSize: { lg: "1rem", sm: "0.8rem", xs: "0.8rem" } }}

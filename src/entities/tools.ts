@@ -11,32 +11,32 @@ export const powerfulTools: PowerfulTool[] = [
 		id: 1,
 		label: "Transitions",
 		media: "/videos/powerfultools/transitions.mp4",
-		poster: "/images/powerfultools/transitions.png"
+		poster: "/videos/powerfultools/transitions.png"
 	},
 	{
 		id: 2,
 		label: "Effects",
 		media: "/videos/powerfultools/effects.mp4",
-		poster: "/images/powerfultools/effects.png"
+		poster: "/videos/powerfultools/effects.png"
 	},
 	{
 		id: 3,
 		label: "Motion Graphics",
 		media: "/videos/powerfultools/motiongraphics.mp4",
-		poster: "/images/powerfultools/motiongraphics.png"
+		poster: "/videos/powerfultools/motiongraphics.png"
 	},
 	{
 		id: 4,
 		label: "Sound FX",
 		media: "/videos/powerfultools/soundfx.mp4",
 		audio: true,
-		poster: "/images/powerfultools/soundfx.png"
+		poster: "/videos/powerfultools/soundfx.png"
 	},
 	{
 		id: 5,
 		label: "Assets",
 		media: "/videos/powerfultools/assets.mp4",
-		poster: "/images/powerfultools/assets.png"
+		poster: "/videos/powerfultools/assets.png"
 	}
 ];
 

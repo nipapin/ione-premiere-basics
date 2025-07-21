@@ -22,49 +22,47 @@ export default function PowerfulTools() {
 						key={tool.id}
 						sx={styles.toolButton(index === active, index)}
 						variant='outlined'
-						onClick={() => setActive(index)}
+						onClick={() => {
+							setActive(index);
+							setAudio(false);
+						}}
 					>
 						<Typography sx={{ textWrap: "nowrap", fontSize: { xs: "0.875rem", sm: "1rem" } }}>{tool.label}</Typography>
 					</Button>
 				))}
 			</Box>
 			<Box sx={styles.imageContainer}>
-				<Wrapper variant='animated' fullWidth>
-					{powerfulTools[active].audio && (
-						<IconButton
-							sx={{ position: "absolute", top: "1rem", right: "1rem", zIndex: 1000 }}
-							onClick={() => {
-								setAudio(!audio);
-								if (videoRef.current) {
-									videoRef.current.volume = 0.7;
-								}
-							}}
-						>
-							{audio ? <VolumeUp /> : <VolumeOff />}
-						</IconButton>
-					)}
-					{powerfulTools[active].media.endsWith(".mp4") ? (
-						<video
-							src={powerfulTools[active].media}
-							poster={powerfulTools[active].poster}
-							autoPlay
-							muted={!audio}
-							loop
-							style={{ width: "100%", height: "100%" }}
-							width={1280}
-							height={720}
-							ref={videoRef}
-						/>
-					) : (
-						<Image
-							src={powerfulTools[active].media}
-							alt={powerfulTools[active].label}
-							width={1280}
-							height={720}
-							priority
-						/>
-					)}
-				</Wrapper>
+				{powerfulTools.map((tool, index) => {
+					return (
+						<Wrapper variant='animated' fullWidth key={tool.id} sx={{ display: index === active ? "block" : "none" }}>
+							{tool.audio && (
+								<IconButton
+									sx={{ position: "absolute", top: "1rem", right: "1rem", zIndex: 1000 }}
+									onClick={() => {
+										setAudio(!audio);
+										if (videoRef.current) {
+											videoRef.current.volume = 0.7;
+										}
+									}}
+								>
+									{audio ? <VolumeUp /> : <VolumeOff />}
+								</IconButton>
+							)}
+							<Box sx={{ "& video": { width: "100%", height: "auto", aspectRatio: "16/9" } }}>
+								<video
+									src={tool.media}
+									poster={tool.poster}
+									autoPlay
+									muted={tool.audio ? !audio : true}
+									loop
+									playsInline
+									width={1280}
+									height={720}
+								/>
+							</Box>
+						</Wrapper>
+					);
+				})}
 			</Box>
 		</Box>
 	);

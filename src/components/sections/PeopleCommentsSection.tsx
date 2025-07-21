@@ -20,7 +20,12 @@ export default function PeopleCommentsSection() {
 			<Box sx={{ display: "grid", gridTemplateColumns: { md: "1fr 1fr 1fr", xs: "1fr" }, gap: "1rem" }}>
 				{comments.map((comment) => {
 					return (
-						<Wrapper key={comment.id} variant='animated' angleOffset={90 * comment.id}>
+						<Wrapper
+							key={comment.id}
+							variant='animated'
+							angleOffset={90 * comment.id}
+							sx={{ "--border-radius": "1rem" }}
+						>
 							<Box
 								sx={{
 									display: "flex",

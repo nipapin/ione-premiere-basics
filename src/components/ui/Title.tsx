@@ -11,7 +11,8 @@ export default function Title({ children, ...props }: TypographyProps) {
 				textAlign: "center",
 				fontWeight: 400,
 				maxWidth: "90vw",
-				mb: "1rem"
+				mb: "1rem",
+				whiteSpace: "pre-line"
 			}}
 			{...props}
 		>

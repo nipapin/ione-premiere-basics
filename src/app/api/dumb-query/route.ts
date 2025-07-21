@@ -1,7 +1,5 @@
 import { query } from "@/app/database/postgre";
-import { createClient } from "@/lib/supabase/server";
 import bcrypt from "bcrypt";
-import { cookies } from "next/headers";
 
 function withCORSHeaders(response: Response) {
 	response.headers.set("Access-Control-Allow-Origin", "*");
@@ -23,37 +21,18 @@ export async function OPTIONS() {
 	});
 }
 
-export async function POST(request: Request) {
-	const cookieStore = cookies();
+interface Payload {
+	email: string;
+	password: string;
+	type: "login" | "recheck";
+	uuid: string;
+}
 
-	const { email, password, type } = await request.json();
+const handleResponse = (payload: Payload) => ({
+	login: async () => {
+		const user = await query(`SELECT * FROM users WHERE email = $1`, [payload.email], { single: true });
 
-	if (type === "login") {
-		/*
-		return
-		{
-			uuid,
-			email,
-			subscription: {
-				status: "active",
-				price: [1, 2].filter * 10
-			}
-		}
-		
-
-
-		*/
-		if (!email || !password) {
-			return withCORSHeaders(
-				new Response(JSON.stringify({ message: "Email or password is incorrect" }), {
-					status: 400
-				})
-			);
-		}
-
-		const data = await query(`SELECT * FROM users WHERE email = $1`, [email]).then((res) => res[0]);
-
-		if (!data) {
+		if (!user) {
 			return withCORSHeaders(
 				new Response(JSON.stringify({ message: "User with this email not found" }), {
 					status: 404
@@ -61,7 +40,7 @@ export async function POST(request: Request) {
 			);
 		}
 
-		const isPasswordValid = bcrypt.compareSync(password, data.password);
+		const isPasswordValid = bcrypt.compareSync(payload.password, user.password);
 
 		if (!isPasswordValid) {
 			return withCORSHeaders(
@@ -71,38 +50,101 @@ export async function POST(request: Request) {
 			);
 		}
 
+		const subscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1`, [user.user_id], {
+			single: true
+		});
+
+		const subscriptionPrice = await fetch("https://store.payproglobal.com/api/Products/GetProductPricing", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				vendorAccountId: process.env.PAYPRO_VENDOR_ACCOUNT_ID,
+				apiSecretKey: process.env.PAYPRO_API_SECRET_KEY,
+				productId: subscription?.product_id
+			})
+		})
+			.then((res) => res.json())
+			.then((res) => res.productPricings[0]);
+
 		return withCORSHeaders(
 			new Response(
 				JSON.stringify({
+					message: "User authenticated successfully",
+					id: user.id,
+					uuid: user.user_id,
+					email: user.email,
 					subscription: {
-						message: "User authenticated successfully",
-						id: data.id,
-						status: data.status,
-						max_devices: data.max_devices
-					},
-					payload: {}
+						status: subscription?.status,
+						price: subscriptionPrice?.price * subscription?.seats.length
+					}
+				}),
+				{ status: 200 }
+			)
+		);
+	},
+	recheck: async () => {
+		const user = await query(`SELECT * FROM users WHERE user_id = $1`, [payload.uuid], { single: true });
+
+		if (!user) {
+			return withCORSHeaders(
+				new Response(JSON.stringify({ message: "User with this uuid not found" }), {
+					status: 404
+				})
+			);
+		}
+
+		const subscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1`, [user.user_id], {
+			single: true
+		});
+
+		if (!subscription) {
+			return withCORSHeaders(
+				new Response(JSON.stringify({ message: "Subscription with this uuid not found" }), {
+					status: 404
+				})
+			);
+		}
+
+		const subscriptionPrice = await fetch("https://store.payproglobal.com/api/Products/GetProductPricing", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				vendorAccountId: process.env.PAYPRO_VENDOR_ACCOUNT_ID,
+				apiSecretKey: process.env.PAYPRO_API_SECRET_KEY,
+				productId: subscription?.product_id
+			})
+		})
+			.then((res) => res.json())
+			.then((res) => res.productPricings[0]);
+
+		return withCORSHeaders(
+			new Response(
+				JSON.stringify({
+					message: "Subscription rechecked successfully",
+					email: user.email,
+					subscription: {
+						status: subscription?.status,
+						price: subscriptionPrice?.price * subscription?.seats.length
+					}
 				}),
 				{ status: 200 }
 			)
 		);
 	}
+});
 
-	if (type === "recheck") {
-		/*
-		 */
+export async function POST(request: Request) {
+	const payload: Payload = await request.json();
 
-		if (!email) {
-			return withCORSHeaders(
-				new Response(JSON.stringify({ message: "Email or password is incorrect" }), {
-					status: 400
-				})
-			);
-		}
+	const handler = handleResponse(payload)[payload.type];
+
+	if (!handler) {
+		return withCORSHeaders(new Response(JSON.stringify({ message: "Invalid request" }), { status: 500 }));
 	}
 
-	return withCORSHeaders(
-		new Response(JSON.stringify({ message: "Invalid request" }), {
-			status: 500
-		})
-	);
+	return handler();
 }

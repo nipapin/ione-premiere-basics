@@ -20,9 +20,9 @@ import Title from "../ui/Title";
 
 const formatPrice = (price: number, billingYearly: boolean, title: string) => {
 	if (title === "Free Trial") return "Free";
-	if (billingYearly && title === "Pro") return `$${Number((price * 0.8).toFixed(1))}`;
-	if (title === "Infinite")
-		return `$${Math.floor(Number(plans.find((plan) => plan.title === "Pro")?.price) * 36 * 0.6)}`;
+	if (billingYearly && title === "Creator Plan") return `$${Number((price * 0.8).toFixed(1))}`;
+	if (title === "Lifetime Access")
+		return `$${Math.floor(Number(plans.find((plan) => plan.title === "Creator Plan")?.price) * 36 * 0.6)}`;
 	return `$${price}`;
 };
 
@@ -40,20 +40,10 @@ type UserData = {
 	user_id: string;
 };
 
-const purchaseLink = (userData: UserData) => {
-	const payload = Buffer.from(
-		Object.entries(userData)
-			.map(([key, value]) => `${key}=${value}`)
-			.join("&")
-	).toString("base64");
-	return `/charge-payment?payload=${payload}`;
-};
-
 export default function PlansSection() {
 	const user = useUser();
 	const router = useRouter();
 	const [billingYearly, setBillingYearly] = useState(true);
-	const [open, setOpen] = useState(false);
 
 	const followPurchase = (productId: number) => () => {
 		const hash = Buffer.from(productId.toString()).toString("base64");
@@ -62,7 +52,7 @@ export default function PlansSection() {
 
 	return (
 		<Wrapper component='section' sx={styles.section} fullWidth>
-			<Title>Choose the plan that fits your workflow</Title>
+			<Title>{`Choose the plan\nthat fits your workflow`}</Title>
 			<Typography
 				sx={styles.subtitle}
 			>{`Whether you're just starting out or editing every day — there's a plan for you.\nGet access to professional tools, regular updates, and everything you need to create faster.`}</Typography>
@@ -80,8 +70,8 @@ export default function PlansSection() {
 								</Typography>
 								<FormControlLabel
 									sx={{
-										opacity: Number(plan.title === "Pro"),
-										pointerEvents: Number(plan.title === "Pro") ? "auto" : "none"
+										opacity: Number(plan.title === "Creator Plan"),
+										pointerEvents: Number(plan.title === "Creator Plan") ? "auto" : "none"
 									}}
 									control={<Switch checked={billingYearly} onChange={() => setBillingYearly(!billingYearly)} />}
 									label={
@@ -89,14 +79,17 @@ export default function PlansSection() {
 											<Typography>
 												Billing Yearly{" "}
 												<Typography component={"span"} fontWeight={"bold"}>
-													20%+ off
+													$191
+												</Typography>{" "}
+												<Typography component={"span"} fontWeight={"bold"} color={"primary"}>
+													save 20%
 												</Typography>
 											</Typography>
 										) : (
-											<Typography>
+											<Typography fontSize={"0.95rem"}>
 												Billing Monthly{" "}
 												<Typography component={"span"} fontWeight={"bold"}>
-													Save 20%+ with yearly billing
+													Save 20% with annual billing
 												</Typography>
 											</Typography>
 										)

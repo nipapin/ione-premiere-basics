@@ -40,7 +40,8 @@ const styles = {
 		whiteSpace: "pre",
 		textAlign: "center",
 		fontSize: { xl: "1.25rem", md: "1.1rem", sm: "1rem", xs: "0.9rem" },
-		fontWeight: 200
+		fontWeight: 200,
+		lineHeight: "1.5"
 	},
 	buttons: {
 		display: "flex",
@@ -72,7 +73,7 @@ export default function Hero() {
 			<Typography variant='h1' sx={styles.h1}>{`One extension to rule your\nentire editing process`}</Typography>
 			<Typography
 				sx={styles.tagline}
-			>{`Boost your workflow with high-performance assets and automation — right inside Premiere Pro & After Effects.`}</Typography>
+			>{`Boost your workflow with high-performance assets and automation\nright inside Premiere Pro & After Effects.`}</Typography>
 			<Box sx={{ ...styles.buttons }}>
 				<Link href={user ? "/download" : "/login"} passHref legacyBehavior>
 					<Button variant='contained' href=''>

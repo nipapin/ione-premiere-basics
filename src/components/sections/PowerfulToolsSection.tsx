@@ -46,6 +46,7 @@ export default function PowerfulTools() {
 					{powerfulTools[active].media.endsWith(".mp4") ? (
 						<video
 							src={powerfulTools[active].media}
+							poster={powerfulTools[active].poster}
 							autoPlay
 							muted={!audio}
 							loop

@@ -8,28 +8,28 @@
 	--glow: #495674;
 	--spot: #17181c;
 	--border: #ffffff40;
-	--border-radius: 3rem;
+	--border-radius: 1rem;
 	--background-gradient: radial-gradient(circle at 100% 100%, var(--spot), var(--background) 50%);
 }
 
 /* Laptop (1024px and up) */
 @media (min-width: 1024px) {
 	:root {
-		--border-radius: 2rem;
+		--border-radius: 1rem;
 	}
 }
 
 /* Tablet (768px to 1023px) */
 @media (min-width: 768px) and (max-width: 1023px) {
 	:root {
-		--border-radius: 2rem;
+		--border-radius: 1rem;
 	}
 }
 
 /* Mobile (below 768px) */
 @media (max-width: 767px) {
 	:root {
-		--border-radius: 1.5rem;
+		--border-radius: 1rem;
 	}
 }
 

@@ -61,8 +61,6 @@ export default function ManageSeats() {
 	const [discount, setDiscount] = useState<number>(1);
 	const [chargeDiscount, setChargeDiscount] = useState<number>(1);
 
-	console.log(product);
-
 	const manageSeats = () => {
 		setOpen(true);
 	};
@@ -89,7 +87,7 @@ export default function ManageSeats() {
 					(applyDiscount(product.displayPrice, nextQuantity - product.quantity) *
 						(nextQuantity - product.quantity) *
 						product.daysBeforeCharge) /
-					30
+					(product.name === "Odin Pro Annual Subscription" ? 30 * 12 : 30)
 			})
 		})
 			.then((res) => res.json())
@@ -101,9 +99,11 @@ export default function ManageSeats() {
 					setNextQuantity(data.product.next_quantity);
 					setDiscount(getDiscount(data.product.next_quantity));
 					setChargeDiscount(getDiscount(data.product.next_quantity - data.product.quantity));
-				} else {
-					setError(data.error);
+					setError("");
 				}
+			})
+			.catch((err) => {
+				setError(err.error || "Failed to change seats");
 			})
 			.finally(() => setPending(false));
 	};
@@ -119,6 +119,11 @@ export default function ManageSeats() {
 		const fetchProduct = async () => {
 			const response = await fetch(`/api/subscription/product`);
 			const data = await response.json();
+			if (!data) {
+				setShow(true);
+				setError("Failed to fetch product");
+				return;
+			}
 			setProduct(data);
 			setQuantity(data.quantity);
 			setNextQuantity(data.next_quantity);
@@ -140,140 +145,145 @@ export default function ManageSeats() {
 				slotProps={{ paper: { sx: { borderRadius: "1rem" } } }}
 			>
 				<Card sx={{ p: "1rem 0.5rem" }}>
-					<CardHeader
-						title='Change Order Seats'
-						subheader={`${
-							product?.name !== "Odin Pro Lifetime" ? "Changes will take effect on your next billing cycle.\n" : ""
-						}Payment will be charged immediately from your current balance.`}
-						action={
-							<IconButton onClick={handleClose}>
-								<Close />
-							</IconButton>
-						}
-						slotProps={{
-							title: { fontWeight: "bold", mb: "0.5rem" },
-							subheader: { fontSize: "0.875rem", whiteSpace: "pre-line" }
-						}}
-					/>
-					<CardContent>
-						<PaperCard variant='outlined'>
-							{product ? (
-								<>
-									<Avatar src={product?.logoUrl} variant='rounded' sx={{ width: "4rem", height: "4rem" }} />
-									<Box sx={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-										<Typography fontSize={"1rem"} fontWeight={"bold"}>
-											{product.name}
-										</Typography>
-										<Typography variant='body1'>{formatPrice(product.displayPrice)}</Typography>
-										<Typography variant='body1' fontSize={"0.875rem"} sx={{ opacity: 0.75 }}>
-											Current:{" "}
-											<Typography component='span' fontWeight={"bold"}>
-												{quantity} seat{quantity > 1 ? "s" : ""}
-											</Typography>
-										</Typography>
-									</Box>
-								</>
-							) : (
-								<>
-									<Skeleton variant='rounded' sx={{ width: "4rem", height: "4rem" }} />
-									<Box sx={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-										<Skeleton variant='text' width={"10rem"} height={"1.5rem"} />
-										<Skeleton variant='text' width={"8rem"} height={"1.5rem"} />
-										<Skeleton variant='text' width={"12rem"} height={"1.5rem"} />
-									</Box>
-								</>
-							)}
-						</PaperCard>
-						<Typography variant='body1' sx={{ my: "1rem" }}>
-							Total Seats:
-						</Typography>
-						{product ? (
-							<Stack direction='row' alignItems='center' gap='0.5rem'>
-								<IconButton onClick={changeQuantity(-1)}>
-									<Remove />
-								</IconButton>
-								<TextField
-									value={nextQuantity}
-									onChange={(e) => {
-										setNextQuantity((prev) => {
-											const newQuantity = Math.max(1, Number(e.target.value));
-											if (product) {
-												setDiscount(getDiscount(newQuantity));
-												setChargeDiscount(getDiscount(newQuantity - product.next_quantity));
-											}
-											return newQuantity;
-										});
-									}}
-									size='small'
-									slotProps={{ input: { sx: { textAlign: "center", width: "6rem" } } }}
-								/>
-								<IconButton onClick={changeQuantity(1)}>
-									<Add />
-								</IconButton>
-							</Stack>
-						) : (
-							<Stack direction='row' alignItems='center' gap='0.5rem'>
-								<Skeleton variant='circular' sx={{ width: "2rem", height: "2rem" }} />
-								<Skeleton variant='text' sx={{ width: "6rem", height: "2rem" }} />
-								<Skeleton variant='circular' sx={{ width: "2rem", height: "2rem" }} />
-							</Stack>
-						)}
-						<PaperCard variant='outlined' sx={{ flexDirection: "column", mt: "1rem" }}>
-							{product && product.name !== "Odin Pro Lifetime" && (
-								<Stack direction='row' alignItems='center' gap='0.5rem' width={"100%"}>
-									<Typography variant='body1'>Next billing charge:</Typography>
-									<Typography variant='body1' ml={"auto"}>
-										{discount < 1 ? (
-											<Chip
-												component='span'
-												label={`${Math.round((1 - discount) * 100)}% off`}
-												size='small'
-												sx={{ mr: "0.5rem", fontWeight: "bold" }}
-												color='primary'
-											/>
-										) : (
-											<></>
-										)}
-										{formatPrice(applyDiscount(product.displayPrice, nextQuantity) * nextQuantity)}
-									</Typography>
-								</Stack>
-							)}
-
-							<Stack direction='row' alignItems='center' gap='0.5rem' width={"100%"}>
-								<Typography variant='body1' fontWeight={"bold"}>
-									You will be charged now for:
+					{product && (
+						<>
+							<CardHeader
+								title='Change Order Seats'
+								subheader={`${
+									product?.name !== "Odin Pro Lifetime" ? "Changes will take effect on your next billing cycle.\n" : ""
+								}Payment will be charged immediately from your current balance.`}
+								action={
+									<IconButton onClick={handleClose}>
+										<Close />
+									</IconButton>
+								}
+								slotProps={{
+									title: { fontWeight: "bold", mb: "0.5rem" },
+									subheader: { fontSize: "0.875rem", whiteSpace: "pre-line" }
+								}}
+							/>
+							<CardContent>
+								<PaperCard variant='outlined'>
+									{product ? (
+										<>
+											<Avatar src={product?.logoUrl} variant='rounded' sx={{ width: "4rem", height: "4rem" }} />
+											<Box sx={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+												<Typography fontSize={"1rem"} fontWeight={"bold"}>
+													{product.name}
+												</Typography>
+												<Typography variant='body1'>{formatPrice(product.displayPrice)}</Typography>
+												<Typography variant='body1' fontSize={"0.875rem"} sx={{ opacity: 0.75 }}>
+													Current:{" "}
+													<Typography component='span' fontWeight={"bold"}>
+														{quantity} seat{quantity > 1 ? "s" : ""}
+													</Typography>
+												</Typography>
+											</Box>
+										</>
+									) : (
+										<>
+											<Skeleton variant='rounded' sx={{ width: "4rem", height: "4rem" }} />
+											<Box sx={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+												<Skeleton variant='text' width={"10rem"} height={"1.5rem"} />
+												<Skeleton variant='text' width={"8rem"} height={"1.5rem"} />
+												<Skeleton variant='text' width={"12rem"} height={"1.5rem"} />
+											</Box>
+										</>
+									)}
+								</PaperCard>
+								<Typography variant='body1' sx={{ my: "1rem" }}>
+									Total Seats:
 								</Typography>
 								{product ? (
-									<Typography variant='body1' ml={"auto"} fontWeight={"bold"}>
-										{chargeDiscount < 1 ? (
-											<Chip
-												component='span'
-												label={`${Math.round((1 - chargeDiscount) * 100)}% off`}
-												size='small'
-												sx={{ mr: "0.5rem", fontWeight: "bold" }}
-												color='primary'
-											/>
-										) : (
-											<></>
-										)}
-										{product.name === "Odin Pro Lifetime"
-											? formatPrice(
-													applyDiscount(product.displayPrice, nextQuantity) * (nextQuantity - product.next_quantity)
-											  )
-											: formatPrice(
-													(applyDiscount(product.displayPrice, nextQuantity - product.next_quantity) *
-														(nextQuantity - product.next_quantity) *
-														product.daysBeforeCharge) /
-														30
-											  )}
-									</Typography>
+									<Stack direction='row' alignItems='center' gap='0.5rem'>
+										<IconButton onClick={changeQuantity(-1)}>
+											<Remove />
+										</IconButton>
+										<TextField
+											value={nextQuantity}
+											onChange={(e) => {
+												setNextQuantity((prev) => {
+													const newQuantity = Math.max(1, Number(e.target.value));
+													if (product) {
+														setDiscount(getDiscount(newQuantity));
+														setChargeDiscount(getDiscount(newQuantity - product.next_quantity));
+													}
+													return newQuantity;
+												});
+											}}
+											size='small'
+											slotProps={{ input: { sx: { textAlign: "center", width: "6rem" } } }}
+										/>
+										<IconButton onClick={changeQuantity(1)}>
+											<Add />
+										</IconButton>
+									</Stack>
 								) : (
-									<Skeleton variant='text' width={"8rem"} height={"1.5rem"} />
+									<Stack direction='row' alignItems='center' gap='0.5rem'>
+										<Skeleton variant='circular' sx={{ width: "2rem", height: "2rem" }} />
+										<Skeleton variant='text' sx={{ width: "6rem", height: "2rem" }} />
+										<Skeleton variant='circular' sx={{ width: "2rem", height: "2rem" }} />
+									</Stack>
 								)}
-							</Stack>
-						</PaperCard>
+								<PaperCard variant='outlined' sx={{ flexDirection: "column", mt: "1rem" }}>
+									{product && product.name !== "Odin Pro Lifetime" && (
+										<Stack direction='row' alignItems='center' gap='0.5rem' width={"100%"}>
+											<Typography variant='body1'>Next billing charge:</Typography>
+											<Typography variant='body1' ml={"auto"}>
+												{discount < 1 ? (
+													<Chip
+														component='span'
+														label={`${Math.round((1 - discount) * 100)}% off`}
+														size='small'
+														sx={{ mr: "0.5rem", fontWeight: "bold" }}
+														color='primary'
+													/>
+												) : (
+													<></>
+												)}
+												{formatPrice(applyDiscount(product.displayPrice, nextQuantity) * nextQuantity)}
+											</Typography>
+										</Stack>
+									)}
 
-						<Collapse in={show} unmountOnExit>
+									<Stack direction='row' alignItems='center' gap='0.5rem' width={"100%"}>
+										<Typography variant='body1' fontWeight={"bold"}>
+											You will be charged now for:
+										</Typography>
+										{product ? (
+											<Typography variant='body1' ml={"auto"} fontWeight={"bold"}>
+												{chargeDiscount < 1 ? (
+													<Chip
+														component='span'
+														label={`${Math.round((1 - chargeDiscount) * 100)}% off`}
+														size='small'
+														sx={{ mr: "0.5rem", fontWeight: "bold" }}
+														color='primary'
+													/>
+												) : (
+													<></>
+												)}
+												{product.name === "Odin Pro Lifetime"
+													? formatPrice(
+															applyDiscount(product.displayPrice, nextQuantity) * (nextQuantity - product.next_quantity)
+													  )
+													: formatPrice(
+															(applyDiscount(product.displayPrice, nextQuantity - product.next_quantity) *
+																(nextQuantity - product.next_quantity) *
+																product.daysBeforeCharge) /
+																(product.name === "Odin Pro Annual Subscription" ? 30 * 12 : 30)
+													  )}
+											</Typography>
+										) : (
+											<Skeleton variant='text' width={"8rem"} height={"1.5rem"} />
+										)}
+									</Stack>
+								</PaperCard>
+							</CardContent>
+						</>
+					)}
+					<Collapse in={show} unmountOnExit>
+						<CardContent>
 							<Alert
 								severity={error ? "error" : "success"}
 								variant='outlined'
@@ -293,8 +303,8 @@ export default function ManageSeats() {
 							>
 								{error || "Seats changed successfully"}
 							</Alert>
-						</Collapse>
-					</CardContent>
+						</CardContent>
+					</Collapse>
 					<CardActions sx={{ justifyContent: "flex-end", padding: "1rem" }}>
 						<Button variant='text' sx={{ borderRadius: "0.5rem" }} disabled={pending} onClick={handleClose}>
 							Close

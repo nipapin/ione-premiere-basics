@@ -23,6 +23,11 @@ interface AtomXPaymentData {
 	billing_email: string;
 }
 
+interface User {
+	user_id: string;
+	email: string;
+}
+
 type PayproOrderData = Record<string, string>;
 
 const OrderStatus: Record<string, AtomXPaymentStatus> = {
@@ -55,11 +60,8 @@ const parsePayproOrder = (payproOrder: string) => {
 	return payproOrderData;
 };
 
-export async function POST(request: NextRequest) {
-	const payproOrder = await request.text();
-	const payproOrderData = parsePayproOrder(payproOrder);
-
-	const atomPayload: AtomXPaymentData = {
+const collectAtomXPayload = (payproOrderData: PayproOrderData) => {
+	return {
 		status: OrderStatus[payproOrderData.IPN_TYPE_NAME],
 		parent_order_id: Number(payproOrderData.ORDER_ID),
 		order_id: Number(payproOrderData.ORDER_ITEM_ID),
@@ -72,12 +74,10 @@ export async function POST(request: NextRequest) {
 		billing_company: payproOrderData.COMPANY_NAME,
 		billing_email: payproOrderData.CUSTOMER_EMAIL
 	};
+};
 
-	const user = await query(`SELECT user_id, email FROM users WHERE email = $1`, [payproOrderData.CUSTOMER_EMAIL]).then(
-		(res) => res[0]
-	);
-
-	const odinSubscription = {
+const collectOdinSubscription = (payproOrderData: PayproOrderData, user: User) => {
+	return {
 		product_id: payproOrderData.PRODUCT_ID,
 		order_id: payproOrderData.ORDER_ID,
 		subscription_id: payproOrderData.SUBSCRIPTION_ID,
@@ -87,32 +87,73 @@ export async function POST(request: NextRequest) {
 		trial_period_till: payproOrderData.TRIAL_PERIOD_TILL,
 		next_charge_date: payproOrderData.SUBSCRIPTION_NEXT_CHARGE_DATE,
 		quantity: Number(payproOrderData.PRODUCT_QUANTITY),
-		user_id: user?.user_id || "2e748653-5058-42da-a8d4-b227e0143e92",
+		user_id: user?.user_id,
 		customer_id: payproOrderData.CUSTOMER_ID,
 		order_item_name: payproOrderData.ORDER_ITEM_NAME,
 		seats: Array.from({ length: Number(payproOrderData.PRODUCT_QUANTITY) }).map((_, index) =>
-			Boolean(index) ? "" : user?.email || "papin201212@gmail.com"
+			index === 0 ? user?.email : ""
 		)
 	};
+};
 
-	query(
-		`INSERT INTO subscriptions (order_id, subscription_id, status, invoice, is_trial, trial_period_till, next_charge_date, quantity, user_id, customer_id, order_item_name, seats, product_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
-		[
-			odinSubscription.order_id,
-			odinSubscription.subscription_id || odinSubscription.order_id,
-			odinSubscription.status,
-			odinSubscription.invoice,
-			odinSubscription.is_trial,
-			odinSubscription.trial_period_till,
-			odinSubscription.next_charge_date,
-			odinSubscription.quantity,
-			odinSubscription.user_id,
-			odinSubscription.customer_id,
-			odinSubscription.order_item_name.replace(/\+/g, " "),
-			odinSubscription.seats,
-			odinSubscription.product_id
-		]
-	);
+export async function POST(request: NextRequest) {
+	const payproOrder = await request.text();
+	const payproOrderData = parsePayproOrder(payproOrder);
+
+	const atomPayload: AtomXPaymentData = collectAtomXPayload(payproOrderData);
+
+	const user = await query(`SELECT user_id, email FROM users WHERE email = $1`, [payproOrderData.CUSTOMER_EMAIL], {
+		single: true
+	});
+
+	if (!user) {
+		return NextResponse.json({ message: "User not found" }, { status: 404 });
+	}
+
+	const odinSubscription = collectOdinSubscription(payproOrderData, user);
+
+	switch (payproOrderData.IPN_TYPE_NAME) {
+		case "SubscriptionChargeSucceed":
+			const isSubscriptionExists = await query(`SELECT * FROM subscriptions WHERE subscription_id = $1`, [
+				odinSubscription.subscription_id
+			]);
+			if (isSubscriptionExists) {
+				query(
+					`UPDATE subscriptions SET status = $1, next_charge_date = $2, order_item_name = $3, is_trial = $4, product_id = $5 WHERE subscription_id = $6`,
+					[
+						odinSubscription.status,
+						odinSubscription.next_charge_date,
+						odinSubscription.order_item_name.replace(/\+/g, " "),
+						odinSubscription.is_trial,
+						odinSubscription.product_id,
+						odinSubscription.subscription_id
+					]
+				);
+			} else {
+				query(
+					`INSERT INTO subscriptions (order_id, subscription_id, status, invoice, is_trial, trial_period_till, next_charge_date, quantity, user_id, customer_id, order_item_name, seats, product_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+					[
+						odinSubscription.order_id,
+						odinSubscription.subscription_id || odinSubscription.order_id,
+						odinSubscription.status,
+						odinSubscription.invoice,
+						odinSubscription.is_trial,
+						odinSubscription.trial_period_till,
+						odinSubscription.next_charge_date,
+						odinSubscription.quantity,
+						odinSubscription.user_id,
+						odinSubscription.customer_id,
+						odinSubscription.order_item_name.replace(/\+/g, " "),
+						odinSubscription.seats,
+						odinSubscription.product_id
+					]
+				);
+			}
+			break;
+		case "OrderCharged":
+			break;
+		case "SubscriptionChargeFailed":
+	}
 
 	query(`UPDATE users SET paypro_customer_id = $1 WHERE user_id = $2`, [
 		odinSubscription.customer_id,

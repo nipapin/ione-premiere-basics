@@ -2,6 +2,7 @@ type PowerfulTool = {
 	id: number;
 	label: string;
 	media: string;
+	poster: string;
 	audio?: boolean;
 };
 
@@ -9,28 +10,33 @@ export const powerfulTools: PowerfulTool[] = [
 	{
 		id: 1,
 		label: "Transitions",
-		media: "/videos/powerfultools/transitions.mp4"
+		media: "/videos/powerfultools/transitions.mp4",
+		poster: "/images/powerfultools/transitions.png"
 	},
 	{
 		id: 2,
 		label: "Effects",
-		media: "/videos/powerfultools/effects.mp4"
+		media: "/videos/powerfultools/effects.mp4",
+		poster: "/images/powerfultools/effects.png"
 	},
 	{
 		id: 3,
 		label: "Motion Graphics",
-		media: "/videos/powerfultools/motiongraphics.mp4"
+		media: "/videos/powerfultools/motiongraphics.mp4",
+		poster: "/images/powerfultools/motiongraphics.png"
 	},
 	{
 		id: 4,
 		label: "Sound FX",
 		media: "/videos/powerfultools/soundfx.mp4",
-		audio: true
+		audio: true,
+		poster: "/images/powerfultools/soundfx.png"
 	},
 	{
 		id: 5,
 		label: "Assets",
-		media: "/videos/powerfultools/assets.mp4"
+		media: "/videos/powerfultools/assets.mp4",
+		poster: "/images/powerfultools/assets.png"
 	}
 ];
 

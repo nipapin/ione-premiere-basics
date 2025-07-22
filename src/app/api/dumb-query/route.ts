@@ -75,10 +75,11 @@ const handleResponse = (payload: Payload) => ({
 					id: user.id,
 					uuid: user.user_id,
 					email: user.email,
-					subscription: {
-						status: subscription?.status,
-						price: subscriptionPrice?.price * subscription?.seats.length
-					}
+					name: user.name,
+					lastname: user.lastname,
+					status: subscription?.status,
+					price: subscriptionPrice?.price * subscription?.seats.length,
+					order_id: subscription?.order_id
 				}),
 				{ status: 200 }
 			)
@@ -125,11 +126,14 @@ const handleResponse = (payload: Payload) => ({
 			new Response(
 				JSON.stringify({
 					message: "Subscription rechecked successfully",
+					id: user.id,
+					uuid: user.user_id,
 					email: user.email,
-					subscription: {
-						status: subscription?.status,
-						price: subscriptionPrice?.price * subscription?.seats.length
-					}
+					name: user.name,
+					lastname: user.lastname,
+					status: subscription?.status,
+					price: subscriptionPrice?.price * subscription?.seats.length,
+					order_id: subscription?.order_id
 				}),
 				{ status: 200 }
 			)

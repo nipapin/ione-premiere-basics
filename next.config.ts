@@ -16,13 +16,7 @@ const nextConfig: NextConfig = {
 	},
 	experimental: {
 		serverActions: {
-			allowedOrigins: [
-				"localhost:3000",
-				"193.164.128.81",
-				"odin-pro.com",
-				"api.get-atomx.com",
-				"8a2fd7a1a580.ngrok-free.app"
-			]
+			allowedOrigins: ["localhost:3000", "193.164.128.81", "odin-pro.com", "api.get-atomx.com", "149.22.90.115"]
 		}
 	}
 };

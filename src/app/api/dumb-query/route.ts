@@ -54,32 +54,40 @@ const handleResponse = (payload: Payload) => ({
 			single: true
 		});
 
-		const subscriptionPrice = await fetch("https://store.payproglobal.com/api/Products/GetProductPricing", {
+		const subscriptionPricing = await fetch("https://store.payproglobal.com/api/Products/GetProductPricing", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json"
 			},
 			body: JSON.stringify({
+				products: [{ productId: subscription?.product_id }],
 				vendorAccountId: process.env.PAYPRO_VENDOR_ACCOUNT_ID,
-				apiSecretKey: process.env.PAYPRO_API_SECRET_KEY,
-				productId: subscription?.product_id
+				apiSecretKey: process.env.PAYPRO_API_SECRET_KEY
 			})
-		})
-			.then((res) => res.json())
-			.then((res) => res.productPricings[0]);
+		}).then((res) => res.json());
+
+		if (!subscriptionPricing.isSuccess) {
+			return withCORSHeaders(
+				new Response(JSON.stringify({ message: "Subscription price not found", errors: subscriptionPricing.errors }), {
+					status: 404
+				})
+			);
+		}
+
+		const subscriptionPrice = subscriptionPricing.response.productPricings[0];
 
 		return withCORSHeaders(
 			new Response(
 				JSON.stringify({
 					message: "User authenticated successfully",
-					id: user.id,
+					id: Number(user.id),
 					uuid: user.user_id,
 					email: user.email,
 					name: user.name,
 					lastname: user.lastname,
 					status: subscription?.status,
-					price: subscriptionPrice?.price * subscription?.seats.length,
-					order_id: subscription?.order_id
+					price: subscriptionPrice.billingUnitPrice * subscription?.seats.length,
+					order_id: Number(subscription?.order_id)
 				}),
 				{ status: 200 }
 			)
@@ -108,32 +116,40 @@ const handleResponse = (payload: Payload) => ({
 			);
 		}
 
-		const subscriptionPrice = await fetch("https://store.payproglobal.com/api/Products/GetProductPricing", {
+		const subscriptionPricing = await fetch("https://store.payproglobal.com/api/Products/GetProductPricing", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json"
 			},
 			body: JSON.stringify({
+				products: [{ productId: subscription?.product_id }],
 				vendorAccountId: process.env.PAYPRO_VENDOR_ACCOUNT_ID,
-				apiSecretKey: process.env.PAYPRO_API_SECRET_KEY,
-				productId: subscription?.product_id
+				apiSecretKey: process.env.PAYPRO_API_SECRET_KEY
 			})
-		})
-			.then((res) => res.json())
-			.then((res) => res.productPricings[0]);
+		}).then((res) => res.json());
+
+		if (!subscriptionPricing.isSuccess) {
+			return withCORSHeaders(
+				new Response(JSON.stringify({ message: "Subscription price not found", errors: subscriptionPricing.errors }), {
+					status: 404
+				})
+			);
+		}
+
+		const subscriptionPrice = subscriptionPricing.response.productPricings[0];
 
 		return withCORSHeaders(
 			new Response(
 				JSON.stringify({
 					message: "Subscription rechecked successfully",
-					id: user.id,
+					id: Number(user.id),
 					uuid: user.user_id,
 					email: user.email,
 					name: user.name,
 					lastname: user.lastname,
 					status: subscription?.status,
-					price: subscriptionPrice?.price * subscription?.seats.length,
-					order_id: subscription?.order_id
+					price: subscriptionPrice.billingUnitPrice * subscription?.seats.length,
+					order_id: Number(subscription?.order_id)
 				}),
 				{ status: 200 }
 			)
@@ -142,6 +158,13 @@ const handleResponse = (payload: Payload) => ({
 });
 
 export async function POST(request: Request) {
+	const headers = request.headers;
+	const secureCheck = headers.get("AtomX-Secure-Check");
+
+	if (secureCheck !== process.env.ATOMX_SECRET) {
+		return withCORSHeaders(new Response(JSON.stringify({ message: "Secure check is incorrect" }), { status: 401 }));
+	}
+
 	const payload: Payload = await request.json();
 
 	const handler = handleResponse(payload)[payload.type];

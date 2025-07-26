@@ -52,9 +52,15 @@ const handleResponse = (payload: Payload) => ({
 			);
 		}
 
-		const subscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1`, [user.user_id], {
+		const primarySubscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1`, [user.user_id], {
 			single: true
 		});
+
+		const secondarySubscriptions = await query(`SELECT * FROM subscriptions WHERE $1 = ANY(seats);`, [user.email], {
+			single: true
+		});
+
+		const subscription = primarySubscription || secondarySubscriptions;
 
 		if (!subscription) {
 			return withCORSHeaders(
@@ -127,9 +133,15 @@ const handleResponse = (payload: Payload) => ({
 			);
 		}
 
-		const subscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1`, [user.user_id], {
+		const primarySubscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1`, [user.user_id], {
 			single: true
 		});
+
+		const secondarySubscriptions = await query(`SELECT * FROM subscriptions WHERE $1 = ANY(seats);`, [user.email], {
+			single: true
+		});
+
+		const subscription = primarySubscription || secondarySubscriptions;
 
 		if (!subscription) {
 			return withCORSHeaders(

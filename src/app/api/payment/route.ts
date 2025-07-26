@@ -38,7 +38,7 @@ const OrderStatus: Record<string, AtomXPaymentStatus> = {
 	OrderPartiallyRefunded: "active",
 	SubscriptionChargeSucceed: "active",
 	SubscriptionChargeFailed: "failed",
-	SubscriptionSuspended: "active",
+	SubscriptionSuspended: "on-hold",
 	SubscriptionRenewed: "active",
 	SubscriptionTerminated: "cancelled",
 	SubscriptionFinished: "cancelled",

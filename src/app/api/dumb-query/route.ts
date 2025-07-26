@@ -35,7 +35,8 @@ const handleResponse = (payload: Payload) => ({
 		if (!user) {
 			return withCORSHeaders(
 				new Response(JSON.stringify({ message: "User with this email not found" }), {
-					status: 404
+					status: 404,
+					headers: { "Content-Type": "application/json" }
 				})
 			);
 		}
@@ -45,7 +46,8 @@ const handleResponse = (payload: Payload) => ({
 		if (!isPasswordValid) {
 			return withCORSHeaders(
 				new Response(JSON.stringify({ message: "Email or password is incorrect" }), {
-					status: 401
+					status: 401,
+					headers: { "Content-Type": "application/json" }
 				})
 			);
 		}
@@ -53,6 +55,25 @@ const handleResponse = (payload: Payload) => ({
 		const subscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1`, [user.user_id], {
 			single: true
 		});
+
+		if (!subscription) {
+			return withCORSHeaders(
+				new Response(
+					JSON.stringify({
+						message: "User authenticated successfully",
+						id: Number(user.id),
+						uuid: user.user_id,
+						email: user.email,
+						name: user.name,
+						lastname: user.lastname,
+						status: null,
+						price: null,
+						order_id: null
+					}),
+					{ status: 200, headers: { "Content-Type": "application/json" } }
+				)
+			);
+		}
 
 		const subscriptionPricing = await fetch("https://store.payproglobal.com/api/Products/GetProductPricing", {
 			method: "POST",
@@ -69,7 +90,8 @@ const handleResponse = (payload: Payload) => ({
 		if (!subscriptionPricing.isSuccess) {
 			return withCORSHeaders(
 				new Response(JSON.stringify({ message: "Subscription price not found", errors: subscriptionPricing.errors }), {
-					status: 404
+					status: 404,
+					headers: { "Content-Type": "application/json" }
 				})
 			);
 		}
@@ -89,7 +111,7 @@ const handleResponse = (payload: Payload) => ({
 					price: subscriptionPrice.billingUnitPrice * subscription?.seats.length,
 					order_id: Number(subscription?.order_id)
 				}),
-				{ status: 200 }
+				{ status: 200, headers: { "Content-Type": "application/json" } }
 			)
 		);
 	},
@@ -99,7 +121,8 @@ const handleResponse = (payload: Payload) => ({
 		if (!user) {
 			return withCORSHeaders(
 				new Response(JSON.stringify({ message: "User with this uuid not found" }), {
-					status: 404
+					status: 404,
+					headers: { "Content-Type": "application/json" }
 				})
 			);
 		}
@@ -111,7 +134,8 @@ const handleResponse = (payload: Payload) => ({
 		if (!subscription) {
 			return withCORSHeaders(
 				new Response(JSON.stringify({ message: "Subscription with this uuid not found" }), {
-					status: 404
+					status: 404,
+					headers: { "Content-Type": "application/json" }
 				})
 			);
 		}
@@ -131,7 +155,8 @@ const handleResponse = (payload: Payload) => ({
 		if (!subscriptionPricing.isSuccess) {
 			return withCORSHeaders(
 				new Response(JSON.stringify({ message: "Subscription price not found", errors: subscriptionPricing.errors }), {
-					status: 404
+					status: 404,
+					headers: { "Content-Type": "application/json" }
 				})
 			);
 		}
@@ -151,7 +176,7 @@ const handleResponse = (payload: Payload) => ({
 					price: subscriptionPrice.billingUnitPrice * subscription?.seats.length,
 					order_id: Number(subscription?.order_id)
 				}),
-				{ status: 200 }
+				{ status: 200, headers: { "Content-Type": "application/json" } }
 			)
 		);
 	}

@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
 	const payproOrderData = parsePayproOrder(payproOrder);
 
 	const atomPayload: AtomXPaymentData = collectAtomXPayload(payproOrderData);
-	console.log(atomPayload);
+	console.log(payproOrderData);
 
 	const user = await query(`SELECT user_id, email FROM users WHERE email = $1`, [payproOrderData.CUSTOMER_EMAIL], {
 		single: true

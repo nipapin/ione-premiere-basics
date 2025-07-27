@@ -113,6 +113,7 @@ export async function POST(request: NextRequest) {
 	const odinSubscription = collectOdinSubscription(payproOrderData, user);
 
 	switch (payproOrderData.IPN_TYPE_NAME) {
+		case "TrialCharge":
 		case "SubscriptionChargeSucceed":
 		case "SubscriptionRenewed":
 			const isSubscriptionExists = await query(`SELECT * FROM subscriptions WHERE subscription_id = $1`, [

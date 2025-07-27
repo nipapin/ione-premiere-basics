@@ -120,18 +120,22 @@ export async function POST(request: NextRequest) {
 			const isSubscriptionExists = await query(`SELECT * FROM subscriptions WHERE subscription_id = $1`, [
 				odinSubscription.subscription_id
 			]);
+			console.log("isSubscriptionExists", isSubscriptionExists);
 			if (isSubscriptionExists) {
 				query(
-					`UPDATE subscriptions SET status = $1, next_charge_date = $2, order_item_name = $3, is_trial = $4, product_id = $5 WHERE subscription_id = $6`,
+					`UPDATE subscriptions SET status = $1, next_charge_date = $2, order_item_name = $3, is_trial = $4, trial_period_till = $5, product_id = $6 WHERE subscription_id = $7`,
 					[
 						odinSubscription.status,
 						odinSubscription.next_charge_date,
 						odinSubscription.order_item_name.replace(/\+/g, " "),
 						odinSubscription.is_trial,
+						odinSubscription.trial_period_till,
 						odinSubscription.product_id,
 						odinSubscription.subscription_id
 					]
-				);
+				).catch((error) => {
+					console.error("Error updating subscription", error);
+				});
 			} else {
 				query(
 					`INSERT INTO subscriptions (order_id, subscription_id, status, invoice, is_trial, trial_period_till, next_charge_date, quantity, user_id, customer_id, order_item_name, seats, product_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
@@ -150,12 +154,15 @@ export async function POST(request: NextRequest) {
 						odinSubscription.seats,
 						odinSubscription.product_id
 					]
-				);
+				).catch((error) => {
+					console.error("Error inserting subscription", error);
+				});
 			}
 			break;
 		case "OrderCharged":
 			break;
 		case "SubscriptionChargeFailed":
+			break;
 	}
 
 	query(`UPDATE users SET paypro_customer_id = $1 WHERE user_id = $2`, [

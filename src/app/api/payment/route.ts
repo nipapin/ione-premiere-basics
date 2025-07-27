@@ -117,9 +117,13 @@ export async function POST(request: NextRequest) {
 		case "TrialCharge":
 		case "SubscriptionChargeSucceed":
 		case "SubscriptionRenewed":
-			const isSubscriptionExists = await query(`SELECT * FROM subscriptions WHERE subscription_id = $1`, [
-				odinSubscription.subscription_id
-			]);
+			const isSubscriptionExists = await query(
+				`SELECT * FROM subscriptions WHERE subscription_id = $1`,
+				[odinSubscription.subscription_id],
+				{
+					single: true
+				}
+			);
 			console.log("isSubscriptionExists", isSubscriptionExists);
 			if (isSubscriptionExists) {
 				query(

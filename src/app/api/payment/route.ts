@@ -113,14 +113,12 @@ const collectOdinSubscription = (payproOrderData: PayproOrderData, user: User): 
 };
 
 const handleSubscription = async (odinSubscription: OdinSubscription) => {
-	const isSubscriptionExists = await query(
-		`SELECT * FROM subscriptions WHERE subscription_id = $1`,
-		[odinSubscription.subscription_id],
-		{
-			single: true
-		}
-	);
-	console.log("isSubscriptionExists", isSubscriptionExists);
+	const isSubscriptionExists = odinSubscription.subscription_id
+		? await query(`SELECT * FROM subscriptions WHERE subscription_id = $1`, [odinSubscription.subscription_id], {
+				single: true
+		  })
+		: false;
+
 	if (isSubscriptionExists) {
 		query(
 			`UPDATE subscriptions SET status = $1, next_charge_date = $2, order_item_name = $3, is_trial = $4, trial_period_till = $5, product_id = $6 WHERE subscription_id = $7`,
@@ -185,7 +183,7 @@ export async function POST(request: NextRequest) {
 
 	const odinSubscription = collectOdinSubscription(payproOrderData, user);
 
-	if (payproOrderData.SUBSCRIPTION_ID || payproOrderData.PRODUCT_ID === "113887") {
+	if (payproOrderData.SUBSCRIPTION_ID) {
 		handleSubscription(odinSubscription);
 		if (odinSubscription.status === "active") {
 			sendEmail(user?.email, "Your subscription is active", `<p>Your subscription is active</p>`);

@@ -182,11 +182,15 @@ export async function POST(request: NextRequest) {
 	}
 
 	const odinSubscription = collectOdinSubscription(payproOrderData, user);
-
-	if (payproOrderData.SUBSCRIPTION_ID) {
+	const isLifetime = payproOrderData.ORDER_ITEM_ID === "113887";
+	if (payproOrderData.SUBSCRIPTION_ID && isLifetime) {
 		handleSubscription(odinSubscription);
 		if (odinSubscription.status === "active") {
-			sendEmail(user?.email, "Your subscription is active", `<p>Your subscription is active</p>`);
+			sendEmail(
+				user?.email,
+				isLifetime ? "Your Lifetime is active" : "Your subscription is active",
+				`<p>${isLifetime ? "Your Lifetime is active" : "Your subscription is active"}</p>`
+			);
 		}
 	} else {
 		handleOrder(payproOrderData, user.user_id);

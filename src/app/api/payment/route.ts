@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
 
 	const odinSubscription = collectOdinSubscription(payproOrderData, user);
 	const isLifetime = payproOrderData.ORDER_ITEM_ID === "113887";
-	if (payproOrderData.SUBSCRIPTION_ID && isLifetime) {
+	if (payproOrderData.SUBSCRIPTION_ID || isLifetime) {
 		handleSubscription(odinSubscription);
 		if (odinSubscription.status === "active") {
 			sendEmail(

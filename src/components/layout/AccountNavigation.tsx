@@ -26,11 +26,11 @@ const menuItems: MenuItem[] = [
 		title: "Orders",
 		route: "/account/subscription"
 	},
-	{
-		id: 4,
-		title: "Extension",
-		route: "/account/extension"
-	}
+	// {
+	// 	id: 4,
+	// 	title: "Extension",
+	// 	route: "/account/extension"
+	// }
 ];
 
 export default function AccountNavigation() {

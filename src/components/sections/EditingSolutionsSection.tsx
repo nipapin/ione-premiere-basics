@@ -61,7 +61,16 @@ export default function EditingSolutions() {
 				</Stack>
 			</Box>
 			<Wrapper variant='animated' sx={styles.imageWrapper}>
-				<video src={toggleItems[active].media} autoPlay muted loop playsInline width={1280} height={720} />
+				<video
+					poster={toggleItems[active].poster}
+					src={toggleItems[active].media}
+					autoPlay
+					muted
+					loop
+					playsInline
+					width={1280}
+					height={720}
+				/>
 			</Wrapper>
 		</Box>
 	);

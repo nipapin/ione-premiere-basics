@@ -25,20 +25,24 @@ type SocialItem = {
 };
 
 const AboutLinks: LinkItem[] = [
-	{ id: 1, label: "Contact", href: "/contact" },
-	{ id: 2, label: "Blog", href: "/blog" },
-	{ id: 3, label: "Our Story", href: "/about" },
-	{ id: 4, label: "Careers", href: "/careers" }
+	{ id: 1, label: "Features", href: "/features" },
+	{ id: 2, label: "Pricing", href: "/pricing" },
+	{ id: 3, label: "Download", href: "/download" },
+	{ id: 4, label: "Blog", href: "/blog" },
+	{ id: 5, label: "Help", href: "/help" }
 ];
 
 const CompanyLinks: LinkItem[] = [{ id: 4, label: "Help center", href: "/help" }];
 
 const SocialLinks: SocialItem[] = [
-	{ id: 1, href: "#", icon: <X /> },
-	{ id: 2, href: "#", icon: <LinkedIn /> },
-	{ id: 3, href: "#", icon: <Facebook /> },
-	{ id: 4, href: "#", icon: <Instagram /> },
-	{ id: 5, href: "#", icon: <YouTube /> }
+	{ id: 1, href: "https://instagram.com/tymon_reynders", icon: <Instagram /> },
+	{ id: 2, href: "https://www.youtube.com/@PremiereBasics", icon: <YouTube /> }
+];
+
+const TermsLinks: LinkItem[] = [
+	{ id: 1, label: "Privacy Policy", href: "/privacy-policy" },
+	{ id: 2, label: "Terms of Service", href: "/terms-of-service" },
+	{ id: 3, label: "Refund Policy", href: "/refund-policy" }
 ];
 
 export default function Footer() {
@@ -90,7 +94,7 @@ export default function Footer() {
 					<Wrapper display={"grid"} gridTemplateColumns={"1fr 1fr"} gap={5} mx={0}>
 						<Wrapper>
 							<Typography marginBottom={"1rem"} fontWeight={700}>
-								About
+								Pages
 							</Typography>
 							<Wrapper display={"flex"} flexDirection={"column"} gap={1}>
 								{AboutLinks.map((link) => {
@@ -104,10 +108,10 @@ export default function Footer() {
 						</Wrapper>
 						<Wrapper>
 							<Typography marginBottom={"1rem"} fontWeight={700}>
-								Company
+								Terms
 							</Typography>
 							<Wrapper display={"flex"} flexDirection={"column"} gap={1}>
-								{CompanyLinks.map((link) => {
+								{TermsLinks.map((link) => {
 									return (
 										<StyledLink key={link.id} href={link.href}>
 											{link.label}
@@ -145,7 +149,7 @@ export default function Footer() {
 					<Wrapper mx={0} width={"auto"}>
 						{SocialLinks.map((link) => {
 							return (
-								<IconButton size='small' key={link.id} href={link.href}>
+								<IconButton size='small' key={link.id} href={link.href} target='_blank'>
 									{link.icon}
 								</IconButton>
 							);

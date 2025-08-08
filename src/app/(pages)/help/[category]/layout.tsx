@@ -4,7 +4,7 @@ import HelpMenu from "@/components/help/HelpMenu";
 import PageContainer from "@/components/layout/PageContainer";
 import TreeWrapper from "@/contexts/TreeWrapper";
 import { getDocsTree } from "@/lib/utils";
-import { Box } from "@mui/material";
+import { Box, Container } from "@mui/material";
 import { ReactNode } from "react";
 
 export default async function HelpLayout({ children }: { children: ReactNode }) {
@@ -12,7 +12,7 @@ export default async function HelpLayout({ children }: { children: ReactNode }) 
 
 	return (
 		<TreeWrapper tree={tree}>
-			<PageContainer sx={{ pt: { xs: "2rem" } }}>
+			<Container maxWidth='xl' sx={{ pt: { xs: "2rem" } }}>
 				<Box
 					sx={{
 						display: "grid",
@@ -47,7 +47,7 @@ export default async function HelpLayout({ children }: { children: ReactNode }) 
 						</Box>
 					</Box>
 				</Box>
-			</PageContainer>
+			</Container>
 		</TreeWrapper>
 	);
 }

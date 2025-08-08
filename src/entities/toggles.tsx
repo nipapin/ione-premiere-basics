@@ -4,6 +4,7 @@ type ToggleItem = {
 	id: number;
 	label: string;
 	media: string;
+	poster: string;
 	icon: React.ReactNode;
 };
 
@@ -12,18 +13,21 @@ export const toggleItems: ToggleItem[] = [
 		id: 1,
 		label: "Quick Customization",
 		media: "/videos/features/controllers.mp4",
+		poster: "/images/features/controllers.jpg",
 		icon: <Bolt />
 	},
 	{
 		id: 2,
 		label: "Adaptive Design",
 		media: "/videos/features/autoresize.mp4",
+		poster: "/images/features/features.png",
 		icon: <AspectRatio />
 	},
 	{
 		id: 3,
 		label: "Duration Control",
 		media: "/videos/features/durationcontrol.mp4",
+		poster: "/images/features/duration.jpg",
 		icon: <AlarmOn />
 	}
 ];

@@ -2,21 +2,26 @@ import PageContainer from "@/components/layout/PageContainer";
 import { Wrapper } from "@/components/layout/Wrapper";
 import Title from "@/components/ui/Title";
 import { links } from "@/entities/links";
-import { Box, CardActionArea, Stack, Typography } from "@mui/material";
+import { Box, CardActionArea, Container, Stack, Typography } from "@mui/material";
 import { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
 	title: "Premiere Basics | Help",
-	description: "Get help with Premiere Basics",
+	description: "Get help with Premiere Basics"
 };
 
 export default async function HelpPage() {
 	return (
-		<PageContainer>
+		<Container maxWidth='xl'>
 			<Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-				<Title variant="h1">How we can help you?</Title>
-				<Typography textAlign={"center"} fontWeight={200} fontSize="1rem" sx={{ textAlign: "center", fontWeight: "fontWeightLight" }}>
+				<Title variant='h1'>How we can help you?</Title>
+				<Typography
+					textAlign={"center"}
+					fontWeight={200}
+					fontSize='1rem'
+					sx={{ textAlign: "center", fontWeight: "fontWeightLight" }}
+				>
 					{`Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt aliqua`}
 				</Typography>
 			</Box>
@@ -31,7 +36,7 @@ export default async function HelpPage() {
 					return (
 						<Wrapper
 							key={linkItem.id}
-							variant="animated"
+							variant='animated'
 							angleOffset={linkItem.id * 90}
 							sx={{ gridColumn: { md: `span ${linkItem.span}`, xs: "span 1" } }}
 							fullWidth
@@ -45,18 +50,18 @@ export default async function HelpPage() {
 											display: "flex",
 											flexDirection: { md: linkItem.direction, xs: "column" },
 											alignItems: "center",
-											height: "100%",
+											height: "100%"
 										}}
 									>
 										{linkItem.icon}
 										<Stack
 											alignItems={{
 												md: linkItem.direction === "column" ? "center" : "flex-start",
-												xs: "center",
+												xs: "center"
 											}}
 											marginLeft={{
 												md: linkItem.direction === "column" ? "" : "1rem",
-												xs: "",
+												xs: ""
 											}}
 										>
 											<Typography fontSize={{ xl: "2rem", md: "1.5rem" }} gutterBottom marginTop={"1rem"}>
@@ -73,6 +78,6 @@ export default async function HelpPage() {
 					);
 				})}
 			</Wrapper>
-		</PageContainer>
+		</Container>
 	);
 }

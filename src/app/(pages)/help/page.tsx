@@ -1,6 +1,4 @@
-import PageContainer from "@/components/layout/PageContainer";
 import { Wrapper } from "@/components/layout/Wrapper";
-import Title from "@/components/ui/Title";
 import { links } from "@/entities/links";
 import { Box, CardActionArea, Container, Stack, Typography } from "@mui/material";
 import { Metadata } from "next";
@@ -13,14 +11,17 @@ export const metadata: Metadata = {
 
 export default async function HelpPage() {
 	return (
-		<Container maxWidth='xl'>
-			<Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-				<Title variant='h1'>How we can help you?</Title>
+		<Container maxWidth='xl' sx={{ display: "flex", flexDirection: "column", py: "7rem", gap: "1rem" }}>
+			<Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+				<Typography variant='h1' fontSize={{ xl: "4rem", md: "3rem", sm: "3rem", xs: "1.9rem" }}>
+					How we can help you?
+				</Typography>
 				<Typography
 					textAlign={"center"}
 					fontWeight={200}
 					fontSize='1rem'
 					sx={{ textAlign: "center", fontWeight: "fontWeightLight" }}
+					mb={"2rem"}
 				>
 					{`Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt aliqua`}
 				</Typography>

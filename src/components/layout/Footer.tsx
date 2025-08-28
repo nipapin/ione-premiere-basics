@@ -59,7 +59,7 @@ export default function Footer() {
 						<Typography
 							fontSize={{ xl: "2rem", md: "2rem", xs: "1.5rem" }}
 							whiteSpace={"pre"}
-						>{`Subscribe to get tips and tactics\nto grow the way you want.`}</Typography>
+						>{`Subscribe to get the latest\nnews and updates`}</Typography>
 						<TextField
 							placeholder='Your email adress'
 							sx={{ position: "relative" }}

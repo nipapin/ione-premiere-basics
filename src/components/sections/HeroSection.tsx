@@ -77,7 +77,7 @@ export default function Hero() {
 			<Box sx={{ ...styles.buttons }}>
 				<Link href={user ? "/download" : "/login"} passHref legacyBehavior>
 					<Button variant='contained' href=''>
-						<Typography fontWeight={500}>Getting Started</Typography>
+						<Typography fontWeight={500}>Get started</Typography>
 					</Button>
 				</Link>
 				<Link href={"/features"} passHref legacyBehavior>

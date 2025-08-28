@@ -14,13 +14,12 @@ export default async function BlogPage() {
 
 	return (
 		<PageContainer sx={{ pt: { md: "4rem", xs: "2rem" } }}>
-			<Box sx={{ display: "flex", flexDirection: "column", gap: "1rem", width: "100%", maxWidth: "1280px" }}>
+			<Box sx={{ display: "flex", flexDirection: "column", gap: "1rem", width: "100%", maxWidth: "1280px", alignItems: "center" }}>
 				<Typography variant='h1' sx={{ fontSize: "4rem", fontWeight: 400 }}>
-					Blog
+					Explore Our Blog
 				</Typography>
 				<Typography variant='body1'>
-					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore
-					magna aliqua.
+					Tips, tricks, and inspiration to help you edit faster, create better, and stay ahead in the world of video.
 				</Typography>
 				<Divider sx={{ my: "1rem" }} />
 				<Box sx={{ display: "flex", flexDirection: "column", gap: "1rem", width: "100%" }}>

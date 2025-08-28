@@ -23,7 +23,7 @@ export default async function HelpPage() {
 					sx={{ textAlign: "center", fontWeight: "fontWeightLight" }}
 					mb={"2rem"}
 				>
-					{`Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt aliqua`}
+					{`Whatever you need—getting started, solving issues, or just saying hi - we're here to make your journey smooth and simple.`}
 				</Typography>
 			</Box>
 			<Wrapper
@@ -68,7 +68,11 @@ export default async function HelpPage() {
 											<Typography fontSize={{ xl: "2rem", md: "1.5rem" }} gutterBottom marginTop={"1rem"}>
 												{linkItem.title}
 											</Typography>
-											<Typography fontWeight={200} textAlign={"center"} fontSize={{ xl: "1rem", md: "0.865rem" }}>
+											<Typography
+												fontWeight={200}
+												textAlign={linkItem.descriptionProps?.sx?.textAlign || "center"}
+												fontSize={{ xl: "1rem", md: "0.865rem" }}
+											>
 												{linkItem.description}
 											</Typography>
 										</Stack>

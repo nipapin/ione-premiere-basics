@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 const styles = {
 	stack: {
-		display: { xl: "flex", xs: "none" },
+		display: { md: "flex", xs: "none" },
 		flexDirection: "column",
 		gap: 2,
 		alignItems: "center"
@@ -39,7 +39,7 @@ const styles = {
 		maxWidth: "lg"
 	},
 	warning: {
-		display: { lg: "none", md: "flex" },
+		display: { md: "none", xs: "flex" },
 		alignItems: "center",
 		flexDirection: "column",
 		borderRadius: "1rem",

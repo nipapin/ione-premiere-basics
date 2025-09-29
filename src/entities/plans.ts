@@ -10,14 +10,13 @@ type Plan = {
 
 export const plans: Plan[] = [
 	{
-		id: [/*113884*/ 114910],
-		title: "Free Trial",
+		id: [114910],
+		title: "Free Plan",
 		description:
-			"Explore the full power of the extension for 7 days — transitions, titles, effects, and more.\nPerfect for testing it in real projects before committing",
+			"Explore the power of the extension — transitions, titles, effects, and more.\nPerfect for testing it in real projects before committing",
 		price: 0,
 		per: "",
 		benefits: [
-			"7-day full access to all features",
 			"Use across Premiere Pro & After Effects",
 			"No watermark, no limitations",
 			"One-click installation & editing"

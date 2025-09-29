@@ -19,7 +19,7 @@ import { Wrapper } from "../layout/Wrapper";
 import Title from "../ui/Title";
 
 const formatPrice = (price: number, billingYearly: boolean, title: string) => {
-	if (title === "Free Trial") return "Free";
+	if (title === "Free Plan") return "Free";
 	if (billingYearly && title === "Creator Plan") return `$${Number((price * 0.8).toFixed(1))}`;
 	if (title === "Lifetime Access")
 		return `$${Math.floor(Number(plans.find((plan) => plan.title === "Creator Plan")?.price) * 36 * 0.6)}`;
@@ -27,7 +27,7 @@ const formatPrice = (price: number, billingYearly: boolean, title: string) => {
 };
 
 const buttonTitle: Record<string, string> = {
-	"Free Trial": "7-day Free Trial",
+	"Free Plan": "Try for free",
 	"Creator Plan": "Subscribe",
 	"Lifetime Access": "Buy Now"
 };

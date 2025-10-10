@@ -32,12 +32,12 @@ export const powerfulTools: PowerfulTool[] = [
 		audio: true,
 		poster: "/videos/powerfultools/soundfx.png"
 	},
-	{
-		id: 5,
-		label: "Assets",
-		media: "/videos/powerfultools/assets.mp4",
-		poster: "/videos/powerfultools/assets.png"
-	}
+	// {
+	// 	id: 5,
+	// 	label: "Assets",
+	// 	media: "/videos/powerfultools/assets.mp4",
+	// 	poster: "/videos/powerfultools/assets.png"
+	// }
 ];
 
 export const styles = {

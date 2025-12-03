@@ -16,8 +16,8 @@ export const navItems: NavItem[] = [
 	{ id: 2, label: "Features", href: "/features" },
 	{ id: 3, label: "Pricing", href: "/pricing" },
 	{ id: 4, label: "Download", href: "/download" },
-	{ id: 5, label: "Blog", href: "/blog" },
-	{ id: 6, label: "Help", href: "/help" }
+	// { id: 5, label: "Blog", href: "/blog" },
+	{ id: 6, label: "Help", href: "/help" },
 ];
 
 export default function NavBarLinks() {

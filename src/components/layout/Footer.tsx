@@ -25,21 +25,21 @@ const AboutLinks: LinkItem[] = [
 	{ id: 1, label: "Features", href: "/features" },
 	{ id: 2, label: "Pricing", href: "/pricing" },
 	{ id: 3, label: "Download", href: "/download" },
-	{ id: 4, label: "Blog", href: "/blog" },
-	{ id: 5, label: "Help", href: "/help" }
+	// { id: 4, label: "Blog", href: "/blog" },
+	{ id: 5, label: "Help", href: "/help" },
 ];
 
 const CompanyLinks: LinkItem[] = [{ id: 4, label: "Help center", href: "/help" }];
 
 const SocialLinks: SocialItem[] = [
 	{ id: 1, href: "https://instagram.com/tymon_reynders", icon: <Instagram /> },
-	{ id: 2, href: "https://www.youtube.com/@PremiereBasics", icon: <YouTube /> }
+	{ id: 2, href: "https://www.youtube.com/@PremiereBasics", icon: <YouTube /> },
 ];
 
 const TermsLinks: LinkItem[] = [
 	{ id: 1, label: "Privacy Policy", href: "/privacy-policy" },
 	{ id: 2, label: "Terms of Service", href: "/terms-of-service" },
-	{ id: 3, label: "Refund Policy", href: "/refund-policy" }
+	{ id: 3, label: "Refund Policy", href: "/refund-policy" },
 ];
 
 export default function Footer() {
@@ -61,20 +61,20 @@ export default function Footer() {
 							whiteSpace={"pre"}
 						>{`Subscribe to get the latest\nnews and updates`}</Typography>
 						<TextField
-							placeholder='Your email adress'
+							placeholder="Your email adress"
 							sx={{ position: "relative" }}
 							slotProps={{
 								input: {
 									endAdornment: (
 										<Button
-											variant='contained'
+											variant="contained"
 											sx={{
 												aspectRatio: 1,
 												borderRadius: "1rem",
 												position: "absolute",
 												right: 0,
 												top: "50%",
-												transform: "translateY(-50%)"
+												transform: "translateY(-50%)",
 											}}
 										>
 											<ArrowForwardIos />
@@ -82,9 +82,9 @@ export default function Footer() {
 									),
 									sx: {
 										borderRadius: "1rem",
-										padding: "0.5rem 1rem"
-									}
-								}
+										padding: "0.5rem 1rem",
+									},
+								},
 							}}
 						></TextField>
 					</Wrapper>
@@ -146,7 +146,7 @@ export default function Footer() {
 					<Wrapper mx={0} width={"auto"}>
 						{SocialLinks.map((link) => {
 							return (
-								<IconButton size='small' key={link.id} href={link.href} target='_blank'>
+								<IconButton size="small" key={link.id} href={link.href} target="_blank">
 									{link.icon}
 								</IconButton>
 							);

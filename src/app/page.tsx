@@ -29,7 +29,7 @@ export default async function Home() {
 			<PlansSection />
 			<FAQSection />
 			<PeopleCommentsSection />
-			<BlogSection blogs={blogs} />
+			{/* <BlogSection blogs={blogs} /> */}
 			<TeamSection />
 		</PageContainer>
 	);

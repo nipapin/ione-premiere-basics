@@ -8,7 +8,8 @@ export default function HeroVideo() {
 	const [videoSrc, setVideoSrc] = useState<string>();
 	useEffect(() => {
 		const timeout = setTimeout(() => {
-			setVideoSrc("https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover.mp4");
+			// setVideoSrc("https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover.mp4");
+			setVideoSrc("/videos/cover.mp4");
 			setIsVideoPlaying(true);
 		}, 1000);
 
@@ -27,7 +28,7 @@ export default function HeroVideo() {
 				display: "flex",
 				justifyContent: "center",
 				alignItems: "center",
-				overflow: "hidden"
+				overflow: "hidden",
 			}}
 		>
 			<video
@@ -37,14 +38,14 @@ export default function HeroVideo() {
 				autoPlay={isVideoPlaying}
 				width={1280}
 				height={720}
-				poster='https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover-poster.webp'
+				poster="/images/cover-poster.jpg"
 				src={videoSrc}
-				preload='metadata'
+				preload="metadata"
 				style={{
 					width: "100%",
 					height: "auto",
 					aspectRatio: "16/9",
-					objectFit: "cover"
+					objectFit: "cover",
 				}}
 			/>
 		</Box>

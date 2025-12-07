@@ -15,7 +15,7 @@ import SuitsSection from "@/components/sections/SuitsSection";
 import TeamSection from "@/components/sections/TeamSection";
 
 export default async function Home() {
-	const blogs = await getBlogs(undefined, 3);
+	// const blogs = await getBlogs(undefined, 3);
 	return (
 		<PageContainer>
 			<Hero />

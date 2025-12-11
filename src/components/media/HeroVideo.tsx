@@ -1,15 +1,16 @@
 "use client";
 
 import { Box } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export default function HeroVideo() {
+export default function HeroVideo({ controls }: { controls?: boolean }) {
 	const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 	const [videoSrc, setVideoSrc] = useState<string>();
+	// const videoRef = useRef<HTMLVideoElement>(null);
 	useEffect(() => {
 		const timeout = setTimeout(() => {
 			// setVideoSrc("https://lzsyykhroxoqmjgoxhrs.supabase.co/storage/v1/object/public/odin-pro-media//cover.mp4");
-			setVideoSrc("/videos/cover.mp4");
+			setVideoSrc("https://cdn.odin-pro.com/cover.mp4");
 			setIsVideoPlaying(true);
 		}, 1000);
 
@@ -32,8 +33,12 @@ export default function HeroVideo() {
 			}}
 		>
 			<video
+				// ref={videoRef}
 				loop
-				muted
+				muted={!controls}
+				controls={controls}
+				disablePictureInPicture
+				controlsList="nodownload"
 				playsInline={isVideoPlaying}
 				autoPlay={isVideoPlaying}
 				width={1280}

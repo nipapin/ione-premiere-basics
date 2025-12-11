@@ -19,12 +19,12 @@ const menuItems: MenuItem[] = [
 	{
 		id: 1,
 		title: "Account Details",
-		route: "/account"
+		route: "/account",
 	},
 	{
 		id: 2,
 		title: "Orders",
-		route: "/account/subscription"
+		route: "/account/subscription",
 	},
 	// {
 	// 	id: 4,
@@ -50,7 +50,7 @@ export default function AccountNavigation() {
 
 	return (
 		<Box>
-			<Wrapper variant='animated' sx={{ "--border-radius": "1rem" }}>
+			<Wrapper variant="animated" sx={{ "--border-radius": "1rem" }}>
 				<Box
 					sx={{
 						p: "2rem",
@@ -58,31 +58,31 @@ export default function AccountNavigation() {
 						flexDirection: "column",
 						gap: "1rem",
 						background: "var(--background-gradient)",
-						width: "100%"
+						width: "100%",
 					}}
 				>
 					<Typography sx={{ fontWeight: "400", fontSize: "1.5rem" }} gutterBottom>
 						My Account
 					</Typography>
 					{user ? (
-						<Typography sx={{ fontWeight: "400" }} color='primary'>
+						<Typography sx={{ fontWeight: "400" }} color="primary">
 							{user?.email}
 						</Typography>
 					) : (
-						<Skeleton variant='text' width={"100%"} height={"2rem"} />
+						<Skeleton variant="text" width={"100%"} height={"2rem"} />
 					)}
 					<Divider sx={{ my: "2rem" }} />
 					<List disablePadding>
 						{menuItems.map((menuItem) => {
 							return (
 								<ListItem disableGutters disablePadding key={menuItem.id} sx={{ my: "1rem" }}>
-									<NextLink href={menuItem.route} passHref legacyBehavior>
+									<NextLink href={menuItem.route} passHref>
 										<Link
 											sx={{
 												color: menuItem.route === pathname ? "var(--primary)" : "currentColor",
-												fontWeight: menuItem.route === pathname ? "500" : "400"
+												fontWeight: menuItem.route === pathname ? "500" : "400",
 											}}
-											underline='none'
+											underline="none"
 										>
 											{menuItem.title}
 										</Link>
@@ -93,7 +93,7 @@ export default function AccountNavigation() {
 					</List>
 					<Divider sx={{ my: "2rem" }} />
 					<Button
-						variant='text'
+						variant="text"
 						fullWidth
 						sx={{ borderRadius: "1rem", color: "grey", display: { md: "block", sm: "none" } }}
 						onClick={handleLogout}
@@ -108,14 +108,14 @@ export default function AccountNavigation() {
 						justifyContent: "space-between",
 						alignItems: "center",
 						p: "1rem",
-						background: "var(--background-gradient)"
+						background: "var(--background-gradient)",
 					}}
 				>
 					<Box>
 						<Typography fontWeight={400} fontSize={"1.5rem"}>
 							My Account
 						</Typography>
-						<Typography fontWeight={200} fontSize={"1rem"} color='primary'>
+						<Typography fontWeight={200} fontSize={"1rem"} color="primary">
 							{user?.email}
 						</Typography>
 					</Box>
@@ -123,7 +123,7 @@ export default function AccountNavigation() {
 						<MoreVert />
 					</IconButton>
 					<Drawer
-						anchor='right'
+						anchor="right"
 						open={open}
 						onClose={() => setOpen(false)}
 						slotProps={{ paper: { elevation: 0, sx: { width: "50%", overflow: "hidden" } } }}
@@ -132,13 +132,13 @@ export default function AccountNavigation() {
 							{menuItems.map((menuItem) => {
 								return (
 									<ListItem key={menuItem.id} sx={{ my: "1rem" }}>
-										<NextLink href={menuItem.route} passHref legacyBehavior>
+										<NextLink href={menuItem.route} passHref>
 											<Link
 												sx={{
 													color: menuItem.route === pathname ? "var(--primary)" : "currentColor",
-													fontWeight: menuItem.route === pathname ? "500" : "400"
+													fontWeight: menuItem.route === pathname ? "500" : "400",
 												}}
-												underline='none'
+												underline="none"
 											>
 												{menuItem.title}
 											</Link>

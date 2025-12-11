@@ -16,7 +16,7 @@ export default function HeroPlayButton() {
 	return (
 		<>
 			<Button
-				variant='contained'
+				variant="contained"
 				sx={{
 					display: "flex",
 					gap: "1rem",
@@ -26,9 +26,9 @@ export default function HeroPlayButton() {
 					p: "1rem",
 					transition: "0.3s",
 					"&:hover p": { display: "block" },
-					"&:hover": { aspectRatio: "auto" }
+					"&:hover": { aspectRatio: "auto" },
 				}}
-				className='abs-center'
+				className="abs-center"
 				onClick={toggle(true)}
 			>
 				<PlayArrow />
@@ -46,12 +46,12 @@ export default function HeroPlayButton() {
 							alignItems: "center",
 							justifyContent: "center",
 							width: "fit-content",
-							maxWidth: "none"
-						}
-					}
+							maxWidth: "none",
+						},
+					},
 				}}
 			>
-				<HeroVideo />
+				<HeroVideo controls={true} />
 			</Dialog>
 		</>
 	);

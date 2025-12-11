@@ -75,13 +75,13 @@ export default function Hero() {
 				sx={{ ...styles.tagline, textWrap: "balance", whiteSpace: { sm: "pre", xs: "discard" } }}
 			>{`Boost your workflow with high-performance assets and automation\nright inside Premiere Pro & After Effects.`}</Typography>
 			<Box sx={{ ...styles.buttons }}>
-				<Link href={user ? "/download" : "/login"} passHref legacyBehavior>
-					<Button variant="contained" href="">
+				<Link href={user ? "/download" : "/login"} passHref>
+					<Button component="span" variant="contained">
 						<Typography fontWeight={500}>Get started</Typography>
 					</Button>
 				</Link>
-				<Link href={"/features"} passHref legacyBehavior>
-					<Button variant="outlined" href="" endIcon={<ArrowForwardIos sx={{ fontSize: "1rem" }} />}>
+				<Link href={"/features"} passHref>
+					<Button component="span" variant="outlined" endIcon={<ArrowForwardIos sx={{ fontSize: "1rem" }} />}>
 						<Typography>Learn more</Typography>
 					</Button>
 				</Link>

@@ -34,7 +34,7 @@ export default function NavBar() {
 
 	return (
 		<>
-			<AppBar position='relative' elevation={0}>
+			<AppBar position="relative" elevation={0}>
 				<Collapse in={!["/login", "/signup", "/confirm-email", "/reset-password"].includes(pathname ?? "")}>
 					<Toolbar sx={{ zIndex: 1, background: "var(--background)" }}>
 						<Wrapper
@@ -59,15 +59,13 @@ export default function NavBar() {
 								sx={{
 									display: { xs: "none", md: "flex" },
 									width: { md: "auto", xl: "300px" },
-									justifyContent: "flex-end"
+									justifyContent: "flex-end",
 								}}
 							>
 								{user ? (
 									<>
-										<Link href={"/account"} passHref legacyBehavior>
-											<Button variant='contained' href=''>
-												Account
-											</Button>
+										<Link href={"/account"} passHref>
+											<Button variant="contained">Account</Button>
 										</Link>
 										<IconButton onClick={handleLogout}>
 											<Logout />
@@ -75,10 +73,10 @@ export default function NavBar() {
 									</>
 								) : (
 									<>
-										<Button variant='outlined' href='/login'>
+										<Button variant="outlined" href="/login">
 											Log In
 										</Button>
-										<Button variant='contained' color='primary' href='/download'>
+										<Button variant="contained" color="primary" href="/download">
 											Start now for free
 										</Button>
 									</>

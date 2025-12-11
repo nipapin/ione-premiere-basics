@@ -14,7 +14,7 @@ import {
 	DialogTitle,
 	IconButton,
 	TextField,
-	Typography
+	Typography,
 } from "@mui/material";
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
@@ -44,8 +44,8 @@ const PasswordField = ({ show, onToggleVisibility, name, placeholder }: Password
 			input: {
 				sx: { borderRadius: "1rem" },
 				endAdornment: <IconButton onClick={onToggleVisibility}>{show ? <VisibilityOff /> : <Visibility />}</IconButton>,
-				name
-			}
+				name,
+			},
 		}}
 		fullWidth
 	/>
@@ -53,7 +53,7 @@ const PasswordField = ({ show, onToggleVisibility, name, placeholder }: Password
 
 const ErrorAlert = ({ message }: { message: string }) => (
 	<Collapse in={!!message}>
-		<Alert severity='error' sx={{ alignItems: "center" }}>
+		<Alert severity="error" sx={{ alignItems: "center" }}>
 			<Typography>{message}</Typography>
 		</Alert>
 	</Collapse>
@@ -61,18 +61,18 @@ const ErrorAlert = ({ message }: { message: string }) => (
 
 const SubmitButton = ({ isLoading }: { isLoading: boolean }) => (
 	<Button
-		variant='contained'
+		variant="contained"
 		sx={{
 			mt: "auto",
 			display: "flex",
 			alignItems: "center",
 			justifyContent: "center",
-			gap: "1rem"
+			gap: "1rem",
 		}}
-		type='submit'
+		type="submit"
 	>
 		<Typography>Sign Up</Typography>
-		{isLoading && <CircularProgress size='1rem' color='inherit' />}
+		{isLoading && <CircularProgress size="1rem" color="inherit" />}
 	</Button>
 );
 
@@ -102,7 +102,7 @@ export default function SignupForm({ after, referal_code }: { after?: string; re
 			name: formData.get("name") as string,
 			email: (formData.get("email") as string) || referalUser,
 			password: formData.get("password") as string,
-			confirmPassword: formData.get("confirmpassword") as string
+			confirmPassword: formData.get("confirmpassword") as string,
 		};
 
 		if (formValues.password !== formValues.confirmPassword) {
@@ -136,16 +136,15 @@ export default function SignupForm({ after, referal_code }: { after?: string; re
 	};
 
 	return (
-		<Wrapper variant='animated' sx={styles.wrapper}>
-			<Box sx={styles.box} component='form' onSubmit={handleSubmit}>
-				<Link href='/' passHref legacyBehavior>
+		<Wrapper variant="animated" sx={styles.wrapper}>
+			<Box sx={styles.box} component="form" onSubmit={handleSubmit}>
+				<Link href="/" passHref>
 					<IconButton
-						href=''
 						sx={{
 							borderRadius: "0.5rem",
 							border: "1px solid #ffffff20",
 							minWidth: 0,
-							width: "fit-content"
+							width: "fit-content",
 						}}
 					>
 						<Home />
@@ -153,32 +152,32 @@ export default function SignupForm({ after, referal_code }: { after?: string; re
 				</Link>
 
 				<Typography
-					variant='h1'
-					fontSize='3rem'
-					pb='2rem'
-					width='100%'
-					textAlign='center'
+					variant="h1"
+					fontSize="3rem"
+					pb="2rem"
+					width="100%"
+					textAlign="center"
 					sx={{ "& span": { fontWeight: 400, textWrap: "nowrap" } }}
 				>
 					Welcome to <span>Odin Pro</span>
 				</Typography>
 
 				<TextField
-					placeholder='First Name'
+					placeholder="First Name"
 					required
 					slotProps={{
-						input: { sx: { borderRadius: "1rem" }, name: "name" }
+						input: { sx: { borderRadius: "1rem" }, name: "name" },
 					}}
 					fullWidth
 				/>
 
 				<TextField
-					placeholder='E-mail'
+					placeholder="E-mail"
 					required
 					disabled={!!referalUser}
 					defaultValue={email}
 					slotProps={{
-						input: { sx: { borderRadius: "1rem" }, name: "email" }
+						input: { sx: { borderRadius: "1rem" }, name: "email" },
 					}}
 					fullWidth
 				/>
@@ -186,22 +185,22 @@ export default function SignupForm({ after, referal_code }: { after?: string; re
 				<PasswordField
 					show={showPassword}
 					onToggleVisibility={() => setShowPassword(!showPassword)}
-					name='password'
-					placeholder='Password'
+					name="password"
+					placeholder="Password"
 				/>
 
 				<PasswordField
 					show={showPassword}
 					onToggleVisibility={() => setShowPassword(!showPassword)}
-					name='confirmpassword'
-					placeholder='Confirm Password'
+					name="confirmpassword"
+					placeholder="Confirm Password"
 				/>
 
 				<ErrorAlert message={errorMessage} />
 				<SubmitButton isLoading={isLoading} />
 
-				<Link href={`/login${after ? `?after=${after}` : ""}`} passHref legacyBehavior>
-					<Button variant='outlined' fullWidth href=''>
+				<Link href={`/login${after ? `?after=${after}` : ""}`} passHref>
+					<Button component="span" variant="outlined" fullWidth>
 						<Typography textAlign={"center"}>Already have an account? Log In</Typography>
 					</Button>
 				</Link>

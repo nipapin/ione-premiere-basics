@@ -30,8 +30,8 @@ export default function SmallMenu() {
 		isTabled && (
 			<>
 				<Stack direction={"row"} sx={{ display: { md: "none", xs: "inline-flex" }, ml: "auto" }}>
-					<Link href={"/login"} passHref legacyBehavior>
-						<IconButton href='/login'>
+					<Link href={"/login"} passHref>
+						<IconButton href="/login">
 							<AccountCircle />
 						</IconButton>
 					</Link>
@@ -39,12 +39,12 @@ export default function SmallMenu() {
 						<Menu />
 					</IconButton>
 				</Stack>
-				<Drawer open={open} onClose={toggle(false)} anchor='right' elevation={0}>
+				<Drawer open={open} onClose={toggle(false)} anchor="right" elevation={0}>
 					<Box
 						sx={{
 							width: "100vw",
 							height: "100%",
-							background: "var(--background-gradient)"
+							background: "var(--background-gradient)",
 						}}
 					>
 						<List disablePadding>
@@ -52,7 +52,7 @@ export default function SmallMenu() {
 								sx={{
 									background: "var(--background)",
 									py: "1rem",
-									height: "78px"
+									height: "78px",
 								}}
 								secondaryAction={
 									<IconButton onClick={toggle(false)}>

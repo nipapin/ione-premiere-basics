@@ -96,11 +96,11 @@ const ElementCard = memo(({ item }: { item: RowItem }) => {
 				width: "256px",
 				height: "144px",
 				objectFit: "cover",
-				backgroundColor: "var(--background-gradient)"
+				backgroundColor: "var(--background-gradient)",
 			}}
 			muted
 			loop
-			preload='metadata'
+			preload="metadata"
 			width={256}
 			height={144}
 		/>
@@ -134,7 +134,7 @@ export default function Showcase() {
 			<Box sx={styles.tracks} component={"section"}>
 				<Stack direction={"column"} gap={2} alignItems={"center"} mb={"2rem"}>
 					<Typography
-						variant='h2'
+						variant="h2"
 						fontWeight={400}
 						textAlign={"center"}
 						fontSize={{ md: "3rem", sm: "2.5rem", xs: "2rem" }}
@@ -149,7 +149,7 @@ export default function Showcase() {
 					{rows.map((row, rowIndex) => {
 						return (
 							<Stack
-								className='showcase-track'
+								className="showcase-track"
 								direction={"row"}
 								gap={"1rem"}
 								sx={{ animation: getAnimation(rowIndex), alignSelf: rowIndex === 1 ? "flex-end" : "flex-start" }}
@@ -157,7 +157,7 @@ export default function Showcase() {
 								ref={refs[rowIndex]}
 							>
 								{[...row, ...row].map((rowItem, index) => (
-									<Wrapper variant='animated' angleOffset={index * 36} key={index} sx={{ borderRadius: "1rem" }}>
+									<Wrapper variant="animated" angleOffset={index * 36} key={index} sx={{ borderRadius: "1rem" }}>
 										<ElementCard item={rowItem} />
 									</Wrapper>
 								))}
@@ -165,8 +165,8 @@ export default function Showcase() {
 						);
 					})}
 				</Box>
-				<Link href={"/showcase"} passHref legacyBehavior>
-					<Button variant='outlined' href='' sx={{ mt: "2rem" }}>
+				<Link href={"/showcase"} passHref>
+					<Button variant="outlined" sx={{ mt: "2rem" }}>
 						View All
 					</Button>
 				</Link>

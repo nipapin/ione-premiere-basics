@@ -58,7 +58,7 @@ export default function ResetPasswordForm() {
 
 	return (
 		<Wrapper
-			variant='animated'
+			variant="animated"
 			sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", maxWidth: "600px" }}
 			fullWidth
 		>
@@ -69,76 +69,73 @@ export default function ResetPasswordForm() {
 					background: "var(--background-gradient)",
 					display: "flex",
 					flexDirection: "column",
-					gap: "1rem"
+					gap: "1rem",
 				}}
 				component={"form"}
 				onSubmit={handleSubmit}
 			>
-				<NextLink href='/' passHref legacyBehavior>
-					<IconButton
-						href=''
-						sx={{ borderRadius: "0.5rem", border: "1px solid #ffffff20", minWidth: 0, width: "fit-content" }}
-					>
+				<NextLink href="/" passHref>
+					<IconButton sx={{ borderRadius: "0.5rem", border: "1px solid #ffffff20", minWidth: 0, width: "fit-content" }}>
 						<Home />
 					</IconButton>
 				</NextLink>
-				<Typography variant='h1' fontSize={"2rem"} width={"100%"} textAlign={"center"}>
+				<Typography variant="h1" fontSize={"2rem"} width={"100%"} textAlign={"center"}>
 					Reset Password
 				</Typography>
 
 				<TextField
-					placeholder='E-mail'
+					placeholder="E-mail"
 					required
 					disabled={isLoading}
 					slotProps={{
-						input: { sx: { borderRadius: "1rem" }, name: "email" }
+						input: { sx: { borderRadius: "1rem" }, name: "email" },
 					}}
 					fullWidth
 				/>
 				<Collapse in={open} unmountOnExit>
 					<TextField
-						placeholder='Confirmation Code'
+						placeholder="Confirmation Code"
 						required
 						disabled={isLoading}
 						slotProps={{
-							input: { sx: { borderRadius: "1rem" }, name: "confirmationCode" }
+							input: { sx: { borderRadius: "1rem" }, name: "confirmationCode" },
 						}}
 						fullWidth
 					/>
 				</Collapse>
 				<Collapse in={showPassword} unmountOnExit>
 					<TextField
-						placeholder='New Password'
+						placeholder="New Password"
 						required
 						disabled={isLoading}
 						slotProps={{
-							input: { sx: { borderRadius: "1rem" }, name: "password" }
+							input: { sx: { borderRadius: "1rem" }, name: "password" },
 						}}
 						fullWidth
 					/>
 				</Collapse>
 				{error && (
-					<Alert severity='error' sx={{ alignItems: "center" }}>
+					<Alert severity="error" sx={{ alignItems: "center" }}>
 						<Typography width={"100%"} color={"error"}>
 							{error}
 						</Typography>
 					</Alert>
 				)}
 				<Button
-					variant='contained'
+					variant="contained"
 					sx={{
 						display: "flex",
 						alignItems: "center",
 						justifyContent: "center",
 						gap: "1rem",
-						borderRadius: "1rem"
+						borderRadius: "1rem",
 					}}
 					disabled={isLoading}
-					type='submit'
+					type="submit"
 					fullWidth
 				>
 					<Typography>{open ? "Confirm Code" : showPassword ? "Update Password" : "Send Reset Link"}</Typography>
-					{isLoading && <CircularProgress size={16} color='inherit' />}
+					{isLoading && <CircularProgress size={16} color="inherit" />}
 				</Button>
 				<Typography mt={"1rem"} textAlign={"center"} width={"100%"}>
 					Remember your password? <StyledLink href={"/login"}>Log In</StyledLink>

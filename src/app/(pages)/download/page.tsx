@@ -13,7 +13,7 @@ import WinIcon from "./icons/win";
 
 export const metadata: Metadata = {
 	title: "Premiere Basics | Download",
-	description: "Download Premiere Basics"
+	description: "Download Premiere Basics",
 };
 
 const styles = {
@@ -21,22 +21,22 @@ const styles = {
 		display: { md: "flex", xs: "none" },
 		flexDirection: "column",
 		gap: 2,
-		alignItems: "center"
+		alignItems: "center",
 	},
 	accentChip: {
 		display: "flex",
 		alignItems: "center",
-		p: "1rem"
+		p: "1rem",
 	},
 	h1: {
 		fontSize: "4rem",
-		"& b": { fontWeight: 400 }
+		"& b": { fontWeight: 400 },
 	},
 	tagline: {
 		textWrap: "balance",
 		fontWeight: 200,
 		textAlign: "center",
-		maxWidth: "lg"
+		maxWidth: "lg",
 	},
 	warning: {
 		display: { md: "none", xs: "flex" },
@@ -45,7 +45,7 @@ const styles = {
 		borderRadius: "1rem",
 		fontSize: "1.5rem",
 		background: "#0080ff80",
-		borderColor: "#0080ff"
+		borderColor: "#0080ff",
 	},
 	panel: {
 		display: "flex",
@@ -55,8 +55,8 @@ const styles = {
 		width: "100%",
 		alignItems: "center",
 		justifyContent: "space-between",
-		background: "var(--background-gradient)"
-	}
+		background: "var(--background-gradient)",
+	},
 };
 
 export default function DownloadPage() {
@@ -65,35 +65,35 @@ export default function DownloadPage() {
 			<WarningChip />
 			<Stack sx={styles.stack}>
 				<AccentChip />
-				<Title variant='h1' sx={styles.h1}>
+				<Title variant="h1" sx={styles.h1}>
 					Download <b>Odin Pro</b> Extension.
 				</Title>
 				<Typography sx={styles.tagline}>
 					{`Get started with Odin Pro in just a few clicks. Choose your operating system below to download the latest version of the extension and start editing faster today.`}
 				</Typography>
 				<Box sx={{ display: "grid", gridTemplateColumns: { md: "1fr 1fr", xs: "1fr" }, gap: "1rem", mt: "2rem" }}>
-					<Wrapper variant='animated' fullWidth>
+					<Wrapper variant="animated" fullWidth>
 						<Box sx={styles.panel}>
 							<Typography fontSize={"2rem"} textAlign={"center"} whiteSpace={"nowrap"}>
-								Odin Pro for <span className='primary'>Windows</span>
+								Odin Pro for <span className="primary">Windows</span>
 							</Typography>
 							<Box sx={{ my: "4rem" }}>
 								<WinIcon />
 							</Box>
-							<Typography>Extension version 1.0.0 - 86MB</Typography>
-							<DownloadButton href='/odin_pro_installer_windows.zip' title='Download for Windows' />
+							{/* <Typography>Extension version 1.0.0 - 86MB</Typography> */}
+							<DownloadButton href="/odin_pro_installer_windows.zip" title="Download for Windows" />
 						</Box>
 					</Wrapper>
-					<Wrapper variant='animated' fullWidth angleOffset={90}>
+					<Wrapper variant="animated" fullWidth angleOffset={90}>
 						<Box sx={styles.panel}>
 							<Typography fontSize={"2rem"} textAlign={"center"} whiteSpace={"nowrap"}>
-								Odin Pro for <span className='primary'>Mac OS</span>
+								Odin Pro for <span className="primary">Mac OS</span>
 							</Typography>
 							<Box sx={{ my: "4rem" }}>
 								<MacIcon />
 							</Box>
-							<Typography>Extension version 1.0.0 - 86MB</Typography>
-							<DownloadButton href='/odin_pro_installer_mac.zip' title='Download for Mac OS' />
+							{/* <Typography>Extension version 1.0.0 - 86MB</Typography> */}
+							<DownloadButton href="/odin_pro_installer_mac.zip" title="Download for Mac OS" />
 						</Box>
 					</Wrapper>
 				</Box>
@@ -105,7 +105,7 @@ export default function DownloadPage() {
 
 const AccentChip = () => {
 	return (
-		<Wrapper variant='outlined' borderRadius={"1rem"} sx={{ background: "var(--primary-glass)" }}>
+		<Wrapper variant="outlined" borderRadius={"1rem"} sx={{ background: "var(--primary-glass)" }}>
 			<Box sx={styles.accentChip}>
 				<AEIcon />
 				<PRIcon />
@@ -120,7 +120,7 @@ const AccentChip = () => {
 
 const WarningChip = () => {
 	return (
-		<Wrapper variant='outlined' sx={styles.warning}>
+		<Wrapper variant="outlined" sx={styles.warning}>
 			<Box
 				sx={{
 					p: 1,
@@ -128,7 +128,7 @@ const WarningChip = () => {
 					alignItems: "center",
 					flexDirection: "column",
 					textAlign: "center",
-					gap: 2
+					gap: 2,
 				}}
 			>
 				<span>
@@ -147,18 +147,18 @@ const WarningChip = () => {
 const InfoChip = () => {
 	return (
 		<Wrapper
-			variant='outlined'
+			variant="outlined"
 			sx={{
 				borderRadius: "1rem",
 				background: "var(--primary-glass)",
-				mt: "2rem"
+				mt: "2rem",
 			}}
 		>
 			<Box sx={{ padding: "1rem", display: "flex", alignItems: "center", gap: 1 }}>
-				<HelpOutline color='primary' />
+				<HelpOutline color="primary" />
 				<Typography fontWeight={200}>Having trouble installing Odin Pro?</Typography>
-				<StyledLink href='/help/getting-started/installation'>
-					<Typography fontWeight={400} color='primary'>
+				<StyledLink href="/help/getting-started/installation">
+					<Typography fontWeight={400} color="primary">
 						<u>See our full installation guide.</u>
 					</Typography>
 				</StyledLink>

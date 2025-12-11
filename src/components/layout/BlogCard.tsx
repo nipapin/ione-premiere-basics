@@ -11,22 +11,22 @@ export default function BlogCard({ blog }: { blog: Blog }) {
 				background: "var(--background-gradient)",
 				"& .MuiCardMedia-root": {
 					transition: "all 0.3s",
-					backgroundSize: "100%"
+					backgroundSize: "100%",
 				},
 				"&:hover .MuiCardMedia-root": {
-					backgroundSize: "110%"
-				}
+					backgroundSize: "110%",
+				},
 			}}
 			elevation={0}
 		>
-			<Link href={`/blog/${blog.slug}`} passHref legacyBehavior>
+			<Link href={`/blog/${blog.slug}`} passHref>
 				<CardActionArea sx={{ height: "100%" }}>
 					<CardMedia
 						image={blog.media}
 						title={blog.title}
 						sx={{
 							height: { xl: "250px", xs: "200px" },
-							backgroundPosition: "center top"
+							backgroundPosition: "center top",
 						}}
 					/>
 					<CardContent sx={{ p: { md: "2rem", xs: "1rem" } }}>

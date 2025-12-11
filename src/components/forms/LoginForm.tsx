@@ -29,8 +29,8 @@ const PasswordField = ({ show, onToggleVisibility, name, placeholder }: Password
 			input: {
 				sx: { borderRadius: "1rem" },
 				endAdornment: <IconButton onClick={onToggleVisibility}>{show ? <VisibilityOff /> : <Visibility />}</IconButton>,
-				name
-			}
+				name,
+			},
 		}}
 		fullWidth
 	/>
@@ -38,18 +38,18 @@ const PasswordField = ({ show, onToggleVisibility, name, placeholder }: Password
 
 const SubmitButton = ({ isLoading }: { isLoading: boolean }) => (
 	<Button
-		variant='contained'
+		variant="contained"
 		sx={{
 			mt: "auto",
 			display: "flex",
 			alignItems: "center",
 			justifyContent: "center",
-			gap: "1rem"
+			gap: "1rem",
 		}}
-		type='submit'
+		type="submit"
 	>
 		<Typography>Sign In</Typography>
-		{isLoading && <CircularProgress size='1rem' color='inherit' />}
+		{isLoading && <CircularProgress size="1rem" color="inherit" />}
 	</Button>
 );
 
@@ -59,7 +59,7 @@ export const styles = {
 		height: "fit-content",
 		maxWidth: "600px",
 		px: { md: 0, xs: "1rem" },
-		my: "auto"
+		my: "auto",
 	},
 	box: {
 		padding: { md: "2rem", xs: "1rem" },
@@ -68,8 +68,8 @@ export const styles = {
 		gap: "1rem",
 		width: "100%",
 		height: "100%",
-		background: "var(--background-gradient)"
-	}
+		background: "var(--background-gradient)",
+	},
 };
 
 export default function LoginForm({ after }: { after?: string }) {
@@ -94,7 +94,7 @@ export default function LoginForm({ after }: { after?: string }) {
 		const formData = new FormData(event.currentTarget);
 		const formValues: LoginFormData = {
 			email: formData.get("email") as string,
-			password: formData.get("password") as string
+			password: formData.get("password") as string,
 		};
 
 		try {
@@ -120,47 +120,44 @@ export default function LoginForm({ after }: { after?: string }) {
 	};
 
 	return (
-		<Wrapper variant='animated' sx={styles.wrapper}>
+		<Wrapper variant="animated" sx={styles.wrapper}>
 			<Box sx={styles.box} component={"form"} onSubmit={handleSubmit}>
-				<NextLink href='/' passHref legacyBehavior>
-					<IconButton
-						href=''
-						sx={{ borderRadius: "0.5rem", border: "1px solid #ffffff20", minWidth: 0, width: "fit-content" }}
-					>
+				<NextLink href="/" passHref>
+					<IconButton sx={{ borderRadius: "0.5rem", border: "1px solid #ffffff20", minWidth: 0, width: "fit-content" }}>
 						<Home />
 					</IconButton>
 				</NextLink>
-				<Typography variant='h1' fontSize={{ md: "3rem", xs: "2rem" }} pb={"2rem"} width={"100%"} textAlign={"center"}>
+				<Typography variant="h1" fontSize={{ md: "3rem", xs: "2rem" }} pb={"2rem"} width={"100%"} textAlign={"center"}>
 					Welcome Back!
 				</Typography>
 				<TextField
-					placeholder='E-mail'
+					placeholder="E-mail"
 					required
 					slotProps={{
-						input: { sx: { borderRadius: "1rem" }, name: "email" }
+						input: { sx: { borderRadius: "1rem" }, name: "email" },
 					}}
 					fullWidth
 				/>
 				<PasswordField
 					show={showPassword}
 					onToggleVisibility={() => setShowPassword(!showPassword)}
-					name='password'
-					placeholder='Password'
+					name="password"
+					placeholder="Password"
 				/>
-				<NextLink href={"/reset-password"} passHref legacyBehavior>
-					<Link variant='body2' color={"primary"} textAlign={"right"} width={"100%"}>
+				<NextLink href={"/reset-password"} passHref>
+					<Link component="span" variant="body2" color={"primary"} textAlign={"right"} width={"100%"}>
 						Forgot password?
 					</Link>
 				</NextLink>
 				{(emailError || passwordError) && (
-					<Alert severity='error' sx={{ alignItems: "center" }}>
+					<Alert severity="error" sx={{ alignItems: "center" }}>
 						<Typography>Email or password is incorrect</Typography>
 					</Alert>
 				)}
 
 				<SubmitButton isLoading={isLoading} />
-				<NextLink href={`/signup${after ? `?after=${after}` : ""}`} passHref legacyBehavior>
-					<Button variant='outlined' fullWidth href=''>
+				<NextLink href={`/signup${after ? `?after=${after}` : ""}`} passHref>
+					<Button component="span" variant="outlined" fullWidth>
 						<Typography textAlign={"center"}>Have no account yet? Sign Up</Typography>
 					</Button>
 				</NextLink>

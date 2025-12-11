@@ -21,7 +21,7 @@ export default function SubscriptionDetails() {
 						new Date(date.split("+").join(" ")).toLocaleDateString("en-US", {
 							month: "long",
 							day: "numeric",
-							year: "numeric"
+							year: "numeric",
 						})
 				: "Lifetime";
 		};
@@ -29,8 +29,8 @@ export default function SubscriptionDetails() {
 			const response = await fetch("/api/subscription/details", {
 				method: "POST",
 				body: JSON.stringify({
-					user_id: user?.user_id
-				})
+					user_id: user?.user_id,
+				}),
 			});
 			const data = await response.json();
 			if (data.type === "none") {
@@ -53,32 +53,32 @@ export default function SubscriptionDetails() {
 		invite: <InviteDetails subscription={subscription} user={user!} pending={pending} />,
 		none: (
 			<Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-				<Typography variant='h1' fontWeight='bold' fontSize={"1.2rem"}>
+				<Typography variant="h1" fontWeight="bold" fontSize={"1.2rem"}>
 					Order details
 				</Typography>
 				<Divider sx={{ my: "1rem" }} />
 				<Typography>{`You don't have any products.`}</Typography>
-				<NextLink href='/pricing' passHref legacyBehavior>
-					<Button variant='contained' sx={{ borderRadius: "0.5rem" }}>
+				<NextLink href="/pricing" passHref>
+					<Button variant="contained" sx={{ borderRadius: "0.5rem" }}>
 						Order now
 					</Button>
 				</NextLink>
 			</Box>
-		)
+		),
 	};
 
 	return (
 		details[subscription?.type as keyof typeof details] || (
 			<Box>
-				<Typography variant='h1' fontWeight='bold' fontSize={"1.2rem"}>
+				<Typography variant="h1" fontWeight="bold" fontSize={"1.2rem"}>
 					Order details
 				</Typography>
 				<Divider sx={{ my: "1rem" }} />
 				<Box display={"flex"} flexDirection={"column"} gap={"0.5rem"}>
 					{Array.from({ length: 4 }).map((_, index) => (
 						<Skeleton
-							variant='text'
-							animation='wave'
+							variant="text"
+							animation="wave"
 							width={index === 3 ? "50%" : "100%"}
 							height={32}
 							key={index}

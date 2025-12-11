@@ -6,20 +6,20 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
 	title: "Premiere Basics | Help",
-	description: "Get help with Premiere Basics"
+	description: "Get help with Premiere Basics",
 };
 
 export default async function HelpPage() {
 	return (
-		<Container maxWidth='xl' sx={{ display: "flex", flexDirection: "column", py: "7rem", gap: "1rem" }}>
+		<Container maxWidth="xl" sx={{ display: "flex", flexDirection: "column", py: "7rem", gap: "1rem" }}>
 			<Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
-				<Typography variant='h1' fontSize={{ xl: "4rem", md: "3rem", sm: "3rem", xs: "1.9rem" }}>
+				<Typography variant="h1" fontSize={{ xl: "4rem", md: "3rem", sm: "3rem", xs: "1.9rem" }}>
 					How we can help you?
 				</Typography>
 				<Typography
 					textAlign={"center"}
 					fontWeight={200}
-					fontSize='1rem'
+					fontSize="1rem"
 					sx={{ textAlign: "center", fontWeight: "fontWeightLight" }}
 					mb={"2rem"}
 				>
@@ -37,12 +37,12 @@ export default async function HelpPage() {
 					return (
 						<Wrapper
 							key={linkItem.id}
-							variant='animated'
+							variant="animated"
 							angleOffset={linkItem.id * 90}
 							sx={{ gridColumn: { md: `span ${linkItem.span}`, xs: "span 1" } }}
 							fullWidth
 						>
-							<Link href={linkItem.route} passHref legacyBehavior>
+							<Link href={linkItem.route} passHref>
 								<CardActionArea>
 									<Box
 										sx={{
@@ -51,18 +51,18 @@ export default async function HelpPage() {
 											display: "flex",
 											flexDirection: { md: linkItem.direction, xs: "column" },
 											alignItems: "center",
-											height: "100%"
+											height: "100%",
 										}}
 									>
 										{linkItem.icon}
 										<Stack
 											alignItems={{
 												md: linkItem.direction === "column" ? "center" : "flex-start",
-												xs: "center"
+												xs: "center",
 											}}
 											marginLeft={{
 												md: linkItem.direction === "column" ? "" : "1rem",
-												xs: ""
+												xs: "",
 											}}
 										>
 											<Typography fontSize={{ xl: "2rem", md: "1.5rem" }} gutterBottom marginTop={"1rem"}>

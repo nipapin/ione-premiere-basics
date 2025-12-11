@@ -12,7 +12,7 @@ export default function ContactPage() {
 		name: "",
 		email: "",
 		subject: "",
-		message: ""
+		message: "",
 	});
 
 	const [isLoading, setIsLoading] = useState(false);
@@ -22,7 +22,7 @@ export default function ContactPage() {
 		const { name, value } = e.target;
 		setFormData((prev) => ({
 			...prev,
-			[name]: value
+			[name]: value,
 		}));
 	};
 
@@ -40,13 +40,13 @@ export default function ContactPage() {
 		<PageContainer sx={{ maxWidth: "1280px", gap: "1rem" }}>
 			<Title sx={{ textAlign: "start", width: "100%", fontWeight: 400 }}>Contact Us</Title>
 			<Box width={"100%"} sx={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-				<Typography variant='h5'>Get in Touch</Typography>
-				<Typography variant='body1'>
+				<Typography variant="h5">Get in Touch</Typography>
+				<Typography variant="body1">
 					{`Have questions or feedback? We'd love to hear from you. Fill out the form and we'll get back to you as soon as
 					possible.`}
 				</Typography>
 				<Box
-					component='form'
+					component="form"
 					onSubmit={handleSubmit}
 					noValidate
 					sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
@@ -54,58 +54,58 @@ export default function ContactPage() {
 					<TextField
 						required
 						fullWidth
-						label='Name'
-						name='name'
+						label="Name"
+						name="name"
 						value={formData.name}
 						onChange={handleChange}
-						variant='outlined'
+						variant="outlined"
 					/>
 					<TextField
 						required
 						fullWidth
-						label='Email'
-						name='email'
-						type='email'
+						label="Email"
+						name="email"
+						type="email"
 						value={formData.email}
 						onChange={handleChange}
-						variant='outlined'
+						variant="outlined"
 					/>
 
 					<TextField
 						required
 						fullWidth
-						label='Subject'
-						name='subject'
+						label="Subject"
+						name="subject"
 						value={formData.subject}
 						onChange={handleChange}
-						variant='outlined'
+						variant="outlined"
 					/>
 
 					<TextField
 						required
 						fullWidth
-						label='Message'
-						name='message'
+						label="Message"
+						name="message"
 						multiline
 						rows={4}
 						value={formData.message}
 						onChange={handleChange}
-						variant='outlined'
+						variant="outlined"
 					/>
 					{isSuccess !== undefined && (
 						<Alert
 							severity={isSuccess ? "success" : "error"}
 							sx={{ display: "flex", alignItems: "center", gap: "1rem" }}
 						>
-							<Typography variant='body1' whiteSpace={"pre"}>
+							<Typography variant="body1" whiteSpace={"pre"}>
 								{isSuccess ? (
 									`Your message has been sent successfully. We will get back to you as soon as possible.`
 								) : (
 									<>
 										There was an error sending your message. Please try again. If the problem persists, please contact
 										us directly at{" "}
-										<Link href='mailto:help@odin-pro.com' passHref legacyBehavior>
-											<MuiLink>help@odin-pro.com</MuiLink>
+										<Link href="mailto:help@odin-pro.com" passHref>
+											<MuiLink component="span">help@odin-pro.com</MuiLink>
 										</Link>
 									</>
 								)}
@@ -113,15 +113,15 @@ export default function ContactPage() {
 						</Alert>
 					)}
 					<Button
-						type='submit'
-						variant='contained'
-						size='large'
+						type="submit"
+						variant="contained"
+						size="large"
 						sx={{
 							py: 1.5,
-							px: 4
+							px: 4,
 						}}
 					>
-						{isLoading ? <CircularProgress size={20} color='inherit' /> : "Send Message"}
+						{isLoading ? <CircularProgress size={20} color="inherit" /> : "Send Message"}
 					</Button>
 				</Box>
 			</Box>

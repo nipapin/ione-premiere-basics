@@ -17,12 +17,12 @@ export default function HelpBreadcrumbs() {
 				p: "1rem",
 				background: "transparent",
 				borderRadius: "0.5rem",
-				gap: "1rem"
+				gap: "1rem",
 			}}
-			variant='outlined'
+			variant="outlined"
 		>
 			<MobileHelpMenu />
-			<Breadcrumbs separator={<NavigateNext fontSize='small' />} sx={{ "& p": { textWrap: "nowrap" } }}>
+			<Breadcrumbs separator={<NavigateNext fontSize="small" />} sx={{ "& p": { textWrap: "nowrap" } }}>
 				{pathname
 					.split("/")
 					.filter(Boolean)
@@ -30,8 +30,8 @@ export default function HelpBreadcrumbs() {
 						const text = capitalize(chunk.replace(/-/g, " "));
 						const isLast = index === self.length - 1;
 						return index === 0 ? (
-							<NextLink href={"/help"} passHref legacyBehavior>
-								<Link color='inherit' sx={{ textDecoration: "none" }}>
+							<NextLink href={"/help"} passHref>
+								<Link component="span" color="inherit" sx={{ textDecoration: "none" }}>
 									<Typography key={chunk}>{text}</Typography>
 								</Link>
 							</NextLink>

@@ -30,6 +30,7 @@ interface Payload {
 
 const isValidDate = (dateString: string) => {
 	const [date, _] = dateString.split("+");
+	if (!date) return false;
 	const now = Date.now();
 	const next = new Date(date).getTime();
 	return next > now;

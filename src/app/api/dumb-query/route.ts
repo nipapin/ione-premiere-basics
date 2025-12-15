@@ -16,8 +16,8 @@ export async function OPTIONS() {
 			"Access-Control-Allow-Origin": "*",
 			"Access-Control-Allow-Methods": "POST, OPTIONS",
 			"Access-Control-Allow-Headers": "Content-Type, AtomX-Secure-Check",
-			"Access-Control-Max-Age": "86400"
-		}
+			"Access-Control-Max-Age": "86400",
+		},
 	});
 }
 
@@ -28,6 +28,13 @@ interface Payload {
 	uuid: string;
 }
 
+const isValidDate = (dateString: string) => {
+	const [date, _] = dateString.split("+");
+	const now = Date.now();
+	const next = new Date(date).getTime();
+	return next > now;
+};
+
 const handleResponse = (payload: Payload) => ({
 	login: async () => {
 		const user = await query(`SELECT * FROM users WHERE email = $1`, [payload.email], { single: true });
@@ -36,7 +43,7 @@ const handleResponse = (payload: Payload) => ({
 			return withCORSHeaders(
 				new Response(JSON.stringify({ message: "User with this email not found" }), {
 					status: 404,
-					headers: { "Content-Type": "application/json" }
+					headers: { "Content-Type": "application/json" },
 				})
 			);
 		}
@@ -47,17 +54,17 @@ const handleResponse = (payload: Payload) => ({
 			return withCORSHeaders(
 				new Response(JSON.stringify({ message: "Email or password is incorrect" }), {
 					status: 401,
-					headers: { "Content-Type": "application/json" }
+					headers: { "Content-Type": "application/json" },
 				})
 			);
 		}
 
 		const primarySubscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1`, [user.user_id], {
-			single: true
+			single: true,
 		});
 
 		const secondarySubscriptions = await query(`SELECT * FROM subscriptions WHERE $1 = ANY(seats);`, [user.email], {
-			single: true
+			single: true,
 		});
 
 		const subscription = primarySubscription || secondarySubscriptions;
@@ -74,7 +81,7 @@ const handleResponse = (payload: Payload) => ({
 						lastname: user.lastname,
 						status: null,
 						price: null,
-						order_id: null
+						order_id: null,
 					}),
 					{ status: 200, headers: { "Content-Type": "application/json" } }
 				)
@@ -84,25 +91,27 @@ const handleResponse = (payload: Payload) => ({
 		const subscriptionPricing = await fetch("https://store.payproglobal.com/api/Products/GetProductPricing", {
 			method: "POST",
 			headers: {
-				"Content-Type": "application/json"
+				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
 				products: [{ productId: subscription?.product_id }],
 				vendorAccountId: process.env.PAYPRO_VENDOR_ACCOUNT_ID,
-				apiSecretKey: process.env.PAYPRO_API_SECRET_KEY
-			})
+				apiSecretKey: process.env.PAYPRO_API_SECRET_KEY,
+			}),
 		}).then((res) => res.json());
 
 		if (!subscriptionPricing.isSuccess) {
 			return withCORSHeaders(
 				new Response(JSON.stringify({ message: "Subscription price not found", errors: subscriptionPricing.errors }), {
 					status: 404,
-					headers: { "Content-Type": "application/json" }
+					headers: { "Content-Type": "application/json" },
 				})
 			);
 		}
 
 		const subscriptionPrice = subscriptionPricing.response.productPricings[0];
+
+		const subscriptionStatus = isValidDate(subscription.next_charge_date) ? "active" : subscription?.status;
 
 		return withCORSHeaders(
 			new Response(
@@ -113,9 +122,9 @@ const handleResponse = (payload: Payload) => ({
 					email: user.email,
 					name: user.name,
 					lastname: user.lastname,
-					status: subscription?.status,
+					status: subscriptionStatus,
 					price: subscriptionPrice.billingUnitPrice * subscription?.seats.length,
-					order_id: Number(subscription?.order_id)
+					order_id: Number(subscription?.order_id),
 				}),
 				{ status: 200, headers: { "Content-Type": "application/json" } }
 			)
@@ -128,17 +137,17 @@ const handleResponse = (payload: Payload) => ({
 			return withCORSHeaders(
 				new Response(JSON.stringify({ message: "User with this uuid not found" }), {
 					status: 404,
-					headers: { "Content-Type": "application/json" }
+					headers: { "Content-Type": "application/json" },
 				})
 			);
 		}
 
 		const primarySubscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1`, [user.user_id], {
-			single: true
+			single: true,
 		});
 
 		const secondarySubscriptions = await query(`SELECT * FROM subscriptions WHERE $1 = ANY(seats);`, [user.email], {
-			single: true
+			single: true,
 		});
 
 		const subscription = primarySubscription || secondarySubscriptions;
@@ -147,7 +156,7 @@ const handleResponse = (payload: Payload) => ({
 			return withCORSHeaders(
 				new Response(JSON.stringify({ message: "Subscription with this uuid not found" }), {
 					status: 404,
-					headers: { "Content-Type": "application/json" }
+					headers: { "Content-Type": "application/json" },
 				})
 			);
 		}
@@ -155,25 +164,27 @@ const handleResponse = (payload: Payload) => ({
 		const subscriptionPricing = await fetch("https://store.payproglobal.com/api/Products/GetProductPricing", {
 			method: "POST",
 			headers: {
-				"Content-Type": "application/json"
+				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
 				products: [{ productId: subscription?.product_id }],
 				vendorAccountId: process.env.PAYPRO_VENDOR_ACCOUNT_ID,
-				apiSecretKey: process.env.PAYPRO_API_SECRET_KEY
-			})
+				apiSecretKey: process.env.PAYPRO_API_SECRET_KEY,
+			}),
 		}).then((res) => res.json());
 
 		if (!subscriptionPricing.isSuccess) {
 			return withCORSHeaders(
 				new Response(JSON.stringify({ message: "Subscription price not found", errors: subscriptionPricing.errors }), {
 					status: 404,
-					headers: { "Content-Type": "application/json" }
+					headers: { "Content-Type": "application/json" },
 				})
 			);
 		}
 
 		const subscriptionPrice = subscriptionPricing.response.productPricings[0];
+
+		const subscriptionStatus = isValidDate(subscription.next_charge_date) ? "active" : subscription?.status;
 
 		return withCORSHeaders(
 			new Response(
@@ -184,14 +195,14 @@ const handleResponse = (payload: Payload) => ({
 					email: user.email,
 					name: user.name,
 					lastname: user.lastname,
-					status: subscription?.status,
+					status: subscriptionStatus,
 					price: subscriptionPrice.billingUnitPrice * subscription?.seats.length,
-					order_id: Number(subscription?.order_id)
+					order_id: Number(subscription?.order_id),
 				}),
 				{ status: 200, headers: { "Content-Type": "application/json" } }
 			)
 		);
-	}
+	},
 });
 
 export async function POST(request: Request) {

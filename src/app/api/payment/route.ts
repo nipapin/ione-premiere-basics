@@ -64,7 +64,7 @@ const OrderStatus: Record<string, AtomXPaymentStatus> = {
 	OrderCustomerInformationChanged: "active",
 	InstantLeadNotification: "active",
 	OrderOnWaiting: "active",
-	SubscriptionPaymentInfoChanged: "active"
+	SubscriptionPaymentInfoChanged: "active",
 };
 
 const parsePayproOrder = (payproOrder: string) => {
@@ -88,7 +88,7 @@ const collectAtomXPayload = (payproOrderData: PayproOrderData) => {
 		billing_firstname: payproOrderData.CUSTOMER_FIRST_NAME,
 		billing_lastname: payproOrderData.CUSTOMER_LAST_NAME,
 		billing_company: payproOrderData.COMPANY_NAME,
-		billing_email: payproOrderData.CUSTOMER_EMAIL
+		billing_email: payproOrderData.CUSTOMER_EMAIL,
 	};
 };
 
@@ -108,14 +108,14 @@ const collectOdinSubscription = (payproOrderData: PayproOrderData, user: User): 
 		order_item_name: payproOrderData.ORDER_ITEM_NAME,
 		seats: Array.from({ length: Number(payproOrderData.PRODUCT_QUANTITY) }).map((_, index) =>
 			index === 0 ? user?.email : ""
-		)
+		),
 	};
 };
 
 const handleSubscription = async (odinSubscription: OdinSubscription) => {
 	const isSubscriptionExists = odinSubscription.subscription_id
 		? await query(`SELECT * FROM subscriptions WHERE subscription_id = $1`, [odinSubscription.subscription_id], {
-				single: true
+				single: true,
 		  })
 		: false;
 
@@ -124,12 +124,12 @@ const handleSubscription = async (odinSubscription: OdinSubscription) => {
 			`UPDATE subscriptions SET status = $1, next_charge_date = $2, order_item_name = $3, is_trial = $4, trial_period_till = $5, product_id = $6 WHERE subscription_id = $7`,
 			[
 				odinSubscription.status,
-				odinSubscription.next_charge_date,
+				odinSubscription.next_charge_date || isSubscriptionExists.next_charge_date,
 				odinSubscription.order_item_name.replace(/\+/g, " "),
 				odinSubscription.is_trial,
 				odinSubscription.trial_period_till,
 				odinSubscription.product_id,
-				odinSubscription.subscription_id
+				odinSubscription.subscription_id,
 			]
 		).catch((error) => {
 			console.error("Error updating subscription", error);
@@ -150,7 +150,7 @@ const handleSubscription = async (odinSubscription: OdinSubscription) => {
 				odinSubscription.customer_id,
 				odinSubscription.order_item_name.replace(/\+/g, " "),
 				odinSubscription.seats,
-				odinSubscription.product_id
+				odinSubscription.product_id,
 			]
 		).catch((error) => {
 			console.error("Error inserting subscription", error);
@@ -163,7 +163,7 @@ const handleOrder = async (data: PayproOrderData, user_id: string) => {
 		user_id,
 		`${new Date().toDateString()} ${new Date().toLocaleTimeString()}`,
 		data.ORDER_TOTAL_AMOUNT_SHOWN,
-		data.ORDER_STATUS
+		data.ORDER_STATUS,
 	]);
 };
 
@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
 	const atomPayload: AtomXPaymentData = collectAtomXPayload(payproOrderData);
 
 	const user = await query(`SELECT user_id, email FROM users WHERE email = $1`, [payproOrderData.CUSTOMER_EMAIL], {
-		single: true
+		single: true,
 	});
 
 	if (!user) {
@@ -201,16 +201,16 @@ export async function POST(request: NextRequest) {
 
 	query(`UPDATE users SET paypro_customer_id = $1 WHERE user_id = $2`, [
 		odinSubscription.customer_id,
-		odinSubscription.user_id
+		odinSubscription.user_id,
 	]);
 
 	fetch("https://api.get-atomx.com/atomx/v1/webhook_esubs", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
-			"WC-AtomX-Source": HTTP_WC_ATOMX_SOURCE
+			"WC-AtomX-Source": HTTP_WC_ATOMX_SOURCE,
 		},
-		body: JSON.stringify(atomPayload)
+		body: JSON.stringify(atomPayload),
 	}).catch((error) => {
 		console.error(error);
 		return NextResponse.json({ message: "Error" }, { status: 500 });

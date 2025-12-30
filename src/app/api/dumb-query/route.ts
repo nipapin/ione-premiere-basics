@@ -126,6 +126,7 @@ const handleResponse = (payload: Payload) => ({
 					status: subscriptionStatus,
 					price: subscriptionPrice.billingUnitPrice * subscription?.seats.length,
 					order_id: Number(subscription?.order_id),
+					subscriptionName: subscription?.order_item_name,
 				}),
 				{ status: 200, headers: { "Content-Type": "application/json" } }
 			)

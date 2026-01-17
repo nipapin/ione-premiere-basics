@@ -17,11 +17,11 @@ export const metadata: Metadata = {
 	description: "Get our extension Odin Pro now!",
 };
 
-export default async function RootLayout({
-	children,
-}: Readonly<{
+interface RootLayotProps {
 	children: React.ReactNode;
-}>) {
+}
+
+export default async function RootLayout({ children }: RootLayotProps) {
 	const cookieStore = await cookies();
 	const user_id = cookieStore.get("odin-pro-session")?.value;
 	let initialUser = null;

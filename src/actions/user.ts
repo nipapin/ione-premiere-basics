@@ -41,7 +41,7 @@ export const login = async (email: string, password: string, csrfToken: string):
 	}
 
 	const data = await query(`SELECT user_id, email, password, name, lastname FROM users WHERE email = $1`, [
-		email.toLowerCase().trim()
+		email.toLowerCase().trim(),
 	]).then((res) => res[0]);
 
 	if (!data) {
@@ -60,7 +60,7 @@ export const login = async (email: string, password: string, csrfToken: string):
 		user_id: data.user_id,
 		email: data.email,
 		name: data.name,
-		lastname: data.lastname
+		lastname: data.lastname,
 	};
 
 	// Create a new session for the user
@@ -71,7 +71,7 @@ export const login = async (email: string, password: string, csrfToken: string):
 
 export const get = async (user_id: string): Promise<User | null> => {
 	const data = await query(`SELECT user_id, email, name, lastname, paypro_customer_id FROM users WHERE user_id = $1`, [
-		user_id
+		user_id,
 	]).then((res) => res[0]);
 
 	if (!data) {
@@ -102,9 +102,8 @@ export const isExist = async (email: string): Promise<boolean> => {
 
 export const sendConfirmationEmail = async (email: string, confirmationToken: string): Promise<boolean> => {
 	const user = await query(`SELECT user_id, email, name FROM users WHERE email = $1`, [
-		email.toLowerCase().trim()
+		email.toLowerCase().trim(),
 	]).then((res) => res[0]);
-
 	if (!user) {
 		return false;
 	}
@@ -234,7 +233,7 @@ export const sendResetPasswordEmail = async (email: string): Promise<boolean> =>
 	const confirmationToken = crypto.randomUUID();
 	const data = await query(`UPDATE users SET confirmtoken = $1 WHERE email = $2 RETURNING name`, [
 		confirmationToken,
-		email
+		email,
 	]).then((res) => res[0]);
 
 	if (!data) {
@@ -258,7 +257,7 @@ export const sendResetPasswordEmail = async (email: string): Promise<boolean> =>
 export const confirmResetPassword = async (email: string, confirmationCode: string): Promise<boolean> => {
 	const data = await query(`SELECT * FROM users WHERE confirmtoken = $1 AND email = $2`, [
 		confirmationCode,
-		email
+		email,
 	]).then((res) => res[0]);
 
 	if (!data) {

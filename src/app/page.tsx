@@ -1,4 +1,8 @@
+"use server";
+
 import { getBlogs } from "@/actions/blog";
+import { setCookies } from "@/actions/setCookies";
+import AffiliateSystem from "@/components/AffiliateSystem";
 import PageContainer from "@/components/layout/PageContainer";
 import AboutSection from "@/components/sections/AboutSection";
 import BlogSection from "@/components/sections/BlogSection";
@@ -13,11 +17,17 @@ import Showcase from "@/components/sections/ShowcaseSection";
 import StatisticShowcase from "@/components/sections/StatisticShowcaseSection";
 import SuitsSection from "@/components/sections/SuitsSection";
 import TeamSection from "@/components/sections/TeamSection";
+import { cookies } from "next/headers";
 
-export default async function Home() {
+export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
+	const params = await searchParams;
+	const affiliate = params.ref;
+	const affiliateExists = !!(await cookies()).get("odin-pro-affiliate")?.value;
+
 	// const blogs = await getBlogs(undefined, 3);
 	return (
 		<PageContainer>
+			{!affiliateExists && <AffiliateSystem affiliate={affiliate} />}
 			<Hero />
 			<PartnersShowcase />
 			<AboutSection />

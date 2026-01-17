@@ -42,6 +42,7 @@ interface OdinSubscription {
 	customer_id: string;
 	order_item_name: string;
 	seats: string[];
+	affilate: string
 }
 
 type PayproOrderData = Record<string, string>;
@@ -93,6 +94,7 @@ const collectAtomXPayload = (payproOrderData: PayproOrderData) => {
 };
 
 const collectOdinSubscription = (payproOrderData: PayproOrderData, user: User): OdinSubscription => {
+	const customArguments = getCustomArguments(payproOrderData.ORDER_CUSTOM_FIELDS as string);
 	return {
 		product_id: payproOrderData.PRODUCT_ID,
 		order_id: payproOrderData.ORDER_ID,
@@ -109,19 +111,20 @@ const collectOdinSubscription = (payproOrderData: PayproOrderData, user: User): 
 		seats: Array.from({ length: Number(payproOrderData.PRODUCT_QUANTITY) }).map((_, index) =>
 			index === 0 ? user?.email : ""
 		),
+		affilate: customArguments['x-odin-affiliate']
 	};
 };
 
 const handleSubscription = async (odinSubscription: OdinSubscription) => {
 	const isSubscriptionExists = odinSubscription.subscription_id
 		? await query(`SELECT * FROM subscriptions WHERE subscription_id = $1`, [odinSubscription.subscription_id], {
-				single: true,
-		  })
+			single: true,
+		})
 		: false;
 
 	if (isSubscriptionExists) {
 		query(
-			`UPDATE subscriptions SET status = $1, next_charge_date = $2, order_item_name = $3, is_trial = $4, trial_period_till = $5, product_id = $6 WHERE subscription_id = $7`,
+			`UPDATE subscriptions SET status = $1, next_charge_date = $2, order_item_name = $3, is_trial = $4, trial_period_till = $5, product_id = $6, affilate = $7 WHERE subscription_id = $8`,
 			[
 				odinSubscription.status,
 				odinSubscription.next_charge_date || isSubscriptionExists.next_charge_date,
@@ -129,6 +132,7 @@ const handleSubscription = async (odinSubscription: OdinSubscription) => {
 				odinSubscription.is_trial,
 				odinSubscription.trial_period_till,
 				odinSubscription.product_id,
+				odinSubscription.affilate,
 				odinSubscription.subscription_id,
 			]
 		).catch((error) => {
@@ -136,7 +140,7 @@ const handleSubscription = async (odinSubscription: OdinSubscription) => {
 		});
 	} else {
 		query(
-			`INSERT INTO subscriptions (order_id, subscription_id, status, invoice, is_trial, trial_period_till, next_charge_date, quantity, user_id, customer_id, order_item_name, seats, product_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+			`INSERT INTO subscriptions (order_id, subscription_id, status, invoice, is_trial, trial_period_till, next_charge_date, quantity, user_id, customer_id, order_item_name, seats, product_id, affilate) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
 			[
 				odinSubscription.order_id,
 				odinSubscription.subscription_id || odinSubscription.order_id,
@@ -151,6 +155,7 @@ const handleSubscription = async (odinSubscription: OdinSubscription) => {
 				odinSubscription.order_item_name.replace(/\+/g, " "),
 				odinSubscription.seats,
 				odinSubscription.product_id,
+				odinSubscription.affilate
 			]
 		).catch((error) => {
 			console.error("Error inserting subscription", error);
@@ -159,18 +164,23 @@ const handleSubscription = async (odinSubscription: OdinSubscription) => {
 };
 
 const handleOrder = async (data: PayproOrderData, user_id: string) => {
-	await query(`INSERT INTO payments (user_id, date, amount, status) VALUES ($1, $2, $3, $4)`, [
+	const customArguments = getCustomArguments(data.ORDER_CUSTOM_FIELDS as string);
+	await query(`INSERT INTO payments (user_id, date, amount, status, affilate) VALUES ($1, $2, $3, $4, $5)`, [
 		user_id,
 		`${new Date().toDateString()} ${new Date().toLocaleTimeString()}`,
 		data.ORDER_TOTAL_AMOUNT_SHOWN,
 		data.ORDER_STATUS,
+		customArguments['x-odin-affiliate']
 	]);
 };
+
+const getCustomArguments = (args: string): Record<string, string> => {
+	return args.split(',').reduce((acc, row) => ({ ...acc, [row.split('=')[0]]: row.split('=')[1] }), {});
+}
 
 export async function POST(request: NextRequest) {
 	const payproOrder = await request.text();
 	const payproOrderData = parsePayproOrder(payproOrder);
-	console.log(payproOrderData);
 	const atomPayload: AtomXPaymentData = collectAtomXPayload(payproOrderData);
 
 	const user = await query(`SELECT user_id, email FROM users WHERE email = $1`, [payproOrderData.CUSTOMER_EMAIL], {

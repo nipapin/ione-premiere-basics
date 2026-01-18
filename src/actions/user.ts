@@ -40,7 +40,7 @@ export const login = async (email: string, password: string, csrfToken: string):
 		throw new Error("Invalid CSRF token");
 	}
 
-	const data = await query(`SELECT user_id, email, password, name, lastname FROM users WHERE email = $1`, [
+	const data = await query(`SELECT user_id, email, password, name, lastname, is_admin FROM users WHERE email = $1`, [
 		email.toLowerCase().trim(),
 	]).then((res) => res[0]);
 
@@ -54,13 +54,12 @@ export const login = async (email: string, password: string, csrfToken: string):
 		return null;
 	}
 
-	console.log("logged in user", data);
-
 	const userData = {
 		user_id: data.user_id,
 		email: data.email,
 		name: data.name,
 		lastname: data.lastname,
+		is_admin: data.is_admin
 	};
 
 	// Create a new session for the user
@@ -70,7 +69,7 @@ export const login = async (email: string, password: string, csrfToken: string):
 };
 
 export const get = async (user_id: string): Promise<User | null> => {
-	const data = await query(`SELECT user_id, email, name, lastname, paypro_customer_id FROM users WHERE user_id = $1`, [
+	const data = await query(`SELECT user_id, email, name, lastname, paypro_customer_id, is_admin FROM users WHERE user_id = $1`, [
 		user_id,
 	]).then((res) => res[0]);
 
@@ -198,8 +197,7 @@ export const sendUpdateEmail = async (previousEmail: string, email: string): Pro
 		"Your email has been changed",
 		`<h1>Your email has been changed</h1>
 		<p>New email: ${email}</p>
-		<p>If you did not change your email address, please <a href="${
-			process.env.NEXT_PUBLIC_APP_URL
+		<p>If you did not change your email address, please <a href="${process.env.NEXT_PUBLIC_APP_URL
 		}/contact">contact us immediately</a>.</p>
 		<p>Please confirm your email address by clicking the link below:</p>
 		<a href="${process.env.NEXT_PUBLIC_APP_URL}/change-email?token=${confirmationToken}&email=${Buffer.from(email).toString(

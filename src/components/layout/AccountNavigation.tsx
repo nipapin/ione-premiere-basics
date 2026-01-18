@@ -13,6 +13,7 @@ type MenuItem = {
 	id: number;
 	title: string;
 	route: string;
+	adminOnly: boolean
 };
 
 const menuItems: MenuItem[] = [
@@ -20,20 +21,23 @@ const menuItems: MenuItem[] = [
 		id: 1,
 		title: "Account Details",
 		route: "/account",
+		adminOnly: false
 	},
 	{
 		id: 2,
 		title: "Orders",
 		route: "/account/subscription",
+		adminOnly: false
 	},
-	// {
-	// 	id: 4,
-	// 	title: "Extension",
-	// 	route: "/account/extension"
-	// }
+	{
+		id: 3,
+		title: "Affilates",
+		route: "/account/affilates",
+		adminOnly: true
+	}
 ];
 
-export default function AccountNavigation() {
+export default function AccountNavigation({ isAdmin }: { isAdmin?: boolean }) {
 	const [open, setOpen] = useState<boolean>(false);
 	const pathname = usePathname();
 	const router = useRouter();
@@ -74,10 +78,11 @@ export default function AccountNavigation() {
 					<Divider sx={{ my: "2rem" }} />
 					<List disablePadding>
 						{menuItems.map((menuItem) => {
-							return (
+							return menuItem.adminOnly || isAdmin ? (
 								<ListItem disableGutters disablePadding key={menuItem.id} sx={{ my: "1rem" }}>
 									<NextLink href={menuItem.route} passHref>
 										<Link
+											component={'span'}
 											sx={{
 												color: menuItem.route === pathname ? "var(--primary)" : "currentColor",
 												fontWeight: menuItem.route === pathname ? "500" : "400",
@@ -88,7 +93,7 @@ export default function AccountNavigation() {
 										</Link>
 									</NextLink>
 								</ListItem>
-							);
+							) : null;
 						})}
 					</List>
 					<Divider sx={{ my: "2rem" }} />

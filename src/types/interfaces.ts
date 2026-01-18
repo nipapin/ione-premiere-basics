@@ -29,6 +29,7 @@ export interface User {
 	lastname: string;
 	confirmtoken?: string;
 	paypro_customer_id?: string;
+	is_admin: boolean
 }
 
 export interface Session {

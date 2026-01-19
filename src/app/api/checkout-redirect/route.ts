@@ -15,7 +15,7 @@ const parsePayproOrder = (payproOrder: string) => {
 export async function POST(req: NextRequest) {
 	const payproPayload = await req.text();
 	const payproPayloadData = parsePayproOrder(payproPayload);
-	console.log(payproPayloadData.ORDER_STATUS);
+
 	if (payproPayloadData.ORDER_STATUS === "Canceled") {
 		redirect("/payment/failed");
 	}

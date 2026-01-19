@@ -43,6 +43,9 @@ export default function AccountNavigation({ isAdmin }: { isAdmin?: boolean }) {
 	const router = useRouter();
 	const user = useUser();
 
+	const userItems = menuItems.filter((item) => !item.adminOnly);
+	const adminItems = menuItems.filter((item) => item.adminOnly);
+
 	const handleLogout = async () => {
 		await logout();
 		router.push("/login");
@@ -77,8 +80,8 @@ export default function AccountNavigation({ isAdmin }: { isAdmin?: boolean }) {
 					)}
 					<Divider sx={{ my: "2rem" }} />
 					<List disablePadding>
-						{menuItems.map((menuItem) => {
-							return menuItem.adminOnly || isAdmin ? (
+						{userItems.map((menuItem) => {
+							return (
 								<ListItem disableGutters disablePadding key={menuItem.id} sx={{ my: "1rem" }}>
 									<NextLink href={menuItem.route} passHref>
 										<Link
@@ -93,8 +96,26 @@ export default function AccountNavigation({ isAdmin }: { isAdmin?: boolean }) {
 										</Link>
 									</NextLink>
 								</ListItem>
-							) : null;
+							);
 						})}
+						{isAdmin ? adminItems.map((menuItem) => {
+							return (
+								<ListItem disableGutters disablePadding key={menuItem.id} sx={{ my: "1rem" }}>
+									<NextLink href={menuItem.route} passHref>
+										<Link
+											component={'span'}
+											sx={{
+												color: menuItem.route === pathname ? "var(--primary)" : "currentColor",
+												fontWeight: menuItem.route === pathname ? "500" : "400",
+											}}
+											underline="none"
+										>
+											{menuItem.title}
+										</Link>
+									</NextLink>
+								</ListItem>
+							);
+						}) : null}
 					</List>
 					<Divider sx={{ my: "2rem" }} />
 					<Button
@@ -133,12 +154,13 @@ export default function AccountNavigation({ isAdmin }: { isAdmin?: boolean }) {
 						onClose={() => setOpen(false)}
 						slotProps={{ paper: { elevation: 0, sx: { width: "50%", overflow: "hidden" } } }}
 					>
-						<List sx={{ width: "200px" }}>
-							{menuItems.map((menuItem) => {
+						<List sx={{ width: "100%" }}>
+							{userItems.map((menuItem) => {
 								return (
 									<ListItem key={menuItem.id} sx={{ my: "1rem" }}>
 										<NextLink href={menuItem.route} passHref>
 											<Link
+												component={'span'}
 												sx={{
 													color: menuItem.route === pathname ? "var(--primary)" : "currentColor",
 													fontWeight: menuItem.route === pathname ? "500" : "400",
@@ -151,6 +173,24 @@ export default function AccountNavigation({ isAdmin }: { isAdmin?: boolean }) {
 									</ListItem>
 								);
 							})}
+							{isAdmin ? adminItems.map((menuItem) => {
+								return (
+									<ListItem key={menuItem.id} sx={{ my: "1rem" }}>
+										<NextLink href={menuItem.route} passHref>
+											<Link
+												component={'span'}
+												sx={{
+													color: menuItem.route === pathname ? "var(--primary)" : "currentColor",
+													fontWeight: menuItem.route === pathname ? "500" : "400",
+												}}
+												underline="none"
+											>
+												{menuItem.title}
+											</Link>
+										</NextLink>
+									</ListItem>
+								);
+							}) : null}
 						</List>
 					</Drawer>
 				</Box>

@@ -47,6 +47,6 @@ export async function GET() {
         stats[item.affilate as keyof typeof stats].count += item.quantity;
         stats[item.affilate as keyof typeof stats].networth += item.quantity * price;
     }
-    console.log(stats);
+
     return Response.json(stats)
 }

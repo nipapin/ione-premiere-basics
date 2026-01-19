@@ -31,7 +31,7 @@ export default function SmallMenu() {
 			<>
 				<Stack direction={"row"} sx={{ display: { md: "none", xs: "inline-flex" }, ml: "auto" }}>
 					<Link href={"/login"} passHref>
-						<IconButton href="/login">
+						<IconButton >
 							<AccountCircle />
 						</IconButton>
 					</Link>

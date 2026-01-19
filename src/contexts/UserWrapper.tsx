@@ -24,7 +24,6 @@ export default function UserWrapper({ children, initialUser, userID }: UserWrapp
 		}
 
 		if (!initialUser) {
-			console.log("getting user", user_id);
 			localStorage.setItem("ops", user_id);
 			get(user_id).then((user) => {
 				setUser(user);

@@ -31,7 +31,6 @@ export const Seat = ({ index, user, seat, showExpired, until }: ISeat) => {
 	const [exists, setExists] = useState(false);
 
 	const toggleEdit = () => {
-		console.log("seat", seat, "email", email);
 		if (edit && seat !== email) {
 			setOpen(true);
 			return;

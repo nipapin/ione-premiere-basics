@@ -13,7 +13,7 @@ type BlogFilterContextType = {
 
 const BlogFilterContext = createContext<BlogFilterContextType>({
 	selectedTags: [],
-	toggleTag: () => {},
+	toggleTag: () => { },
 	blogs: [],
 	isLoading: false
 });
@@ -39,7 +39,6 @@ export default function BlogFilterProvider({ initBlogs, children }: { initBlogs:
 		const fetchBlogs = async () => {
 			setIsLoading(true);
 			const blogs = await getBlogs(mergedTags);
-			console.log(blogs, mergedTags);
 			setBlogs(blogs);
 			setIsLoading(false);
 		};

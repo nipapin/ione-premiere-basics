@@ -41,9 +41,9 @@ const getProduct = async (user_id: string) => {
 	const daysBeforeCharge =
 		name === "Odin Pro Annual Subscription"
 			? Math.min(
-					360,
-					Math.ceil((parseDate(subscription.next_charge_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-			  )
+				360,
+				Math.ceil((parseDate(subscription.next_charge_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+			)
 			: Math.ceil((parseDate(subscription.next_charge_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 
 	return {
@@ -72,7 +72,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
 	const cookieStore = await cookies();
 	const { quantity, charge } = await request.json();
-	console.log(quantity, charge);
+
 
 	const user_id = cookieStore.get("odin-pro-session")?.value;
 

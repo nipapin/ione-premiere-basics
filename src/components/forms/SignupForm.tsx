@@ -130,7 +130,6 @@ export default function SignupForm({ after, referal_code }: { after?: string; re
 				setShowSuccessMessage(true);
 			}
 		} catch (error) {
-			console.log("Signup error:", error);
 			setErrorMessage("An error occurred during signup");
 		}
 	};

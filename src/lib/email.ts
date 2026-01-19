@@ -24,13 +24,12 @@ export const sendEmail = async (to: string, subject: string, html: string): Prom
 	});
 
 	try {
-		const result = await noreplyTransport.sendMail({
+		await noreplyTransport.sendMail({
 			from: `Odin Pro Notification ${process.env.SMTP_FROM_NO_REPLY}`,
 			to,
 			subject,
 			html,
 		});
-		console.log("No Reply Email:", result);
 		return true;
 	} catch (error) {
 		console.error("Error sending email:", {

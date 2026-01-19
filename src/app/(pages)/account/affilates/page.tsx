@@ -44,25 +44,25 @@ export default function AccountExtension() {
 			</Typography >
 			<Divider sx={{ my: "1rem" }} />
 			<Box display={'flex'} flexDirection={'column'} gap={'1rem'}>
-				<Box display={'grid'} gridTemplateColumns={'repeat(3, 1fr)'}>
-					<Typography>Affilate</Typography>
-					<Typography>Count</Typography>
-					<Typography>Amount</Typography>
+				<Box display={'grid'} gridTemplateColumns={'130px repeat(2, 1fr)'}>
+					<Typography sx={{ justifySelf: 'flex-start' }}>Affilate</Typography>
+					<Typography sx={{ justifySelf: 'flex-end' }}>Count</Typography>
+					<Typography sx={{ justifySelf: 'flex-end' }}>Amount</Typography>
 				</Box>
-				<Box display={'grid'} gridTemplateColumns={'repeat(3, 1fr)'}>
-					<Typography color='primary' fontWeight={'bold'}>cinecom</Typography>
-					<Typography>{affilates['cinecom'].count}</Typography>
-					<Typography>{affilates['cinecom'].networth}</Typography>
+				<Box display={'grid'} gridTemplateColumns={'130px repeat(2, 1fr)'}>
+					<Typography sx={{ justifySelf: 'flex-start' }} color='primary' fontWeight={'bold'}>cinecom</Typography>
+					<Typography sx={{ justifySelf: 'flex-end' }}>{affilates['cinecom'].count}</Typography>
+					<Typography sx={{ justifySelf: 'flex-end' }}>{affilates['cinecom'].networth}</Typography>
 				</Box>
-				<Box display={'grid'} gridTemplateColumns={'repeat(3, 1fr)'}>
-					<Typography color='primary' fontWeight={'bold'}>premierebasics</Typography>
-					<Typography>{affilates['premierebasics'].count}</Typography>
-					<Typography>{affilates['premierebasics'].networth}</Typography>
+				<Box display={'grid'} gridTemplateColumns={'130px repeat(2, 1fr)'}>
+					<Typography sx={{ justifySelf: 'flex-start' }} color='primary' fontWeight={'bold'}>premierebasics</Typography>
+					<Typography sx={{ justifySelf: 'flex-end' }}>{affilates['premierebasics'].count}</Typography>
+					<Typography sx={{ justifySelf: 'flex-end' }}>{affilates['premierebasics'].networth}</Typography>
 				</Box>
-				<Box display={'grid'} gridTemplateColumns={'repeat(3, 1fr)'}>
-					<Typography color='primary' fontWeight={'bold'}>aftereffectsbasics</Typography>
-					<Typography>{affilates['aftereffectsbasics'].count}</Typography>
-					<Typography>{affilates['aftereffectsbasics'].networth}</Typography>
+				<Box display={'grid'} gridTemplateColumns={'130px repeat(2, 1fr)'}>
+					<Typography sx={{ justifySelf: 'flex-start' }} color='primary' fontWeight={'bold'}>aftereffectsbasics</Typography>
+					<Typography sx={{ justifySelf: 'flex-end' }}>{affilates['aftereffectsbasics'].count}</Typography>
+					<Typography sx={{ justifySelf: 'flex-end' }}>{affilates['aftereffectsbasics'].networth}</Typography>
 				</Box>
 			</Box>
 		</Box >

@@ -156,8 +156,12 @@ const handleResponse = (payload: Payload) => ({
 
 		if (!subscription) {
 			return withCORSHeaders(
-				new Response(JSON.stringify({ message: "Subscription with this uuid not found" }), {
-					status: 404,
+				new Response(JSON.stringify({
+					uuid: user.user_id,
+					email: user.email,
+					status: null,
+				}), {
+					status: 200,
 					headers: { "Content-Type": "application/json" },
 				})
 			);

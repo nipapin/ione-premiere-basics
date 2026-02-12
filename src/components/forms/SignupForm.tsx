@@ -1,6 +1,6 @@
 "use client";
 
-import { create, isExist, sendConfirmationEmail } from "@/actions/user";
+import { create, isExist } from "@/actions/user";
 import { setCsrfToken } from "@/lib/csrf";
 import { Home, Visibility, VisibilityOff } from "@mui/icons-material";
 import {
@@ -17,6 +17,7 @@ import {
 	Typography,
 } from "@mui/material";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { Wrapper } from "../layout/Wrapper";
 import { styles } from "./LoginForm";
@@ -84,6 +85,7 @@ export default function SignupForm({ after, referal_code }: { after?: string; re
 	const [csrfToken, setCsrfTokenState] = useState("");
 	const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 	const [email, setEmail] = useState<string>(referalUser || "");
+	const router = useRouter();
 
 	useEffect(() => {
 		// Generate a random token for CSRF protection
@@ -125,11 +127,13 @@ export default function SignupForm({ after, referal_code }: { after?: string; re
 				csrfToken
 			);
 			if (user) {
-				await sendConfirmationEmail(formValues.email, user.confirmtoken!);
+				// await sendConfirmationEmail(formValues.email, user.confirmtoken!);
 				setEmail(formValues.email);
-				setShowSuccessMessage(true);
+				// setShowSuccessMessage(true);
+				router.push("/account");
 			}
 		} catch (error) {
+			console.error("Signup error:", error);
 			setErrorMessage("An error occurred during signup");
 		}
 	};

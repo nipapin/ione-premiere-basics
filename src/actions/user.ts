@@ -123,10 +123,10 @@ export const sendConfirmationEmail = async (email: string, confirmationToken: st
 	return emailSent;
 };
 
-export const confirmAccount = async (token: string): Promise<boolean> => {
+export const confirmAccount = async (email: string): Promise<boolean> => {
 	const data = await query(
-		`UPDATE users SET confirmtoken = null, emailconfirmed = true WHERE confirmtoken = $1 OR emailconfirmed = true RETURNING user_id, email, name, lastname, confirmtoken, emailconfirmed`,
-		[token]
+		`UPDATE users SET confirmtoken = null, emailconfirmed = true WHERE email = $1 RETURNING user_id, email, name, lastname, confirmtoken, emailconfirmed`,
+		[email]
 	).then((res) => res[0]);
 
 	if (!data) {
@@ -182,7 +182,6 @@ export const sendUpdateEmail = async (previousEmail: string, email: string): Pro
 
 	const cookieStore = await cookies();
 	const user_id = cookieStore.get("odin-pro-session")?.value;
-	console.log(user_id);
 
 	const emailIsBusy = await isExist(email);
 

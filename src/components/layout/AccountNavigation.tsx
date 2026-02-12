@@ -41,7 +41,7 @@ export default function AccountNavigation({ isAdmin }: { isAdmin?: boolean }) {
 	const [open, setOpen] = useState<boolean>(false);
 	const pathname = usePathname();
 	const router = useRouter();
-	const user = useUser();
+	const { user } = useUser();
 
 	const userItems = menuItems.filter((item) => !item.adminOnly);
 	const adminItems = menuItems.filter((item) => item.adminOnly);

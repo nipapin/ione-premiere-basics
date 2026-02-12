@@ -41,7 +41,7 @@ type UserData = {
 };
 
 export default function PlansSection() {
-	const user = useUser();
+	const { user } = useUser();
 	const router = useRouter();
 	const [billingYearly, setBillingYearly] = useState(true);
 

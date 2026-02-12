@@ -10,7 +10,7 @@ const subscriptionStyle = (pending: boolean) => ({
 });
 
 export default function InviteDetails({ subscription, pending }: InviteDetailsProps) {
-	const user = useUser();
+	const { user } = useUser();
 	const freeSeat = () => {
 		fetch("/api/subscription/manage-seat", {
 			method: "POST",

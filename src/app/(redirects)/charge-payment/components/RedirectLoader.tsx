@@ -21,7 +21,7 @@ const boxStyles = {
 };
 
 export default function RedirectLoader({ productID, affilate }: { productID: string; affilate: string }) {
-	const user = useUser();
+	const { user } = useUser();
 	const isFreePlan = productID === plans[0].id[0].toString();
 	const redirectURL = isFreePlan
 		? `/download`

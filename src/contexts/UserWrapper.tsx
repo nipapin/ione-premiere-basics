@@ -4,7 +4,7 @@ import { get } from "@/actions/user";
 import { User } from "@/types/interfaces";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-const UserContext = createContext<User | null>(null);
+const UserContext = createContext<{ user: User | null, addUser?: (user: User) => void }>({ user: null, addUser: () => { } });
 
 interface UserWrapperProps {
 	children: React.ReactNode;
@@ -14,6 +14,10 @@ interface UserWrapperProps {
 
 export default function UserWrapper({ children, initialUser, userID }: UserWrapperProps) {
 	const [user, setUser] = useState<User | null>(initialUser);
+
+	const addUser = (user: User) => {
+		setUser(user);
+	}
 
 	useEffect(() => {
 		const user_id = userID || localStorage.getItem("ops");
@@ -31,7 +35,7 @@ export default function UserWrapper({ children, initialUser, userID }: UserWrapp
 		}
 	}, [initialUser, userID]);
 
-	return <UserContext.Provider value={user}>{children}</UserContext.Provider>;
+	return <UserContext.Provider value={{ user, addUser }}>{children}</UserContext.Provider>;
 }
 
 export function useUser() {

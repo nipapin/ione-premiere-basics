@@ -57,7 +57,7 @@ const styles = {
 };
 
 export default function Hero() {
-	const user = useUser();
+	const { user } = useUser();
 	return (
 		<Box component={"section"} sx={styles.hero}>
 			<Box sx={styles.accentChip}>

@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 export default function ChangeNameForm() {
-	const user = useUser();
+	const { user } = useUser();
 
 	const [pending, setPending] = useState<boolean>(false);
 	const router = useRouter();

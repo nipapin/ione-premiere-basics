@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function RedirectMesssage({ token }: { token: string }) {
+	return <></>
 	const { push } = useRouter();
 
 	useEffect(() => {

@@ -21,7 +21,7 @@ import SmallMenu from "./SmallMenu";
 import { Wrapper } from "./Wrapper";
 
 export default function NavBar() {
-	const user = useUser();
+	const { user } = useUser();
 	const pathname = usePathname();
 	const router = useRouter();
 

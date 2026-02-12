@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 export default function ChangeEmailForm() {
-	const user = useUser();
+	const { user } = useUser();
 	const [pending, setPending] = useState(false);
 	const [redirecting, setRedirecting] = useState(false);
 	const [error, setError] = useState(false);

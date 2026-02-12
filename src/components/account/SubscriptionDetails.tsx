@@ -9,7 +9,7 @@ import InviteDetails from "./InviteDetails";
 import PrimaryDetails from "./PrimaryDetails";
 
 export default function SubscriptionDetails() {
-	const user = useUser();
+	const { user } = useUser();
 
 	const [pending, setPending] = useState(true);
 	const [subscription, setSubscription] = useState<ISubscriptionDetails>();
@@ -18,11 +18,11 @@ export default function SubscriptionDetails() {
 		const formatDate = (date: string) => {
 			return date
 				? "until " +
-						new Date(date.split("+").join(" ")).toLocaleDateString("en-US", {
-							month: "long",
-							day: "numeric",
-							year: "numeric",
-						})
+				new Date(date.split("+").join(" ")).toLocaleDateString("en-US", {
+					month: "long",
+					day: "numeric",
+					year: "numeric",
+				})
 				: "Lifetime";
 		};
 		const fetchDetails = async () => {

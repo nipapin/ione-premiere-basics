@@ -16,11 +16,12 @@
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@mapbox/node-pre-gyp": "^2.0.3",
     "@mdx-js/loader": "^3.1.0",
     "@mdx-js/react": "^3.1.0",
     "@mui/icons-material": "^6.4.8",
     "@mui/material": "^6.4.8",
-    "@mui/material-nextjs": "^6.4.3",
+    "@mui/material-nextjs": "^7.3.7",
     "@mui/x-tree-view": "^7.28.1",
     "@next/mdx": "^15.2.4",
     "@supabase/ssr": "^0.6.1",
@@ -30,15 +31,15 @@
     "cookies-next": "^6.0.0",
     "express": "^5.1.0",
     "gray-matter": "^4.0.3",
-    "next": "^15.2.4",
+    "next": "^16.1.6",
     "next-auth": "^4.24.11",
     "next-mdx-remote": "^5.0.0",
     "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.11",
     "pg": "^8.16.1",
     "prism-react-renderer": "^2.4.1",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "remark-gfm": "^4.0.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
@@ -55,5 +56,8 @@
     "eslint": "^9",
     "eslint-config-next": "15.2.3",
     "typescript": "^5"
+  },
+  "overrides": {
+    "tar": "^7.5.7"
   }
 }

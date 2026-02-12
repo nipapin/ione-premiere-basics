@@ -13,6 +13,13 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendEmail = async (to: string, subject: string, html: string): Promise<boolean> => {
+
+	console.log("SMTP config:", {
+		host: process.env.SMTP_HOST,
+		port: process.env.SMTP_PORT,
+		secure: process.env.SMTP_SECURE,
+	});
+
 	const noreplyTransport = nodemailer.createTransport({
 		host: process.env.SMTP_HOST,
 		port: Number(process.env.SMTP_PORT),

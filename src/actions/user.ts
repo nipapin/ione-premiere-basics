@@ -182,6 +182,7 @@ export const sendUpdateEmail = async (previousEmail: string, email: string): Pro
 
 	const cookieStore = await cookies();
 	const user_id = cookieStore.get("odin-pro-session")?.value;
+	console.log(user_id);
 
 	const emailIsBusy = await isExist(email);
 
@@ -192,7 +193,7 @@ export const sendUpdateEmail = async (previousEmail: string, email: string): Pro
 	const confirmationToken = Math.random().toString(36).substring(2, 6).toUpperCase();
 	await query(`UPDATE users SET confirmtoken = $1 WHERE user_id = $2`, [confirmationToken, user_id]);
 
-	await sendEmail(
+	return await sendEmail(
 		previousEmail,
 		"Your email has been changed",
 		`<h1>Your email has been changed</h1>
@@ -208,8 +209,6 @@ export const sendUpdateEmail = async (previousEmail: string, email: string): Pro
 		<p>Best regards, <b>Odin Pro Team</b></p>
 	`
 	);
-
-	return true;
 };
 
 export const confirmUpdateEmail = async (token: string): Promise<boolean> => {
@@ -238,7 +237,7 @@ export const sendResetPasswordEmail = async (email: string): Promise<boolean> =>
 		return false;
 	}
 
-	await sendEmail(
+	return await sendEmail(
 		email,
 		"OdinPro - Reset Password",
 		`<h1>OdinPro - Reset Password</h1>
@@ -248,8 +247,6 @@ export const sendResetPasswordEmail = async (email: string): Promise<boolean> =>
 		<p>Best regards, <b>Odin Pro Team</b></p>
 	`
 	);
-
-	return true;
 };
 
 export const confirmResetPassword = async (email: string, confirmationCode: string): Promise<boolean> => {

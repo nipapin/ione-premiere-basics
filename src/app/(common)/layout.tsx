@@ -9,7 +9,7 @@ import ThemeWrapper from "@/theme/ThemeWrapper";
 import { Box } from "@mui/material";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import { cookies } from "next/headers";
-import "./globals.css";
+import "../globals.css";
 import Script from "next/script";
 
 export const metadata: Metadata = {

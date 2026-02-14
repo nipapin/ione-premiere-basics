@@ -102,3 +102,9 @@ export async function deleteAllUserSessions(user_id: string): Promise<void> {
 	cookieStore.delete(SESSION_COOKIE);
 	cookieStore.delete(SESSION_ID_COOKIE);
 }
+
+/** Deletes sessions from DB only (for admin deleting another user - does not clear current user's cookies) */
+export async function deleteSessionsForUser(user_id: string): Promise<void> {
+	"use server";
+	await query("DELETE FROM sessions WHERE user_id = $1", [user_id]);
+}

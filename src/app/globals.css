@@ -37,6 +37,7 @@
 	color: var(--background);
 	background-color: var(--primary);
 }
+
 ::selection {
 	color: var(--background);
 	background-color: var(--primary);
@@ -45,6 +46,7 @@
 ::-webkit-scrollbar {
 	background-color: var(--background);
 }
+
 ::-webkit-scrollbar-thumb {
 	border: 6px solid var(--background);
 	background-color: var(--primary);
@@ -138,6 +140,7 @@ a {
 	from {
 		transform: translateX(var(--scroll-from));
 	}
+
 	to {
 		transform: translateX(var(--scroll-to));
 	}
@@ -151,4 +154,23 @@ input:-webkit-autofill:active {
 	-webkit-box-shadow: 0 0 0 30px var(--background) inset !important;
 	-webkit-text-fill-color: var(--foreground) !important;
 	transition: background-color 5000s ease-in-out 0s;
+}
+
+.table-row {
+	display: grid;
+	grid-template-columns: repeat(6, 1fr);
+	padding: 0.5rem;
+}
+
+.table-header {
+	background-color: var(--background);
+}
+
+.table-cell {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	padding: 0.5rem;
 }

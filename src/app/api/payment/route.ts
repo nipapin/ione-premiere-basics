@@ -49,7 +49,7 @@ type PayproOrderData = Record<string, string>;
 
 const OrderStatus: Record<string, AtomXPaymentStatus> = {
 	OrderCharged: "active",
-	OrderRefunded: "active",
+	OrderRefunded: "cancelled",
 	OrderChargedBack: "active",
 	OrderDeclined: "failed",
 	OrderPartiallyRefunded: "active",
@@ -95,6 +95,7 @@ const collectAtomXPayload = (payproOrderData: PayproOrderData) => {
 
 const collectOdinSubscription = (payproOrderData: PayproOrderData, user: User): OdinSubscription => {
 	const customArguments = getCustomArguments(payproOrderData.ORDER_CUSTOM_FIELDS as string);
+	const isRefunded = payproOrderData.IPN_TYPE_NAME === "OrderRefunded";
 	return {
 		product_id: payproOrderData.PRODUCT_ID,
 		order_id: payproOrderData.ORDER_ID,
@@ -103,7 +104,7 @@ const collectOdinSubscription = (payproOrderData: PayproOrderData, user: User): 
 		invoice: payproOrderData.INVOICE_LINK,
 		is_trial: payproOrderData.IS_ON_TRIAL_PERIOD === "1",
 		trial_period_till: payproOrderData.TRIAL_PERIOD_TILL,
-		next_charge_date: payproOrderData.SUBSCRIPTION_NEXT_CHARGE_DATE,
+		next_charge_date: isRefunded ? '' : payproOrderData.SUBSCRIPTION_NEXT_CHARGE_DATE,
 		quantity: Number(payproOrderData.PRODUCT_QUANTITY),
 		user_id: user?.user_id,
 		customer_id: payproOrderData.CUSTOMER_ID,

@@ -33,10 +33,6 @@ const helpTransport = nodemailer.createTransport({
 });
 
 export const sendEmail = async (to: string, subject: string, html: string): Promise<boolean> => {
-	console.log("Sending email to:", to);
-	console.log("Subject:", subject);
-	console.log("HTML:", html);
-	console.log("No Reply Transport:", noReplyTransport);
 	try {
 		await noReplyTransport.sendMail({
 			from: `Odin Pro Notification <${process.env.NO_REPLY_SMTP_ALIAS}>`,

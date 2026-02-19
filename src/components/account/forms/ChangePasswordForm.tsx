@@ -1,6 +1,6 @@
 "use client";
 
-import { checkPassword, logout, updatePassword } from "@/actions/user";
+import { checkPassword, logout, sendUpdatePassword, updatePassword } from "@/actions/user";
 import Preloader from "@/components/layout/Preloader";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
@@ -50,6 +50,7 @@ export default function ChangePasswordForm() {
 			setPending(false);
 			setShowPasswordForm(false);
 			setRedirecting(true);
+			sendUpdatePassword(password)
 			logout().then(() => {
 				router.push("/login");
 			});

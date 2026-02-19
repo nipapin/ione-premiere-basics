@@ -1,6 +1,6 @@
 "use client";
 
-import { confirmAccount, create, isExist } from "@/actions/user";
+import { confirmAccount, create, isExist, sendConfirmationEmail } from "@/actions/user";
 import { useUser } from "@/contexts/UserWrapper";
 import { setCsrfToken } from "@/lib/csrf";
 import { Home, Visibility, VisibilityOff } from "@mui/icons-material";
@@ -131,9 +131,9 @@ export default function SignupForm({ after, referal_code }: { after?: string; re
 			if (user) {
 				addUser?.(user);
 				localStorage.setItem("ops", user.user_id);
-				// await sendConfirmationEmail(formValues.email, user.confirmtoken!);
+				await sendConfirmationEmail(formValues.email, user.confirmtoken!);
 				setEmail(formValues.email);
-				// setShowSuccessMessage(true);
+				setShowSuccessMessage(true);
 				confirmAccount(formValues.email).then((res) => {
 					if (res) {
 						router.push("/account");

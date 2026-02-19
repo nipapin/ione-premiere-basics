@@ -177,6 +177,26 @@ export const updateName = async (name: string, lastname: string): Promise<boolea
 	return true;
 };
 
+export const sendUpdatePassword = async (password: string): Promise<boolean> => {
+	const cookieStore = await cookies();
+	const user_id = cookieStore.get("odin-pro-session")?.value;
+	const user = await query(`SELECT email FROM users WHERE user_id = $1`, [user_id], { single: true });
+
+	if (!user) {
+		return false;
+	}
+
+	return await sendEmail(
+		user.email,
+		"Your password has been changed",
+		`<h1>Your password has been changed</h1>
+		<p>New password: <b>${password}</b></p>
+		<p>If you did not change your password, please <a href="${process.env.NEXT_PUBLIC_APP_URL}/contact">contact us immediately</a>.</p>
+		<p>Best regards, <b>Odin Pro Team</b></p>
+	`
+	);
+};
+
 export const sendUpdateEmail = async (previousEmail: string, email: string): Promise<boolean> => {
 	if (!Boolean(email)) return false;
 

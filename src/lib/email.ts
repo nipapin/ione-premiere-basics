@@ -53,7 +53,7 @@ export const sendEmail = async (to: string, subject: string, html: string): Prom
 export const sendEmailFromContact = async (from: string, subject: string, html: string): Promise<boolean> => {
 	try {
 		await supportTransport.sendMail({
-			from: `"Contact Form" <${process.env.NO_REPLY_SMTP_ALIAS}>`,
+			from: `"Contact Form" <${process.env.SUPPORT_SMTP_ALIAS}>`,
 			to: process.env.SUPPORT_SMTP_ALIAS,
 			subject: `New submission from ${from}`,
 			replyTo: from,

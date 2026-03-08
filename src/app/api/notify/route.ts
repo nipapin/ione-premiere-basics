@@ -17,7 +17,7 @@ async function sendToManyAt10PerMinute() {
     try {
         return await mg.messages.create("mg.odin-pro.com", {
             from: "Odin Pro Team <updates@mg.odin-pro.com>",
-            to: [`<notification@mg.odin-pro.com>`],
+            to: [`<recentupdates@mg.odin-pro.com>`],
             subject: "Technical Notification",
             text: `From February 18th to 27th, we experienced technical issues with our email service, preventing requests
 from being processed through the Contact Us section.

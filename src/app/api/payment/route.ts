@@ -42,7 +42,7 @@ interface OdinSubscription {
 	customer_id: string;
 	order_item_name: string;
 	seats: string[];
-	affilate: string
+	affilate: string;
 }
 
 type PayproOrderData = Record<string, string>;
@@ -78,6 +78,14 @@ const parsePayproOrder = (payproOrder: string) => {
 };
 
 const collectAtomXPayload = (payproOrderData: PayproOrderData) => {
+	const subscriptionPeriodTypeMap: Record<string, string> = {
+		"113887": "lifetime",
+		"111867": "monthly",
+		"113886": "yearly",
+	};
+
+	const isLifetime = payproOrderData.PRODUCT_ID === "113887";
+
 	return {
 		status: OrderStatus[payproOrderData.IPN_TYPE_NAME],
 		parent_order_id: Number(payproOrderData.ORDER_ID),
@@ -90,8 +98,16 @@ const collectAtomXPayload = (payproOrderData: PayproOrderData) => {
 		billing_lastname: payproOrderData.CUSTOMER_LAST_NAME,
 		billing_company: payproOrderData.COMPANY_NAME,
 		billing_email: payproOrderData.CUSTOMER_EMAIL,
+		subscription_period_type: subscriptionPeriodTypeMap[payproOrderData.PRODUCT_ID],
+		subscription_starts_at: new Date().getTime(),
+		subscription_ends_at: isLifetime ? null : parseDate(payproOrderData.SUBSCRIPTION_NEXT_CHARGE_DATE).getTime(),
 	};
 };
+
+const parseDate = (date: string) => {
+	return new Date(date.split("+").join(" "));
+};
+
 
 const collectOdinSubscription = (payproOrderData: PayproOrderData, user: User): OdinSubscription => {
 	const customArguments = getCustomArguments(payproOrderData.ORDER_CUSTOM_FIELDS as string);
@@ -104,15 +120,15 @@ const collectOdinSubscription = (payproOrderData: PayproOrderData, user: User): 
 		invoice: payproOrderData.INVOICE_LINK,
 		is_trial: payproOrderData.IS_ON_TRIAL_PERIOD === "1",
 		trial_period_till: payproOrderData.TRIAL_PERIOD_TILL,
-		next_charge_date: isRefunded ? '' : payproOrderData.SUBSCRIPTION_NEXT_CHARGE_DATE,
+		next_charge_date: isRefunded ? "" : payproOrderData.SUBSCRIPTION_NEXT_CHARGE_DATE,
 		quantity: Number(payproOrderData.PRODUCT_QUANTITY),
 		user_id: user?.user_id,
 		customer_id: payproOrderData.CUSTOMER_ID,
 		order_item_name: payproOrderData.ORDER_ITEM_NAME,
 		seats: Array.from({ length: Number(payproOrderData.PRODUCT_QUANTITY) }).map((_, index) =>
-			index === 0 ? user?.email : ""
+			index === 0 ? user?.email : "",
 		),
-		affilate: customArguments['x-odin-affiliate']
+		affilate: customArguments["x-odin-affiliate"],
 	};
 };
 
@@ -135,7 +151,7 @@ const handleSubscription = async (odinSubscription: OdinSubscription) => {
 				odinSubscription.product_id,
 				odinSubscription.affilate,
 				odinSubscription.subscription_id,
-			]
+			],
 		).catch((error) => {
 			console.error("Error updating subscription", error);
 		});
@@ -156,8 +172,8 @@ const handleSubscription = async (odinSubscription: OdinSubscription) => {
 				odinSubscription.order_item_name.replace(/\+/g, " "),
 				odinSubscription.seats,
 				odinSubscription.product_id,
-				odinSubscription.affilate
-			]
+				odinSubscription.affilate,
+			],
 		).catch((error) => {
 			console.error("Error inserting subscription", error);
 		});
@@ -171,18 +187,23 @@ const handleOrder = async (data: PayproOrderData, user_id: string) => {
 		`${new Date().toDateString()} ${new Date().toLocaleTimeString()}`,
 		data.ORDER_TOTAL_AMOUNT_SHOWN,
 		data.ORDER_STATUS,
-		customArguments['x-odin-affiliate']
+		customArguments["x-odin-affiliate"],
 	]);
 };
 
 const getCustomArguments = (args: string): Record<string, string> => {
-	return args.split(',').reduce((acc, row) => ({ ...acc, [row.split('=')[0]]: row.split('=')[1] }), {});
-}
+	return args.split(",").reduce((acc, row) => ({ ...acc, [row.split("=")[0]]: row.split("=")[1] }), {});
+};
 
 export async function POST(request: NextRequest) {
 	const payproOrder = await request.text();
 	const payproOrderData = parsePayproOrder(payproOrder);
 	const atomPayload: AtomXPaymentData = collectAtomXPayload(payproOrderData);
+	const subscriptionPeriodTypeMap: Record<string, string> = {
+		"113887": "lifetime",
+		"111867": "monthly",
+		"113886": "yearly",
+	};
 
 	const user = await query(`SELECT user_id, email FROM users WHERE email = $1`, [payproOrderData.CUSTOMER_EMAIL], {
 		single: true,
@@ -200,7 +221,7 @@ export async function POST(request: NextRequest) {
 			sendEmail(
 				user?.email,
 				isLifetime ? "Your Lifetime is active" : "Your subscription is active",
-				`<p>${isLifetime ? "Your Lifetime is active" : "Your subscription is active"}</p>`
+				`<p>${isLifetime ? "Your Lifetime is active" : "Your subscription is active"}</p>`,
 			);
 		}
 	} else {

@@ -60,11 +60,11 @@ const handleResponse = (payload: Payload) => ({
 			);
 		}
 
-		const primarySubscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1`, [user.user_id], {
+		const primarySubscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1 and status = 'active'`, [user.user_id], {
 			single: true,
 		});
 
-		const secondarySubscriptions = await query(`SELECT * FROM subscriptions WHERE $1 = ANY(seats);`, [user.email], {
+		const secondarySubscriptions = await query(`SELECT * FROM subscriptions WHERE $1 = ANY(seats) and status = 'active';`, [user.email], {
 			single: true,
 		});
 

@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     try {
         const result = await mg.messages.create("mg.odin-pro.com", {
             from: "Odin Pro Team <updates@mg.odin-pro.com>",
-            to: [`<recentupdates@mg.odin-pro.com>`],
+            to: [`<odinupdate@mg.odin-pro.com>`],
             subject: `Odin Pro Update - ${updateDate}`,
             text: text,
             html: html,

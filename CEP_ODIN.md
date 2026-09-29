@@ -4,7 +4,7 @@ This site serves the `odin-cep` client from the shared CEP project. Existing Odi
 
 ## Deploy
 
-1. Apply `db/migrations/2026_09_29_odin_cep_auth.sql` to the database used by this site. It adds three Odin CEP tables and does not migrate or remove legacy device records.
+1. Run `npm run migrate` from the site directory. It uses the same database connection as the website (`db/pool.mjs`) and applies `db/migrations/2026_09_29_odin_cep_auth.sql`. It adds three Odin CEP tables and does not migrate or remove legacy device records. Repeat runs are supported.
 2. Set `NEXT_PUBLIC_APP_URL=https://odin-pro.com`. Optionally set `CEP_DEVICE_LIMIT` (default: 3 active devices per account).
 3. Build and deploy the site using the project's normal deployment process. The migration and deployment are not performed by the local CEP build.
 4. Test browser sign-in from the Odin panel, approve the displayed code, then verify the profile and device list. Check a subscribed and an unsubscribed account, device replacement, and revocation. Verify pack installation in both Adobe hosts.

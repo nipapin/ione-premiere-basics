@@ -1,4 +1,5 @@
 "use server";
+import { cepReturnPath } from "@/lib/cep-return";
 import { query } from "@/app/database/postgre";
 import { validateCsrfToken } from "@/lib/csrf";
 import { sendEmail } from "@/lib/email";
@@ -14,7 +15,7 @@ export const create = async (
 	csrfToken: string
 ): Promise<User | null> => {
 	// Validate CSRF token
-	if (!validateCsrfToken(csrfToken)) {
+	if (!await validateCsrfToken(csrfToken)) {
 		throw new Error("Invalid CSRF token");
 	}
 
@@ -36,7 +37,7 @@ export const create = async (
 
 export const login = async (email: string, password: string, csrfToken: string): Promise<User | null> => {
 	// Validate CSRF token
-	if (!validateCsrfToken(csrfToken)) {
+	if (!await validateCsrfToken(csrfToken)) {
 		throw new Error("Invalid CSRF token");
 	}
 
@@ -99,9 +100,9 @@ export const isExist = async (email: string): Promise<boolean> => {
 	return !!data;
 };
 
-export const sendConfirmationEmail = async (email: string, confirmationToken: string): Promise<boolean> => {
-	const user = await query(`SELECT user_id, email, name FROM users WHERE email = $1`, [
-		email.toLowerCase().trim(),
+export const sendConfirmationEmail = async (email: string, confirmationToken: string, next?: string): Promise<boolean> => {
+	const user = await query(`SELECT user_id, email, name FROM users WHERE email = $1 AND confirmtoken = $2`, [
+		email.toLowerCase().trim(), confirmationToken,
 	]).then((res) => res[0]);
 	if (!user) {
 		return false;
@@ -114,7 +115,7 @@ export const sendConfirmationEmail = async (email: string, confirmationToken: st
 			<h1>Welcome to our platform!</h1>
 			<p>Hello ${user.name},</p>
 			<p>Please click the link below to confirm your email address:</p>
-			<a href="${process.env.NEXT_PUBLIC_APP_URL}/confirm-email?token=${confirmationToken}">
+			<a href="${process.env.NEXT_PUBLIC_APP_URL}/confirm-email?token=${encodeURIComponent(confirmationToken)}${cepReturnPath(next) ? `&next=${encodeURIComponent(cepReturnPath(next)!)}` : ""}">
 				Confirm Email
 			</a>
 		`
@@ -123,10 +124,10 @@ export const sendConfirmationEmail = async (email: string, confirmationToken: st
 	return emailSent;
 };
 
-export const confirmAccount = async (email: string): Promise<boolean> => {
+export const confirmAccount = async (token: string): Promise<boolean> => {
 	const data = await query(
-		`UPDATE users SET confirmtoken = null, emailconfirmed = true WHERE email = $1 RETURNING user_id, email, name, lastname, confirmtoken, emailconfirmed`,
-		[email]
+		`UPDATE users SET confirmtoken = null, emailconfirmed = true WHERE confirmtoken = $1 AND confirmtoken IS NOT NULL RETURNING user_id, email, name, lastname, confirmtoken, emailconfirmed`,
+		[token]
 	).then((res) => res[0]);
 
 	if (!data) {

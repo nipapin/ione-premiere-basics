@@ -36,10 +36,10 @@
     "gray-matter": "^4.0.3",
     "mailgun.js": "^12.7.0",
     "next": "^16.1.6",
-    "next-auth": "^4.24.11",
+    "next-auth": "^4.24.15",
     "next-mdx-remote": "^6.0.0",
     "node-fetch": "^3.3.2",
-    "nodemailer": "^7.0.11",
+    "nodemailer": "^10.0.12",
     "pg": "^8.16.1",
     "prism-react-renderer": "^2.4.1",
     "react": "^19.2.4",
@@ -63,5 +63,10 @@
   },
   "overrides": {
     "tar": "^7.5.7"
+  },
+  "allowScripts": {
+    "bcrypt@6.0.0": true,
+    "sharp@0.34.5": true,
+    "core-js@2.6.12": true
   }
 }

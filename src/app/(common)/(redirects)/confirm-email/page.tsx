@@ -8,5 +8,5 @@ export default async function ConfirmPage({ searchParams }: ConfirmPageProps) {
 	const params = await searchParams;
 	const token = params.token;
 
-	return <RedirectMesssage token={token} />;
+	return <RedirectMesssage token={token} next={params.next} />;
 }

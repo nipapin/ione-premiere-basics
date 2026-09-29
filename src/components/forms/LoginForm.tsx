@@ -1,5 +1,6 @@
 "use client";
 
+import { cepReturnPath } from "@/lib/cep-return";
 import { isExist, login } from "@/actions/user";
 import { setCsrfToken } from "@/lib/csrf";
 import { Home, Visibility, VisibilityOff } from "@mui/icons-material";
@@ -72,7 +73,8 @@ export const styles = {
 	},
 };
 
-export default function LoginForm({ after }: { after?: string }) {
+export default function LoginForm({ after, next }: { after?: string; next?: string }) {
+	const returnTo = cepReturnPath(next);
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [csrfToken, setCsrfTokenState] = useState("");
@@ -105,17 +107,20 @@ export default function LoginForm({ after }: { after?: string }) {
 				return;
 			}
 
+			await setCsrfToken(csrfToken);
 			const user = await login(formValues.email, formValues.password, csrfToken);
 
 			if (user) {
 				localStorage.setItem("ops", user.user_id);
-				window.location.replace(after ? `/charge-payment?after=${after}` : "/account");
+				window.location.replace(returnTo || (after ? `/charge-payment?after=${after}` : "/account"));
 			} else {
 				setPasswordError(true);
 				setIsLoading(false);
 			}
 		} catch (error) {
 			console.error("Login error:", error);
+			setIsLoading(false);
+			setPasswordError(true);
 		}
 	};
 
@@ -156,7 +161,7 @@ export default function LoginForm({ after }: { after?: string }) {
 				)}
 
 				<SubmitButton isLoading={isLoading} />
-				<NextLink href={`/signup${after ? `?after=${after}` : ""}`} passHref>
+				<NextLink href={`/signup?${new URLSearchParams({ ...(after ? { after } : {}), ...(returnTo ? { next: returnTo } : {}) })}`} passHref>
 					<Button component="span" variant="outlined" fullWidth>
 						<Typography textAlign={"center"}>Have no account yet? Sign Up</Typography>
 					</Button>

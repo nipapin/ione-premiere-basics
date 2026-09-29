@@ -1,6 +1,7 @@
 "use client";
 
-import { confirmAccount, create, isExist, sendConfirmationEmail } from "@/actions/user";
+import { create, isExist, sendConfirmationEmail } from "@/actions/user";
+import { cepReturnPath } from "@/lib/cep-return";
 import { useUser } from "@/contexts/UserWrapper";
 import { setCsrfToken } from "@/lib/csrf";
 import { Home, Visibility, VisibilityOff } from "@mui/icons-material";
@@ -18,7 +19,6 @@ import {
 	Typography,
 } from "@mui/material";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { Wrapper } from "../layout/Wrapper";
 import { styles } from "./LoginForm";
@@ -78,7 +78,8 @@ const SubmitButton = ({ isLoading }: { isLoading: boolean }) => (
 	</Button>
 );
 
-export default function SignupForm({ after, referal_code }: { after?: string; referal_code?: string }) {
+export default function SignupForm({ after, referal_code, next }: { after?: string; referal_code?: string; next?: string }) {
+	const returnTo = cepReturnPath(next);
 	const referalUser = Buffer.from(referal_code || "", "base64").toString("utf-8");
 	const [showPassword, setShowPassword] = useState(false);
 	const [errorMessage, setErrorMessage] = useState("");
@@ -86,7 +87,6 @@ export default function SignupForm({ after, referal_code }: { after?: string; re
 	const [csrfToken, setCsrfTokenState] = useState("");
 	const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 	const [email, setEmail] = useState<string>(referalUser || "");
-	const router = useRouter();
 	const { addUser } = useUser();
 
 	useEffect(() => {
@@ -122,6 +122,7 @@ export default function SignupForm({ after, referal_code }: { after?: string; re
 		}
 
 		try {
+			await setCsrfToken(csrfToken);
 			const user = await create(
 				formValues.name.trim(),
 				formValues.email.toLowerCase().trim(),
@@ -131,20 +132,21 @@ export default function SignupForm({ after, referal_code }: { after?: string; re
 			if (user) {
 				addUser?.(user);
 				localStorage.setItem("ops", user.user_id);
-				await sendConfirmationEmail(formValues.email, user.confirmtoken!);
+				await sendConfirmationEmail(formValues.email, user.confirmtoken!, returnTo);
 				setEmail(formValues.email);
 				setShowSuccessMessage(true);
-				confirmAccount(formValues.email).then((res) => {
-					if (res) {
-						router.push("/account");
-					} else {
-						router.push("/");
-					}
-				});
+				setIsLoading(false);
+				// Registration already creates a website session; continue the panel request.
+				window.location.replace(returnTo || "/account");
+			}
+			else {
+				setErrorMessage("Could not create your account. Please try again.");
+				setIsLoading(false);
 			}
 		} catch (error) {
 			console.error("Signup error:", error);
 			setErrorMessage("An error occurred during signup");
+			setIsLoading(false);
 		}
 	};
 
@@ -212,7 +214,7 @@ export default function SignupForm({ after, referal_code }: { after?: string; re
 				<ErrorAlert message={errorMessage} />
 				<SubmitButton isLoading={isLoading} />
 
-				<Link href={`/login${after ? `?after=${after}` : ""}`} passHref>
+				<Link href={`/login?${new URLSearchParams({ ...(after ? { after } : {}), ...(returnTo ? { next: returnTo } : {}) })}`} passHref>
 					<Button component="span" variant="outlined" fullWidth>
 						<Typography textAlign={"center"}>Already have an account? Log In</Typography>
 					</Button>

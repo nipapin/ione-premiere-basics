@@ -1,8 +1,11 @@
 import nextEnv from "@next/env";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+
 export function loadDatabaseConfig() {
-  nextEnv.loadEnvConfig(fileURLToPath(new URL("../", import.meta.url)), process.env.NODE_ENV === "development");
+  nextEnv.loadEnvConfig(projectRoot, process.env.NODE_ENV === "development");
   return databaseConfig(process.env);
 }
 

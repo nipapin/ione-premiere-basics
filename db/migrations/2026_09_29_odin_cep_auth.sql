@@ -1,5 +1,4 @@
 -- Apply to the Odin database before deploying the CEP login routes.
-BEGIN;
 CREATE TABLE IF NOT EXISTS odin_cep_auth_sessions (
   code text PRIMARY KEY,
   secret_hash text NOT NULL,
@@ -31,4 +30,3 @@ CREATE TABLE IF NOT EXISTS odin_cep_rate_limits (
   expires_at timestamptz NOT NULL
 );
 CREATE INDEX IF NOT EXISTS odin_cep_rate_expiry ON odin_cep_rate_limits (expires_at);
-COMMIT;

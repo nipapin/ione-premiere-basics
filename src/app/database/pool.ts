@@ -1,2 +1,5 @@
 import "server-only";
-export { pool } from "../../../db/pool.mjs";
+import { Pool } from "pg";
+import { loadDatabaseConfig } from "../../../db/config.mjs";
+
+export const pool = new Pool(loadDatabaseConfig());

@@ -1,20 +1,28 @@
-import { readFile } from "node:fs/promises";
-import { pool } from "../db/pool.mjs";
+import pg from "pg";
+import { runMigrations } from "./migration-runner.mjs";
+import { loadDatabaseConfig } from "../db/config.mjs";
 
-const migration = "2026_09_29_odin_cep_auth.sql";
+let pool;
 let client;
 try {
-  const sql = await readFile(new URL(`../db/migrations/${migration}`, import.meta.url), "utf8");
+  console.log("[migrate] Loading website database settings from environment…");
+  pool = new pg.Pool({
+    ...loadDatabaseConfig(),
+    max: 1,
+    connectionTimeoutMillis: 10000,
+    statement_timeout: 120000,
+    query_timeout: 125000,
+    lock_timeout: 10000,
+  });
+  console.log("[migrate] Connecting to PostgreSQL (timeout: 10 seconds)…");
   client = await pool.connect();
-  console.log(`[migrate] Applying ${migration}…`);
-  // The SQL file wraps its changes in BEGIN/COMMIT and supports repeat runs.
-  await client.query(sql);
-  console.log("[migrate] Odin CEP migration applied successfully.");
+  console.log("[migrate] Connected.");
+  await runMigrations(client, new URL("../db/migrations/", import.meta.url));
 } catch (error) {
-  if (client) await client.query("ROLLBACK").catch(() => {});
   console.error("[migrate] Failed:", error instanceof Error ? error.message : "Unknown error");
+  if (pool && !client) console.error("[migrate] Check the database host, port and network access from this server.");
   process.exitCode = 1;
 } finally {
-  client?.release();
-  await pool.end();
+  client?.release(true);
+  await pool?.end();
 }

@@ -6,7 +6,7 @@ A modern web application built with Next.js 15 that provides a platform for mana
 
 - 🎨 Modern UI with Material-UI (MUI) components
 - 📝 MDX support for rich content authoring
-- 🔒 Secure authentication with NextAuth.js
+- 🔒 Authentication with PostgreSQL-backed sessions and HTTP-only cookies
 - 🗄️ Supabase integration for data storage
 - ✨ Syntax highlighting for code blocks
 - 📱 Responsive design
@@ -17,7 +17,7 @@ A modern web application built with Next.js 15 that provides a platform for mana
 - **Framework:** Next.js 15 with App Router
 - **UI Library:** Material-UI v6
 - **Content:** MDX with remark-gfm support
-- **Authentication:** NextAuth.js
+- **Authentication:** Custom PostgreSQL-backed sessions and HTTP-only cookies
 - **Database:** Supabase
 - **Styling:** Emotion
 - **Language:** TypeScript

@@ -1,5 +1,25 @@
 # Odin Pro CEP integration
 
+## Motionflow management integration (opt-in)
+
+The site keeps its own accounts and billing. `/api/integrations/motionflow/users`
+provides authenticated, paginated user search, subscription/seat and CEP device inspection,
+manual extension access and device revocation to Motionflow. It requires a server-only
+`MOTIONFLOW_MANAGEMENT_SECRET` (32+ characters), migration
+`2026_09_30_002_motionflow_management.sql`, and `MOTIONFLOW_MANAGEMENT_ENABLED=true`.
+Without the flag, CEP continues using the existing subscription rule. Manual grants and
+blocks never update payment/subscription rows. Every mutation is audited transactionally.
+
+Catalog integration is independently enabled by `MOTIONFLOW_CATALOG_ENABLED=true` with
+`MOTIONFLOW_CATALOG_ORIGIN`, `MOTIONFLOW_CATALOG_SECRET` and an exact comma-separated
+`MOTIONFLOW_DOWNLOAD_HOSTS` allowlist. Motionflow preserves legacy IDs (AE 283, PR 275)
+via its `ODIN_CATALOG_PACK_MAP`. CEP still signs in/downloads through this site.
+Managed updates initially use complete archives; diff returns `NO_DIFF_SOURCE` for
+the CEP full-download fallback. Default is the legacy catalog described below.
+
+See `../next-app/docs/odin-integration-runbook.md` for pack format, environment variables,
+deployment order and rollback. Neither feature should be enabled before its readiness checks.
+
 This site serves the `odin-cep` client from the shared CEP project. Existing Odin website accounts and subscriptions are used; Motionflow accounts are not required.
 
 ## Deploy
@@ -22,7 +42,7 @@ also register a database that was migrated with the previous one-file script.
 
 ## Authentication
 
-The panel calls `POST /api/cep/auth/device`, opens `/cep/login?code=…&client=odin-cep`, and polls `POST /api/cep/auth/token` with a panel-only secret. The website preserves the confirmation destination through login and signup. Signup retains the existing automatic website session; email confirmation uses the actual confirmation token rather than an email address.
+The panel calls `POST /api/cep/auth/device`, opens `/?cep=…` (the homepage with a confirmation dialog), and polls `POST /api/cep/auth/token` with a panel-only secret. Older `/cep/login?code=…` links redirect there. The website preserves the confirmation destination through login and signup. Signup retains the existing automatic website session; email confirmation uses the actual confirmation token rather than an email address.
 
 Codes expire after five minutes. Consent requires a website session and a matching request origin. A token can be claimed once; only token/secret hashes are stored. Account-level transaction locks enforce device limits. Access tokens expire after 30 days; `GET /api/cep/me` and `POST /api/cep/devices/revoke` support the panel profile. Old AtomX sessions do not become new CEP sessions automatically.
 

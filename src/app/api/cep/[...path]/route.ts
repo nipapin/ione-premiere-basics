@@ -3,6 +3,7 @@ import { cepAuth } from "@/lib/cep-service";
 import { CEP_CLIENT, normalizeCode } from "@/lib/cep-auth";
 import { validateSession } from "@/lib/session";
 import { odinCatalog, odinPackUrl, odinDiffUrl } from "@/lib/cep-market";
+import { usesMotionflowCatalog } from "@/lib/motionflow-catalog";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -35,8 +36,8 @@ async function handle(req: NextRequest, context: Context) {
       }
     }
     const session = await cepAuth.start({ usp: body.usp, device, ip });
-    const url = new URL("/cep/login", process.env.NEXT_PUBLIC_APP_URL || "https://odin-pro.com");
-    url.search = new URLSearchParams({ code: session.code, client: CEP_CLIENT }).toString();
+    const url = new URL("/", process.env.NEXT_PUBLIC_APP_URL || "https://odin-pro.com");
+    url.search = new URLSearchParams({ cep: session.code }).toString();
     return json({ ...session, verification_url: url.toString() });
   }
   if (route === "auth/confirm") {
@@ -76,10 +77,13 @@ async function handle(req: NextRequest, context: Context) {
     if (route === "market") return json({ ...catalog, Packages: catalog.Packages.map(pack => ({
       ...pack, install_url: new URL(pack.install_url, process.env.NEXT_PUBLIC_APP_URL || "https://odin-pro.com").toString(),
     })) });
-    if (!profile.subscription.active) return fail("SUBSCRIPTION_REQUIRED", 403);
     const packId = route === "market/diff" ? String(body.pack_id) : req.nextUrl.searchParams.get("pack_id");
     const pack = catalog.Packages.find(pack => String(pack.id) === packId);
     if (!pack) return fail("Pack not found", 404);
+    // Only the managed catalog identifies an exact demo archive. The legacy service
+    // selects by host alone, so it must continue to require a subscription.
+    const managedDemo = usesMotionflowCatalog() && pack.version.trim().toUpperCase() === "DEMO";
+    if (!profile.subscription.active && !managedDemo) return fail("SUBSCRIPTION_REQUIRED", 403);
     if (route === "market/diff") {
       if (!body.manifest || typeof body.manifest !== "object" || JSON.stringify(body.manifest).length > 8 * 1024 * 1024) return fail("Invalid manifest");
       const url = await odinDiffUrl(pack.primary_type, body.manifest);
@@ -87,7 +91,7 @@ async function handle(req: NextRequest, context: Context) {
       return new NextResponse(null, { status: 303, headers: { Location: url, "Cache-Control": "no-store" } });
     }
     return new NextResponse(null, { status: 302, headers: {
-      Location: await odinPackUrl(pack.primary_type), "Cache-Control": "no-store",
+      Location: await odinPackUrl(pack.primary_type, fetch, pack.id), "Cache-Control": "no-store",
     } });
   }
   if ((route === "me" && req.method === "GET") || (route === "devices/revoke" && req.method === "POST")) {

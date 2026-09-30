@@ -1,5 +1,6 @@
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import type { Pool, PoolClient } from "pg";
+import { effectiveCepAccess } from "./motionflow-management.ts";
 
 export const CEP_CLIENT = "odin-cep";
 export const CODE_TTL = 300;
@@ -135,10 +136,16 @@ export function createCepAuth(pool: Pool, deviceLimit = 3) {
     const subscriptions = await pool.query(`SELECT status, order_item_name, next_charge_date FROM subscriptions
       WHERE user_id::text = $1 OR $2 = ANY(seats)`, [user.id, user.email]);
     const subscription = subscriptions.rows.find((sub) => new Date(sub.next_charge_date).getTime() > Date.now());
+    const override = process.env.MOTIONFLOW_MANAGEMENT_ENABLED === "true"
+      ? (await pool.query("SELECT mode, expires_at FROM odin_motionflow_access WHERE user_id = $1", [user.id])).rows[0]
+      : undefined;
+    const active = effectiveCepAccess(Boolean(subscription), override);
+    const manual = override?.mode === "allow" && new Date(override.expires_at).getTime() > Date.now();
     return {
-      user, tier: subscription ? "subscribed" : "free",
-      subscription: { active: Boolean(subscription), plan: subscription?.order_item_name ?? null,
-        status: subscription?.status ?? null, renews_at: subscription?.next_charge_date ?? null },
+      user, tier: active ? "subscribed" : "free",
+      subscription: { active, plan: active ? (subscription?.order_item_name ?? "Odin Pro — manual access") : null,
+        status: !active ? null : subscription?.status ?? (manual ? "manual" : null),
+        renews_at: !active ? null : subscription?.next_charge_date ?? (manual ? override.expires_at : null) },
       purchases: [], entitlements: { free_pack_slots: 0, ai_generations_limit: 0 },
       subscribe_url: "https://odin-pro.com/pricing", manage_subscription_url: "https://odin-pro.com/account",
       devices: (await devices(user.id)).map((device) => ({ ...device, current: device.id === identity.id })),

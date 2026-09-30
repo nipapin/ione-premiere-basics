@@ -38,8 +38,9 @@ after(() => db.close());
 test('validation rejects external redirects and malformed codes', () => {
   assert.equal(normalizeCode('abcd1234'), 'ABCD1234');
   assert.equal(normalizeCode('A'.repeat(100)), null);
-  for (const path of ['https://evil.test/cep/login?code=ABCD1234', '//evil.test', '/account', '/cep/login?code=invalid']) assert.equal(cepReturnPath(path), undefined);
-  assert.equal(cepReturnPath('/cep/login?code=abcd1234&next=https://evil.test'), '/cep/login?code=ABCD1234&client=odin-cep');
+  for (const path of ['https://evil.test/cep/login?code=ABCD1234', 'https://evil.test/?cep=ABCD1234', '//evil.test', '/account', '/cep/login?code=invalid', '/?cep=invalid', '/pricing?cep=ABCD1234']) assert.equal(cepReturnPath(path), undefined);
+  assert.equal(cepReturnPath('/cep/login?code=abcd1234&next=https://evil.test'), '/?cep=ABCD1234');
+  assert.equal(cepReturnPath('/?cep=abcd1234&next=https://evil.test'), '/?cep=ABCD1234');
 });
 test('pending, wrong secret, denial and expiration never issue tokens', async () => {
   const session = await start('denied');

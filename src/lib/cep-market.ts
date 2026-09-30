@@ -1,10 +1,24 @@
+import { usesMotionflowCatalog, motionflowCatalogRequest, validateMotionflowDownload } from "./motionflow-catalog.ts";
+
 type LegacyPack = {
   id: number; name: string; pack_name: string; author: string; version: string;
   primary_type: "AE" | "PR"; image_url: string; video_id?: string;
+  min_extension_version?: string | null; min_host_version?: string | null;
 };
 
 /** Existing Odin catalog used by the legacy CEP. No browser or CEP credentials are forwarded. */
 export async function odinCatalog(subscribed: boolean, host?: string | null, request = fetch) {
+  if (usesMotionflowCatalog()) {
+    const data = await motionflowCatalogRequest("catalog", undefined, request);
+    if (!Array.isArray(data?.Packages) || data.Packages.some((p: LegacyPack) => !p || !Number.isSafeInteger(p.id) || p.id <= 0 || !["AE", "PR"].includes(p.primary_type) || typeof p.name !== "string" || typeof p.version !== "string" || typeof p.image_url !== "string")) throw new Error("Invalid Motionflow catalog");
+    return { subscription_active: subscribed, subscribe_url: "https://odin-pro.com/pricing",
+      Packages: (data.Packages as LegacyPack[]).filter(p => !host || p.primary_type === host).map(pack => ({
+        ...pack, owned: false, covered_by_subscription: subscribed,
+        action: subscribed ? "install" : pack.version.trim().toUpperCase() === "DEMO" ? "get_free" : "buy",
+        install_url: `/api/cep/market/download?pack_id=${encodeURIComponent(String(pack.id))}`,
+        buy_url: "https://odin-pro.com/pricing", details_url: "https://odin-pro.com/features",
+      })) };
+  }
   const url = new URL("https://api.get-atomx.com/atomx/v1/mau");
   url.searchParams.set("king", "Premiere Basics");
   url.searchParams.set("auth_password", "true");
@@ -29,7 +43,12 @@ export async function odinCatalog(subscribed: boolean, host?: string | null, req
 }
 
 /** The legacy CEP uses this endpoint for full pack updates; access is gated by our subscription route. */
-export async function odinPackUrl(host: "AE" | "PR", request = fetch): Promise<string> {
+export async function odinPackUrl(host: "AE" | "PR", request = fetch, packId?: number): Promise<string> {
+  if (usesMotionflowCatalog()) {
+    if (!packId || !Number.isSafeInteger(packId)) throw new Error("Pack ID required");
+    const data = await motionflowCatalogRequest("download", packId, request);
+    return validateMotionflowDownload(data?.url);
+  }
   const response = await request(`https://package.odin-pro.com/presigned/pack?host=${host === "AE" ? "AEFT" : "PPRO"}`, {
     signal: AbortSignal.timeout(15000), cache: "no-store",
   });
@@ -50,6 +69,8 @@ function validateOdinDownloadUrl(value: string): string {
 
 /** Existing update_system/server POST /compare contract. Null requests a full archive fallback. */
 export async function odinDiffUrl(host: "AE" | "PR", manifest: unknown, request = fetch): Promise<string | null> {
+  // Managed releases initially use complete archives; never compare with the legacy bucket.
+  if (usesMotionflowCatalog()) return null;
   const response = await request("https://package.odin-pro.com/compare", {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ manifest, appId: host === "AE" ? "AEFT" : "PPRO" }),

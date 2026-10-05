@@ -6,6 +6,7 @@ import vm from 'node:vm';
 import ts from 'typescript';
 import { PGlite } from '@electric-sql/pglite';
 import { createMotionflowManagement, effectiveCepAccess } from '../../src/lib/motionflow-management.ts';
+import { parseSubscriptionDate } from '../../src/lib/subscription-date.ts';
 import { integrationAuthorized } from '../../src/lib/motionflow-integration-auth.ts';
 import { createCepAuth } from '../../src/lib/cep-auth.ts';
 import { odinCatalog, odinPackUrl, odinDiffUrl } from '../../src/lib/cep-market.ts';
@@ -57,6 +58,50 @@ test('search escapes wildcards and details include invited seats without secrets
   assert.deepEqual(Object.keys(d.user).sort(), ['email', 'id', 'lastname', 'name']);
   assert.equal(await management.detail('missing'), null);
 });
+test('PayPro dates preserve AM/PM and ISO offsets and reject invalid calendar dates', () => {
+  const midnight = parseSubscriptionDate('2/12/2027+12:14+AM');
+  assert.equal(midnight.getMonth(), 1);
+  assert.equal(midnight.getDate(), 12);
+  assert.equal(midnight.getHours(), 0);
+  assert.equal(midnight.getMinutes(), 14);
+  assert.equal(parseSubscriptionDate('7/25/2026+1:34+PM').getHours(), 13);
+  assert.equal(parseSubscriptionDate('7/25/2026+12:30+PM').getHours(), 12);
+  assert.equal(parseSubscriptionDate('2027-02-12T00:14:00+03:00').toISOString(), '2027-02-11T21:14:00.000Z');
+  assert.equal(parseSubscriptionDate('2027-02-12 00:14:00+03:00').toISOString(), '2027-02-11T21:14:00.000Z');
+  assert.equal(parseSubscriptionDate(new Date('2027-02-12T00:14:00Z')).toISOString(), '2027-02-12T00:14:00.000Z');
+  for (const invalid of [null, undefined, '', 'invalid', '2/30/2027+12:14+AM', '13/12/2027+12:14+AM', '2/12/2027+13:14+PM', '2/12/2027+12:60+AM', new Date(NaN)]) {
+    assert.equal(parseSubscriptionDate(invalid), null);
+  }
+});
+
+test('legacy PayPro dates grant owner and invited CEP access and return normalized expiry without changing billing', async () => {
+  const before = (await query('SELECT * FROM subscriptions')).rows;
+  try {
+    for (const value of ['2/12/2099+12:14+AM', '2099-02-12T00:14:00+03:00']) {
+      await query('UPDATE subscriptions SET next_charge_date = $1', [value]);
+      const expected = parseSubscriptionDate(value).toISOString();
+      for (const userId of ['1', '2']) {
+        const detail = await management.detail(userId);
+        assert.equal(detail.subscription_active, true);
+        assert.equal(detail.extension_access, true);
+        assert.equal(detail.subscriptions[0].next_charge_date, expected);
+        const profile = await auth.profile({ id: 'device', user_id: userId });
+        assert.equal(profile.subscription.active, true);
+        assert.equal(profile.subscription.renews_at, expected);
+      }
+      assert.equal((await query('SELECT next_charge_date FROM subscriptions')).rows[0].next_charge_date, value);
+    }
+    for (const value of ['7/25/2000+1:34+PM', 'invalid', '2/30/2099+12:14+AM', '']) {
+      await query('UPDATE subscriptions SET next_charge_date = $1', [value]);
+      assert.equal((await management.detail('1')).subscription_active, false);
+      assert.equal((await auth.profile({ id: 'device', user_id: '1' })).subscription.active, false);
+    }
+  } finally {
+    await query('UPDATE subscriptions SET next_charge_date = $1', [before[0].next_charge_date]);
+  }
+  assert.deepEqual((await query('SELECT * FROM subscriptions')).rows, before);
+});
+
 test('deny and reset affect CEP access, preserve payment rows, and audit the actor', async () => {
   process.env.MOTIONFLOW_MANAGEMENT_ENABLED = 'true';
   const before = (await query('SELECT * FROM subscriptions')).rows;

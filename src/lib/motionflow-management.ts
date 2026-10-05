@@ -1,4 +1,5 @@
 import type { Pool } from "pg";
+import { parseSubscriptionDate } from "./subscription-date.ts";
 
 export function effectiveCepAccess(
   subscribed: boolean,
@@ -22,8 +23,9 @@ export function createMotionflowManagement(pool: Pool) {
     const override = (await pool.query(`SELECT mode, expires_at, updated_at FROM odin_motionflow_access WHERE user_id = $1`, [userId])).rows[0] ?? null;
     const audit = (await pool.query(`SELECT id, actor, action, reason, created_at FROM odin_motionflow_audit
       WHERE user_id = $1 ORDER BY id DESC LIMIT 20`, [userId])).rows;
-    const subscribed = subscriptions.some(s => new Date(s.next_charge_date).getTime() > Date.now());
-    return { user, subscriptions, devices, override, audit, subscription_active: subscribed,
+    const normalizedSubscriptions = subscriptions.map(s => ({ ...s, next_charge_date: parseSubscriptionDate(s.next_charge_date)?.toISOString() ?? null }));
+    const subscribed = normalizedSubscriptions.some(s => s.next_charge_date !== null && Date.parse(s.next_charge_date) > Date.now());
+    return { user, subscriptions: normalizedSubscriptions, devices, override, audit, subscription_active: subscribed,
       extension_access: effectiveCepAccess(subscribed, override ?? undefined) };
   }
 

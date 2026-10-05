@@ -46,7 +46,7 @@ The panel calls `POST /api/cep/auth/device`, opens `/?cep=…` (the homepage wit
 
 Codes expire after five minutes. Consent requires a website session and a matching request origin. A token can be claimed once; only token/secret hashes are stored. Account-level transaction locks enforce device limits. Access tokens expire after 30 days; `GET /api/cep/me` and `POST /api/cep/devices/revoke` support the panel profile. Old AtomX sessions do not become new CEP sessions automatically.
 
-Entitlements use this site's existing subscription rule (`next_charge_date` in the future), including invited subscription seats. There are no AI credits, free pack slots, or individual pack purchases for Odin.
+Entitlements use this site's existing subscription rule (`next_charge_date` in the future), including invited subscription seats. Active accounts expose `ai_generations_limit: 100`; inactive accounts expose zero. AI requests go to Motionflow, which verifies this site's CEP Bearer token through `/api/cep/me` and maintains a separate Odin usage ledger with 100 generations per UTC calendar month. Deploy the corresponding `next-app` AI integration before distributing the updated panel. There are no free pack slots or individual pack purchases for Odin.
 
 ## Catalog and downloads
 

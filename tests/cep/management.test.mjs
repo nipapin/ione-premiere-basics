@@ -39,6 +39,7 @@ before(async () => {
       VALUES (2, 'active', 'Odin Pro', '2099-01-01T00:00:00Z', 2, ARRAY['first@test.invalid']);`);
   await db.exec(await readFile(new URL('../../db/migrations/2026_09_29_odin_cep_auth.sql', import.meta.url), 'utf8'));
   await db.exec(await readFile(new URL('../../db/migrations/2026_09_30_002_motionflow_management.sql', import.meta.url), 'utf8'));
+  await db.exec(await readFile(new URL('../../db/migrations/2026_10_05_001_subscription_management.sql', import.meta.url), 'utf8'));
 });
 after(() => db.close());
 

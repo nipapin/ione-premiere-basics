@@ -30,8 +30,9 @@ async function login(usp, userId = '1') {
 before(async () => {
   await db.exec(`CREATE TABLE users (user_id integer PRIMARY KEY, email text, name text);
     INSERT INTO users VALUES (1, 'one@example.test', 'One'), (2, 'two@example.test', 'Two');
-    CREATE TABLE subscriptions (user_id integer, status text, order_item_name text, next_charge_date timestamptz, seats text[]);`);
+    CREATE TABLE subscriptions (id serial PRIMARY KEY, user_id integer, status text, order_item_name text, next_charge_date timestamptz, seats text[]);`);
   await db.exec(await readFile(new URL('../../db/migrations/2026_09_29_odin_cep_auth.sql', import.meta.url), 'utf8'));
+  await db.exec(await readFile(new URL('../../db/migrations/2026_10_05_001_subscription_management.sql', import.meta.url), 'utf8'));
 });
 after(() => db.close());
 
@@ -97,7 +98,7 @@ test('same machine reuses its seat and subscription includes invited seats', asy
   const first = await login('first');
   assert.equal(first.result.status, 'complete');
   const identity = await auth.authenticate(`Bearer ${first.result.token}`);
-  await query("INSERT INTO subscriptions VALUES (2, 'Active', 'Odin Pro', NOW() + INTERVAL '1 month', ARRAY['one@example.test'])");
+  await query("INSERT INTO subscriptions (user_id,status,order_item_name,next_charge_date,seats) VALUES (2, 'Active', 'Odin Pro', NOW() + INTERVAL '1 month', ARRAY['one@example.test'])");
   const profile = await auth.profile(identity);
   assert.equal(profile.tier, 'subscribed');
   assert.equal(profile.subscription.active, true);

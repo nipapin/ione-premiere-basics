@@ -1,15 +1,14 @@
 import { query } from "@/app/database/postgre";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { isSubscriptionActive, parseSubscriptionDate } from "@/lib/subscription-date";
 
-const parseDate = (date: string) => {
-	return new Date(date.split("+").join(" "));
-};
+const parseDate = (date: string) => parseSubscriptionDate(date)!;
 
 const getProduct = async (user_id: string) => {
-	const subscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1`, [user_id]).then((res) => res[0]);
+	const subscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1 ORDER BY id DESC`, [user_id]).then((res) => res.find((sub: any) => isSubscriptionActive(sub)));
 
-	if (!subscription) {
+	if (!subscription || subscription.management_source === "manual") {
 		return null;
 	}
 
@@ -80,14 +79,15 @@ export async function POST(request: NextRequest) {
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 	}
 
-	const subscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1`, [user_id]).then((res) => res[0]);
+	const subscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1 ORDER BY id DESC`, [user_id]).then((res) => res.find((sub: any) => isSubscriptionActive(sub)));
 
 	if (!subscription) {
 		return NextResponse.json({ error: "Subscription not found" }, { status: 404 });
 	}
+  if (subscription.management_source === "manual") return NextResponse.json({ error: "MANUAL_SUBSCRIPTION_NO_BILLING" }, { status: 400 });
 
 	if (quantity < subscription.quantity) {
-		await query(`UPDATE subscriptions SET next_quantity = $1 WHERE user_id = $2`, [String(quantity), user_id]);
+		await query(`UPDATE subscriptions SET next_quantity = $1 WHERE id = $2`, [String(quantity), subscription.id]);
 	} else if (quantity > subscription.quantity) {
 		const chargeSuccess = await fetch("https://store.payproglobal.com/api/Orders/DoReferenceCharge", {
 			method: "POST",
@@ -111,10 +111,10 @@ export async function POST(request: NextRequest) {
 			);
 			return NextResponse.json({ error }, { status: 400 });
 		} else {
-			await query(`UPDATE subscriptions SET next_quantity = $1, quantity = $1, seats = $2 WHERE user_id = $3`, [
+			await query(`UPDATE subscriptions SET next_quantity = $1, quantity = $1, seats = $2 WHERE id = $3`, [
 				String(quantity),
 				[...subscription.seats, ...Array(quantity - subscription.next_quantity).fill("")],
-				user_id
+				subscription.id
 			]);
 		}
 	} else {

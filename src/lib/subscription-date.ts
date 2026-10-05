@@ -16,3 +16,7 @@ export function parseSubscriptionDate(value: string | Date | null | undefined): 
   }
   return Number.isFinite(date.getTime()) ? date : null;
 }
+
+export function isSubscriptionActive(subscription: { next_charge_date: string | Date | null; management_disabled?: boolean }, now = Date.now()): boolean {
+  return !subscription.management_disabled && (parseSubscriptionDate(subscription.next_charge_date)?.getTime() ?? 0) > now;
+}

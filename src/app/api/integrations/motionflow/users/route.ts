@@ -26,11 +26,13 @@ async function handle(req: NextRequest) {
     const body = await req.json().catch(() => null);
     if (!body || typeof body !== "object" || Array.isArray(body) ||
       ["user_id", "actor", "action", "reason"].some(k => typeof body[k] !== "string") ||
-      ["expires_at", "device_id"].some(k => body[k] !== undefined && typeof body[k] !== "string")) return json({ error: "INVALID_INPUT" }, 400);
+      ["expires_at", "device_id", "plan_name", "request_id"].some(k => body[k] !== undefined && typeof body[k] !== "string") ||
+      (body.subscription_id !== undefined && (!Number.isSafeInteger(body.subscription_id) || body.subscription_id <= 0))) return json({ error: "INVALID_INPUT" }, 400);
     return json(await service.change(body));
   } catch (error) {
     const code = error instanceof Error ? error.message : "";
-    return json({ error: ["NOT_FOUND", "INVALID_INPUT"].includes(code) ? code : "MANAGEMENT_UNAVAILABLE" }, code === "NOT_FOUND" ? 404 : code === "INVALID_INPUT" ? 400 : 503);
+    const safe = ["NOT_FOUND", "INVALID_INPUT", "MANUAL_SUBSCRIPTION_REQUIRED", "SUBSCRIPTION_BUSY", "PAYPRO_NOT_CONFIGURED", "PAYPRO_CANNOT_RENEW", "PAYPRO_UNAVAILABLE"].includes(code) ? code : "MANAGEMENT_UNAVAILABLE";
+    return json({ error: safe }, code === "NOT_FOUND" ? 404 : ["INVALID_INPUT", "MANUAL_SUBSCRIPTION_REQUIRED"].includes(code) ? 400 : code === "SUBSCRIPTION_BUSY" ? 409 : 503);
   }
 }
 export const GET = handle;

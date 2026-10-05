@@ -7,6 +7,7 @@ import NextLink from "next/link";
 import { useEffect, useState } from "react";
 import InviteDetails from "./InviteDetails";
 import PrimaryDetails from "./PrimaryDetails";
+import { parseSubscriptionDate } from "@/lib/subscription-date";
 
 export default function SubscriptionDetails() {
 	const { user } = useUser();
@@ -18,7 +19,7 @@ export default function SubscriptionDetails() {
 		const formatDate = (date: string) => {
 			return date
 				? "until " +
-				new Date(date.split("+").join(" ")).toLocaleDateString("en-US", {
+				parseSubscriptionDate(date)?.toLocaleDateString("en-US", {
 					month: "long",
 					day: "numeric",
 					year: "numeric",

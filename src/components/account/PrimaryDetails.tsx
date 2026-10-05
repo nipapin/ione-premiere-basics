@@ -37,6 +37,7 @@ export default function PrimaryDetails({ subscription, user, pending }: PrimaryD
 					</Typography>
 				))}
 			</Box>
+			{subscription?.management_source === "manual" ? <Typography color="text.secondary">This subscription was issued by Odin. It expires on the date above and has no automatic billing.</Typography> : <>
 			<Box display={"flex"} alignItems={"center"} gap={"0.5rem"} mt={"2rem"}>
 				<Typography variant='h2' fontWeight='bold' fontSize={"1.2rem"}>
 					Seats settings
@@ -100,6 +101,7 @@ export default function PrimaryDetails({ subscription, user, pending }: PrimaryD
 			</Box>
 			<Divider sx={{ my: "1rem" }} />
 			<PaymentDetails />
+			</>}
 		</Box>
 	);
 }

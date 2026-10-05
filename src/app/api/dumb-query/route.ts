@@ -1,5 +1,6 @@
 import { query } from "@/app/database/postgre";
 import bcrypt from "bcrypt";
+import { isSubscriptionActive } from "@/lib/subscription-date";
 
 function withCORSHeaders(response: Response) {
 	response.headers.set("Access-Control-Allow-Origin", "*");
@@ -28,13 +29,6 @@ interface Payload {
 	uuid: string;
 }
 
-const isValidDate = (dateString: string) => {
-	const [date, _] = dateString.split("+");
-	if (!date) return false;
-	const now = Date.now();
-	const next = new Date(date).getTime();
-	return next > now;
-};
 
 const handleResponse = (payload: Payload) => ({
 	login: async () => {
@@ -60,13 +54,9 @@ const handleResponse = (payload: Payload) => ({
 			);
 		}
 
-		const primarySubscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1 and status = 'active'`, [user.user_id], {
-			single: true,
-		});
+		const primarySubscription = (await query(`SELECT * FROM subscriptions WHERE user_id = $1`, [user.user_id])).find((sub: any) => isSubscriptionActive(sub));
 
-		const secondarySubscriptions = await query(`SELECT * FROM subscriptions WHERE $1 = ANY(seats) and status = 'active';`, [user.email], {
-			single: true,
-		});
+		const secondarySubscriptions = (await query(`SELECT * FROM subscriptions WHERE $1 = ANY(seats)`, [user.email])).find((sub: any) => isSubscriptionActive(sub));
 
 		const subscription = primarySubscription || secondarySubscriptions;
 
@@ -89,7 +79,7 @@ const handleResponse = (payload: Payload) => ({
 			);
 		}
 
-		const subscriptionPricing = await fetch("https://store.payproglobal.com/api/Products/GetProductPricing", {
+		const subscriptionPricing = subscription.management_source === "manual" ? { isSuccess: true, response: { productPricings: [{ billingUnitPrice: 0 }] } } : await fetch("https://store.payproglobal.com/api/Products/GetProductPricing", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -112,7 +102,7 @@ const handleResponse = (payload: Payload) => ({
 
 		const subscriptionPrice = subscriptionPricing.response.productPricings[0];
 
-		const subscriptionStatus = isValidDate(subscription.next_charge_date) ? "active" : subscription?.status;
+		const subscriptionStatus = "active";
 
 		return withCORSHeaders(
 			new Response(
@@ -144,13 +134,9 @@ const handleResponse = (payload: Payload) => ({
 			);
 		}
 
-		const primarySubscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1`, [user.user_id], {
-			single: true,
-		});
+		const primarySubscription = (await query(`SELECT * FROM subscriptions WHERE user_id = $1`, [user.user_id])).find((sub: any) => isSubscriptionActive(sub));
 
-		const secondarySubscriptions = await query(`SELECT * FROM subscriptions WHERE $1 = ANY(seats);`, [user.email], {
-			single: true,
-		});
+		const secondarySubscriptions = (await query(`SELECT * FROM subscriptions WHERE $1 = ANY(seats)`, [user.email])).find((sub: any) => isSubscriptionActive(sub));
 
 		const subscription = primarySubscription || secondarySubscriptions;
 
@@ -167,7 +153,7 @@ const handleResponse = (payload: Payload) => ({
 			);
 		}
 
-		const subscriptionPricing = await fetch("https://store.payproglobal.com/api/Products/GetProductPricing", {
+		const subscriptionPricing = subscription.management_source === "manual" ? { isSuccess: true, response: { productPricings: [{ billingUnitPrice: 0 }] } } : await fetch("https://store.payproglobal.com/api/Products/GetProductPricing", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -190,7 +176,7 @@ const handleResponse = (payload: Payload) => ({
 
 		const subscriptionPrice = subscriptionPricing.response.productPricings[0];
 
-		const subscriptionStatus = isValidDate(subscription.next_charge_date) ? "active" : subscription?.status;
+		const subscriptionStatus = "active";
 
 		return withCORSHeaders(
 			new Response(

@@ -1,6 +1,7 @@
 import { query } from "@/app/database/postgre";
 import { sendEmail } from "@/lib/email";
 import { NextRequest, NextResponse } from "next/server";
+import { isSubscriptionActive } from "@/lib/subscription-date";
 
 export async function POST(request: NextRequest) {
 	const { subscription, email } = await request.json();
@@ -22,11 +23,13 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
 	const { user, email, seat } = await request.json();
 
-	const subscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1`, [user.user_id]);
+	const selected = (await query(`SELECT * FROM subscriptions WHERE user_id = $1 ORDER BY id DESC`, [user.user_id])).find((sub: any) => isSubscriptionActive(sub));
+	const subscription = selected ? [selected] : [];
 
 	if (!subscription[0]) {
 		return NextResponse.json({ error: "Subscription not found" }, { status: 404 });
 	}
+  if (subscription[0].management_source === "manual") return NextResponse.json({ error: "MANUAL_SUBSCRIPTION_NO_SEAT_CHANGES" }, { status: 400 });
 
 	const seats = subscription[0].seats;
 	seats[seat] = email;
@@ -38,7 +41,7 @@ export async function PUT(request: NextRequest) {
 		"Seat assigned",
 		`Hi, there!<br/><br/><strong>${user.name}</strong> has assigned you a seat on the subscription.<br/><br/>Get access to the subscription by <a href="${process.env.NEXT_PUBLIC_APP_URL}/signup?referal_code=${referal_code}">clicking here</a>`
 	);
-	query(`UPDATE subscriptions SET seats = $1 WHERE user_id = $2`, [seats, user.user_id]);
+	query(`UPDATE subscriptions SET seats = $1 WHERE id = $2`, [seats, subscription[0].id]);
 
 	return NextResponse.json({ message: "Seat updated" });
 }
@@ -46,16 +49,18 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
 	const { user, email, seat } = await request.json();
 
-	const subscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1`, [user.user_id]);
+	const selected = (await query(`SELECT * FROM subscriptions WHERE user_id = $1 ORDER BY id DESC`, [user.user_id])).find((sub: any) => isSubscriptionActive(sub));
+	const subscription = selected ? [selected] : [];
 
 	if (!subscription[0]) {
 		return NextResponse.json({ error: "Subscription not found" }, { status: 404 });
 	}
+  if (subscription[0].management_source === "manual") return NextResponse.json({ error: "MANUAL_SUBSCRIPTION_NO_SEAT_CHANGES" }, { status: 400 });
 
 	const seats = subscription[0].seats;
 	seats[seat] = "";
 
-	query(`UPDATE subscriptions SET seats = $1 WHERE user_id = $2`, [seats, user.user_id]);
+	query(`UPDATE subscriptions SET seats = $1 WHERE id = $2`, [seats, subscription[0].id]);
 	sendEmail(email, "Seat freed", "You have been freed from the subscription.");
 	return NextResponse.json({ message: "Seat freed" });
 }

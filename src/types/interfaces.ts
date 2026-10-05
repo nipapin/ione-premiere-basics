@@ -1,4 +1,5 @@
 export interface ISubscriptionDetails {
+  management_source?: "manual" | "paypro";
 	status: string;
 	order_item_name: string;
 	next_charge_date: string;

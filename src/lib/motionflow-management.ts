@@ -1,5 +1,6 @@
 import type { Pool } from "pg";
-import { parseSubscriptionDate } from "./subscription-date.ts";
+import { isSubscriptionActive, parseSubscriptionDate } from "./subscription-date.ts";
+import { createOdinSubscriptionManagement, subscriptionActions } from "./odin-subscription-management.ts";
 
 export function effectiveCepAccess(
   subscribed: boolean,
@@ -12,20 +13,22 @@ export function effectiveCepAccess(
 }
 
 export function createMotionflowManagement(pool: Pool) {
+  const subscriptionManagement = createOdinSubscriptionManagement(pool);
   async function detail(userId: string) {
     const user = (await pool.query(`SELECT user_id::text AS id, email, name, lastname FROM users WHERE user_id::text = $1`, [userId])).rows[0];
     if (!user) return null;
     const subscriptions = (await pool.query(`SELECT id, user_id::text AS owner_id, status, order_item_name,
-      next_charge_date, quantity FROM subscriptions WHERE user_id::text = $1 OR $2 = ANY(seats) ORDER BY id DESC`, [userId, user.email])).rows;
+      next_charge_date, quantity, management_source, management_disabled, management_billing_state, management_billing_action,
+      management_operation_started_at FROM subscriptions WHERE user_id::text = $1 OR $2 = ANY(seats) ORDER BY id DESC`, [userId, user.email])).rows;
     const devices = (await pool.query(`SELECT id, device->>'user' AS name, device->>'os' AS os,
       last_seen_at, expires_at FROM odin_cep_devices
       WHERE user_id = $1 AND revoked_at IS NULL AND expires_at > NOW() ORDER BY last_seen_at DESC`, [userId])).rows;
     const override = (await pool.query(`SELECT mode, expires_at, updated_at FROM odin_motionflow_access WHERE user_id = $1`, [userId])).rows[0] ?? null;
     const audit = (await pool.query(`SELECT id, actor, action, reason, created_at FROM odin_motionflow_audit
       WHERE user_id = $1 ORDER BY id DESC LIMIT 20`, [userId])).rows;
-    const normalizedSubscriptions = subscriptions.map(s => ({ ...s, next_charge_date: parseSubscriptionDate(s.next_charge_date)?.toISOString() ?? null }));
-    const subscribed = normalizedSubscriptions.some(s => s.next_charge_date !== null && Date.parse(s.next_charge_date) > Date.now());
-    return { user, subscriptions: normalizedSubscriptions, devices, override, audit, subscription_active: subscribed,
+    const normalizedSubscriptions = subscriptions.map(s => ({ ...s, active: isSubscriptionActive(s), next_charge_date: parseSubscriptionDate(s.next_charge_date)?.toISOString() ?? null }));
+    const subscribed = normalizedSubscriptions.some(s => s.active);
+    return { user, subscriptions: normalizedSubscriptions, subscription_management: true, devices, override, audit, subscription_active: subscribed,
       extension_access: effectiveCepAccess(subscribed, override ?? undefined) };
   }
 
@@ -38,7 +41,8 @@ export function createMotionflowManagement(pool: Pool) {
     return { users, total, page, page_size: 25 };
   }
 
-  async function change(input: { user_id: string; actor: string; action: string; reason: string; expires_at?: string; device_id?: string }) {
+  async function change(input: { user_id: string; actor: string; action: string; reason: string; expires_at?: string; device_id?: string; subscription_id?: number; plan_name?: string; request_id?: string }) {
+    if (subscriptionActions.includes(input.action)) return subscriptionManagement.change(input);
     if (!input.user_id || input.user_id.length > 128 || !input.actor?.trim() || input.actor.length > 254 || !input.reason?.trim() || input.reason.length > 500) throw new Error("INVALID_INPUT");
     if (!["grant", "revoke", "reset", "revoke_device"].includes(input.action)) throw new Error("INVALID_INPUT");
     if (input.action === "grant" && (!input.expires_at || !Number.isFinite(Date.parse(input.expires_at)) || Date.parse(input.expires_at) <= Date.now())) throw new Error("INVALID_INPUT");

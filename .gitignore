@@ -49,3 +49,8 @@ next-env.d.ts
 public/showcase
 public/odin_pro_installer_windows.zip
 public/odin_pro_installer_mac.zip
+# CI releases and server-only media
+/.release/
+/release-artifacts/
+/.next-before-*/
+public/odin_pro_demo_*.zip

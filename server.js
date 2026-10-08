@@ -4,6 +4,7 @@ import { createServer } from "node:http";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Server } from "socket.io";
+import { deployHealth } from "./deploy/health.mjs";
 
 const dev = process.env.NODE_ENV !== "production";
 nextEnv.loadEnvConfig(dirname(fileURLToPath(import.meta.url)), dev);
@@ -17,7 +18,10 @@ const app = next({ dev, hostname, port });
 const handler = app.getRequestHandler();
 
 app.prepare().then(() => {
-	const httpServer = createServer(handler);
+	const httpServer = createServer(async (req, res) => {
+		if (await deployHealth(req, res)) return;
+		return handler(req, res);
+	});
 
 	const io = new Server(httpServer);
 

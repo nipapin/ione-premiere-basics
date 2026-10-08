@@ -17,6 +17,10 @@ try {
     } catch { await new Promise(r => setTimeout(r, 1000)); }
   }
   assert.ok(ready, 'Custom server failed smoke test\n' + output);
+  for (const url of ['/', '/login']) {
+    const page = await fetch('http://127.0.0.1:3301' + url, { signal: AbortSignal.timeout(15000) });
+    assert.equal(page.status, 200, `Page ${url} failed\n${output}`);
+  }
   const r = await fetch('http://127.0.0.1:3301/socket.io/?EIO=4&transport=polling');
   assert.equal(r.status, 200); assert.match(await r.text(), /^0\{"sid":/);
   const { default: WebSocket } = await import('ws');

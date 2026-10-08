@@ -62,6 +62,7 @@ for attempt in $(seq 1 25); do
   sleep 2
 done
 [[ "$healthy" == 1 ]] || { echo 'Readiness failed' >&2; false; }
+for page in / /login; do curl --fail --silent --max-time 15 "http://127.0.0.1:3001$page" >/dev/null; done
 curl --fail --silent --max-time 5 'http://127.0.0.1:3001/socket.io/?EIO=4&transport=polling' | node -e 'let s="";for await(const d of process.stdin)s+=d;if(!s.startsWith("0{\"sid\":"))process.exit(1)' --input-type=module
 pm2 save
 if [[ -n "$previous" ]]; then ln -s "$previous" "$root/.previous-$id"; mv -Tf "$root/.previous-$id" "$root/previous"; fi

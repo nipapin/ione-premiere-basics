@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { Pool, PoolClient } from "pg";
 import { payproSubscriptionManagement } from "./paypro-subscription-management.ts";
+import { isLifetimeSubscription } from "./subscription-date.ts";
 
 type Input = { user_id: string; actor: string; action: string; reason: string; subscription_id?: number; expires_at?: string; plan_name?: string; request_id?: string };
 export const subscriptionActions = ["subscription_issue", "subscription_update", "subscription_disable", "subscription_enable"];
@@ -54,6 +55,13 @@ export function createOdinSubscriptionManagement(pool: Pool, billing = payproSub
         return null;
       }
       const disabled = input.action === "subscription_disable";
+      if (isLifetimeSubscription(before)) {
+        // Lifetime has no recurring subscription to suspend or renew at PayPro.
+        // Preserve the payment status so a refunded license cannot be restored here.
+        const after = (await db.query(`UPDATE subscriptions SET management_disabled=$1 WHERE id=$2 RETURNING *`, [disabled, before.id])).rows[0];
+        await audit(db, input, snapshot(before), snapshot(after));
+        return null;
+      }
       if (before.management_source === "manual") {
         const after = (await db.query(`UPDATE subscriptions SET management_disabled=$1,status=$2 WHERE id=$3 RETURNING *`, [disabled, disabled ? "cancelled" : "active", before.id])).rows[0];
         await audit(db, input, snapshot(before), snapshot(after));

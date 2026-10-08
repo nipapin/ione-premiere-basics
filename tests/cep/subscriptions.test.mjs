@@ -90,6 +90,36 @@ test('manual disable, extend and restore affect website and CEP without a PayPro
   assert.equal(calls.length, 0);
 });
 
+test('Lifetime disable and restore are local, preserve payment data and never call PayPro', async () => {
+  const target = { subscription_id: 199 };
+  const previousCalls = calls.length;
+  await query(`INSERT INTO subscriptions (id,user_id,subscription_id,status,next_charge_date,invoice,customer_id,order_item_name,seats,product_id)
+    VALUES (199,$1,0,'active','','lifetime-invoice',123,'Odin Pro Lifetime',ARRAY['invited@test.invalid'],113887)`, [ids[0]]);
+  const before = (await query('SELECT * FROM subscriptions WHERE id=199')).rows[0];
+  configFailure = true;
+  try {
+    for (const userId of ids.slice(0, 2)) {
+      assert.equal((await details.detail(userId)).subscriptions[0].active, true);
+      assert.equal((await auth.profile({ id: 'device', user_id: userId })).subscription.active, true);
+    }
+    await assert.rejects(change('subscription_disable', { ...target, user_id: ids[1] }), /NOT_FOUND/);
+    await change('subscription_disable', target);
+    assert.equal((await details.detail(ids[0])).subscriptions[0].active, false);
+    await change('subscription_enable', target);
+    assert.deepEqual((await query('SELECT * FROM subscriptions WHERE id=199')).rows[0], before);
+    await query("UPDATE subscriptions SET status='refunded' WHERE id=199");
+    await change('subscription_disable', target);
+    await change('subscription_enable', target);
+    assert.equal((await details.detail(ids[0])).subscriptions[0].active, false);
+    assert.equal((await query('SELECT status FROM subscriptions WHERE id=199')).rows[0].status, 'refunded');
+    assert.equal(calls.length, previousCalls);
+    assert.equal((await query("SELECT COUNT(*) AS count FROM odin_motionflow_audit WHERE after_state->>'id'='199'")).rows[0].count, 4);
+  } finally {
+    configFailure = false;
+    await query('DELETE FROM subscriptions WHERE id=199');
+  }
+});
+
 test('owner scope, invalid inputs and missing billing configuration fail before changing records', async () => {
   const before = (await query('SELECT * FROM subscriptions ORDER BY id')).rows;
   for (const target of [{ user_id: ids[1], subscription_id: 107 }, { subscription_id: manualId }, { subscription_id: 99999 }]) {

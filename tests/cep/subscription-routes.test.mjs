@@ -42,6 +42,28 @@ test('website chooses valid manual/paid entitlements, excludes blocked and expir
   assert.equal((await (await detail.POST(req({ user_id: 'owner' }))).json()).type, 'none');
 });
 
+test('website recognizes Lifetime for owner and invited seats and product metadata has no renewal date', async () => {
+  const lifetime = { id: 199, product_id: '113887', status: 'active', next_charge_date: '', quantity: 1, next_quantity: 1 };
+  let owned = [lifetime]; let invited = [];
+  const load = loader({ '@/app/database/postgre': { query: async sql => sql.includes('FROM users') ? [{ email: 'owner@test.invalid' }] : sql.includes('ANY(seats)') ? invited : owned }, 'next/headers': { cookies: async () => ({ get: () => ({ value: 'owner' }) }) } });
+  const detail = load('@/app/api/subscription/details/route');
+  const check = load('@/app/api/subscription/check/route');
+  assert.equal((await (await detail.POST(req({ user_id: 'owner' }))).json()).type, 'primary');
+  assert.equal((await (await check.GET(req({}))).json()).id, lifetime.id);
+  const original = globalThis.fetch;
+  globalThis.fetch = async () => Response.json({ isSuccess: true, response: { productPricings: [{ name: 'Odin Pro Lifetime', displayPrice: 299 }] } });
+  try {
+    assert.equal((await (await load('@/app/api/subscription/product/route').GET()).json()).daysBeforeCharge, 0);
+  } finally { globalThis.fetch = original; }
+  owned = []; invited = [lifetime];
+  assert.equal((await (await detail.POST(req({ user_id: 'owner' }))).json()).type, 'invite');
+  for (const unavailable of [{ ...lifetime, status: 'refunded' }, { ...lifetime, management_disabled: true }]) {
+    owned = [unavailable]; invited = [unavailable];
+    assert.equal((await (await detail.POST(req({ user_id: 'owner' }))).json()).type, 'none');
+    assert.equal((await check.GET(req({}))).status, 404);
+  }
+});
+
 test('manual subscription cannot call PayPro product, payment, finish or seat APIs', async () => {
   const original = globalThis.fetch;
   globalThis.fetch = async () => { throw new Error('Manual subscription reached billing'); };

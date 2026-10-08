@@ -17,6 +17,21 @@ export function parseSubscriptionDate(value: string | Date | null | undefined): 
   return Number.isFinite(date.getTime()) ? date : null;
 }
 
-export function isSubscriptionActive(subscription: { next_charge_date: string | Date | null; management_disabled?: boolean }, now = Date.now()): boolean {
-  return !subscription.management_disabled && (parseSubscriptionDate(subscription.next_charge_date)?.getTime() ?? 0) > now;
+type Subscription = {
+  next_charge_date: string | Date | null;
+  management_disabled?: boolean;
+  management_source?: string;
+  product_id?: string | number | null;
+  status?: string;
+};
+
+/** Identify the one-time PayPro product; a missing expiry alone is not Lifetime. */
+export function isLifetimeSubscription(subscription: { product_id?: string | number | null; management_source?: string }): boolean {
+  return subscription.management_source !== "manual" && String(subscription.product_id) === "113887";
+}
+
+export function isSubscriptionActive(subscription: Subscription, now = Date.now()): boolean {
+  if (subscription.management_disabled) return false;
+  if (isLifetimeSubscription(subscription)) return subscription.status?.trim().toLowerCase() === "active";
+  return (parseSubscriptionDate(subscription.next_charge_date)?.getTime() ?? 0) > now;
 }

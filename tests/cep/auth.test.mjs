@@ -30,7 +30,7 @@ async function login(usp, userId = '1') {
 before(async () => {
   await db.exec(`CREATE TABLE users (user_id integer PRIMARY KEY, email text, name text);
     INSERT INTO users VALUES (1, 'one@example.test', 'One'), (2, 'two@example.test', 'Two');
-    CREATE TABLE subscriptions (id serial PRIMARY KEY, user_id integer, status text, order_item_name text, next_charge_date timestamptz, seats text[]);`);
+    CREATE TABLE subscriptions (id serial PRIMARY KEY, user_id integer, status text, product_id numeric, order_item_name text, next_charge_date timestamptz, seats text[]);`);
   await db.exec(await readFile(new URL('../../db/migrations/2026_09_29_odin_cep_auth.sql', import.meta.url), 'utf8'));
   await db.exec(await readFile(new URL('../../db/migrations/2026_10_05_001_subscription_management.sql', import.meta.url), 'utf8'));
 });

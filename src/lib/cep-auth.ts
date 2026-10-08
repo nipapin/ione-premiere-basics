@@ -1,7 +1,7 @@
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import type { Pool, PoolClient } from "pg";
 import { effectiveCepAccess } from "./motionflow-management.ts";
-import { isSubscriptionActive, parseSubscriptionDate } from "./subscription-date.ts";
+import { isLifetimeSubscription, isSubscriptionActive, parseSubscriptionDate } from "./subscription-date.ts";
 
 export const CEP_CLIENT = "odin-cep";
 export const CODE_TTL = 300;
@@ -134,7 +134,7 @@ export function createCepAuth(pool: Pool, deviceLimit = 3) {
     const user = rows[0];
     if (!user) return null;
     // Match the site's current entitlement rule, including invited subscription seats.
-    const subscriptions = await pool.query(`SELECT status, order_item_name, next_charge_date, management_disabled FROM subscriptions
+    const subscriptions = await pool.query(`SELECT status, product_id, management_source, order_item_name, next_charge_date, management_disabled FROM subscriptions
       WHERE user_id::text = $1 OR $2 = ANY(seats)`, [user.id, user.email]);
     const subscription = subscriptions.rows.find(sub => isSubscriptionActive(sub));
     const override = process.env.MOTIONFLOW_MANAGEMENT_ENABLED === "true"
@@ -146,7 +146,7 @@ export function createCepAuth(pool: Pool, deviceLimit = 3) {
       user, tier: active ? "subscribed" : "free",
       subscription: { active, plan: active ? (subscription?.order_item_name ?? "Odin Pro — manual access") : null,
         status: !active ? null : subscription?.status ?? (manual ? "manual" : null),
-        renews_at: !active ? null : parseSubscriptionDate(subscription?.next_charge_date)?.toISOString() ?? (manual ? override.expires_at : null) },
+        renews_at: !active || (subscription && isLifetimeSubscription(subscription)) ? null : parseSubscriptionDate(subscription?.next_charge_date)?.toISOString() ?? (manual ? override.expires_at : null) },
       purchases: [], entitlements: { free_pack_slots: 0, ai_generations_limit: active ? 100 : 0 },
       subscribe_url: "https://odin-pro.com/pricing", manage_subscription_url: "https://odin-pro.com/account",
       devices: (await devices(user.id)).map((device) => ({ ...device, current: device.id === identity.id })),

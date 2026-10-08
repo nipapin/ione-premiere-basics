@@ -1,7 +1,7 @@
 import { query } from "@/app/database/postgre";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { isSubscriptionActive, parseSubscriptionDate } from "@/lib/subscription-date";
+import { isLifetimeSubscription, isSubscriptionActive, parseSubscriptionDate } from "@/lib/subscription-date";
 
 const parseDate = (date: string) => parseSubscriptionDate(date)!;
 
@@ -38,7 +38,7 @@ const getProduct = async (user_id: string) => {
 
 	const { logoUrl, name, displayPrice } = product;
 	const daysBeforeCharge =
-		name === "Odin Pro Annual Subscription"
+		isLifetimeSubscription(subscription) ? 0 : name === "Odin Pro Annual Subscription"
 			? Math.min(
 				360,
 				Math.ceil((parseDate(subscription.next_charge_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))

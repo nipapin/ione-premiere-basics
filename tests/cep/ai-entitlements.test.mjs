@@ -13,7 +13,7 @@ const auth = createCepAuth(pool);
 before(async () => {
   await db.exec(`CREATE TABLE users (user_id integer PRIMARY KEY, email text, name text);
     INSERT INTO users VALUES (1, 'owner@test.invalid', 'Owner'), (2, 'seat@test.invalid', 'Seat'), (3, 'free@test.invalid', 'Free');
-    CREATE TABLE subscriptions (id serial PRIMARY KEY, user_id integer, status text, order_item_name text, next_charge_date timestamptz, seats text[]);`);
+    CREATE TABLE subscriptions (id serial PRIMARY KEY, user_id integer, status text, product_id numeric, order_item_name text, next_charge_date timestamptz, seats text[]);`);
   for (const file of ["2026_09_29_odin_cep_auth.sql", "2026_09_30_002_motionflow_management.sql", "2026_10_05_001_subscription_management.sql"]) {
     await db.exec(await readFile(new URL("../../db/migrations/" + file, import.meta.url), "utf8"));
   }

@@ -6,7 +6,7 @@ import vm from 'node:vm';
 import ts from 'typescript';
 import { PGlite } from '@electric-sql/pglite';
 import { createMotionflowManagement, effectiveCepAccess } from '../../src/lib/motionflow-management.ts';
-import { parseSubscriptionDate } from '../../src/lib/subscription-date.ts';
+import { isLifetimeSubscription, isSubscriptionActive, parseSubscriptionDate } from '../../src/lib/subscription-date.ts';
 import { integrationAuthorized } from '../../src/lib/motionflow-integration-auth.ts';
 import { createCepAuth } from '../../src/lib/cep-auth.ts';
 import { odinCatalog, odinPackUrl, odinDiffUrl } from '../../src/lib/cep-market.ts';
@@ -34,7 +34,7 @@ async function routeModule(path, mocks) {
 before(async () => {
   await db.exec(`CREATE TABLE users (user_id integer PRIMARY KEY, email text, name text, lastname text);
     INSERT INTO users VALUES (1, 'first@test.invalid', 'First', 'User'), (2, 'second@test.invalid', 'Second', 'User');
-    CREATE TABLE subscriptions (id serial PRIMARY KEY, user_id integer, status text, order_item_name text, next_charge_date text, quantity integer, seats text[]);
+    CREATE TABLE subscriptions (id serial PRIMARY KEY, user_id integer, status text, product_id numeric, order_item_name text, next_charge_date text, quantity integer, seats text[]);
     INSERT INTO subscriptions (user_id, status, order_item_name, next_charge_date, quantity, seats)
       VALUES (2, 'active', 'Odin Pro', '2099-01-01T00:00:00Z', 2, ARRAY['first@test.invalid']);`);
   await db.exec(await readFile(new URL('../../db/migrations/2026_09_29_odin_cep_auth.sql', import.meta.url), 'utf8'));
@@ -101,6 +101,54 @@ test('legacy PayPro dates grant owner and invited CEP access and return normaliz
     await query('UPDATE subscriptions SET next_charge_date = $1', [before[0].next_charge_date]);
   }
   assert.deepEqual((await query('SELECT * FROM subscriptions')).rows, before);
+});
+
+test('Lifetime requires its product and active payment status, never an expiry', () => {
+  const lifetime = { product_id: '113887', status: 'active', next_charge_date: '' };
+  assert.equal(isLifetimeSubscription(lifetime), true);
+  for (const next_charge_date of [null, '', '2000-01-01', 'invalid']) {
+    assert.equal(isSubscriptionActive({ ...lifetime, next_charge_date }), true);
+  }
+  assert.equal(isSubscriptionActive({ ...lifetime, product_id: 113887, status: 'Active' }), true);
+  assert.equal(isSubscriptionActive({ ...lifetime, management_disabled: true }), false);
+  for (const status of ['refunded', 'cancelled', 'on-hold', 'failed', undefined]) {
+    assert.equal(isSubscriptionActive({ ...lifetime, status, next_charge_date: '2099-01-01' }), false);
+  }
+  assert.equal(isSubscriptionActive({ status: 'active', order_item_name: 'Odin Pro Lifetime', next_charge_date: '' }), false);
+  assert.equal(isSubscriptionActive({ ...lifetime, product_id: 113885 }), false);
+  assert.equal(isSubscriptionActive({ ...lifetime, management_source: 'manual' }), false);
+});
+
+test('Lifetime grants owner and invited website/CEP access without renewal; deny and refund still block it', async () => {
+  const before = (await query('SELECT * FROM subscriptions')).rows[0];
+  process.env.MOTIONFLOW_MANAGEMENT_ENABLED = 'true';
+  try {
+    await query("UPDATE subscriptions SET product_id=113887,order_item_name='Odin Pro Lifetime',next_charge_date=''");
+    for (const user_id of ['1', '2']) {
+      const detail = await management.detail(user_id);
+      assert.equal(detail.subscription_active, true);
+      assert.equal(detail.extension_access, true);
+      assert.equal(detail.subscriptions[0].is_lifetime, true);
+      assert.equal(detail.subscriptions[0].next_charge_date, null);
+      const profile = await auth.profile({ id: 'device', user_id });
+      assert.equal(profile.subscription.active, true);
+      assert.equal(profile.subscription.renews_at, null);
+    }
+    await mutation('revoke');
+    assert.equal((await management.detail('1')).subscription_active, true);
+    assert.equal((await management.detail('1')).extension_access, false);
+    assert.equal((await auth.profile({ id: 'device', user_id: '1' })).subscription.active, false);
+    await mutation('reset');
+    await query("UPDATE subscriptions SET status='refunded'");
+    for (const user_id of ['1', '2']) {
+      assert.equal((await management.detail(user_id)).subscription_active, false);
+      assert.equal((await auth.profile({ id: 'device', user_id })).subscription.active, false);
+    }
+  } finally {
+    await query('UPDATE subscriptions SET product_id=$1,order_item_name=$2,next_charge_date=$3,status=$4', [before.product_id, before.order_item_name, before.next_charge_date, before.status]);
+    await query('DELETE FROM odin_motionflow_audit');
+    delete process.env.MOTIONFLOW_MANAGEMENT_ENABLED;
+  }
 });
 
 test('deny and reset affect CEP access, preserve payment rows, and audit the actor', async () => {

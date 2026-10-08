@@ -1,5 +1,5 @@
 import type { Pool } from "pg";
-import { isSubscriptionActive, parseSubscriptionDate } from "./subscription-date.ts";
+import { isLifetimeSubscription, isSubscriptionActive, parseSubscriptionDate } from "./subscription-date.ts";
 import { createOdinSubscriptionManagement, subscriptionActions } from "./odin-subscription-management.ts";
 
 export function effectiveCepAccess(
@@ -17,7 +17,7 @@ export function createMotionflowManagement(pool: Pool) {
   async function detail(userId: string) {
     const user = (await pool.query(`SELECT user_id::text AS id, email, name, lastname FROM users WHERE user_id::text = $1`, [userId])).rows[0];
     if (!user) return null;
-    const subscriptions = (await pool.query(`SELECT id, user_id::text AS owner_id, status, order_item_name,
+    const subscriptions = (await pool.query(`SELECT id, user_id::text AS owner_id, status, product_id, order_item_name,
       next_charge_date, quantity, management_source, management_disabled, management_billing_state, management_billing_action,
       management_operation_started_at FROM subscriptions WHERE user_id::text = $1 OR $2 = ANY(seats) ORDER BY id DESC`, [userId, user.email])).rows;
     const devices = (await pool.query(`SELECT id, device->>'user' AS name, device->>'os' AS os,
@@ -26,7 +26,8 @@ export function createMotionflowManagement(pool: Pool) {
     const override = (await pool.query(`SELECT mode, expires_at, updated_at FROM odin_motionflow_access WHERE user_id = $1`, [userId])).rows[0] ?? null;
     const audit = (await pool.query(`SELECT id, actor, action, reason, created_at FROM odin_motionflow_audit
       WHERE user_id = $1 ORDER BY id DESC LIMIT 20`, [userId])).rows;
-    const normalizedSubscriptions = subscriptions.map(s => ({ ...s, active: isSubscriptionActive(s), next_charge_date: parseSubscriptionDate(s.next_charge_date)?.toISOString() ?? null }));
+    const normalizedSubscriptions = subscriptions.map(s => ({ ...s, active: isSubscriptionActive(s), is_lifetime: isLifetimeSubscription(s),
+      next_charge_date: isLifetimeSubscription(s) ? null : parseSubscriptionDate(s.next_charge_date)?.toISOString() ?? null }));
     const subscribed = normalizedSubscriptions.some(s => s.active);
     return { user, subscriptions: normalizedSubscriptions, subscription_management: true, devices, override, audit, subscription_active: subscribed,
       extension_access: effectiveCepAccess(subscribed, override ?? undefined) };

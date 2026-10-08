@@ -5,7 +5,7 @@ import { resolve, join, dirname } from 'node:path';
 const [sourceArg, targetArg, ...roots] = process.argv.slice(2);
 const source = resolve(sourceArg), target = resolve(targetArg);
 if (!source.startsWith('/var/www/motionflow_p_usr/data/www/') || source === target) throw new Error('Invalid shared file source');
-const tracked = execFileSync('git', ['-C', source, 'ls-files', '-z'], { encoding: 'utf8' }).split('\0').filter(Boolean);
+const tracked = execFileSync('git', ['-c', `safe.directory=${source}`, '-C', source, 'ls-files', '-z'], { encoding: 'utf8' }).split('\0').filter(Boolean);
 let links = 0;
 function connect(relative) {
   if (relative.split('/').some(p => !p || p === '..' || p.startsWith('.'))) throw new Error('Invalid shared path');

@@ -4,7 +4,7 @@ import AccountNavigation from "@/components/layout/AccountNavigation";
 import { Wrapper } from "@/components/layout/Wrapper";
 import { get } from "@/actions/user";
 import { validateSession } from "@/lib/session";
-import { getAffiliateLinks } from "@/lib/affiliate-access";
+import { getAccountAffiliateLinks } from "@/lib/affiliate-access";
 
 export const metadata: Metadata = {
 	title: "Premiere Basics | Account",
@@ -18,6 +18,7 @@ export default async function RootLayout({
 }>) {
 	const session = await validateSession();
 	const user = session ? await get(session.user_id) : null;
+	const canViewAffiliates = (await getAccountAffiliateLinks(user)).length > 0;
 	return (
 		<Box
 			sx={{
@@ -40,7 +41,7 @@ export default async function RootLayout({
 					py: { lg: "4rem", xs: "2rem" }
 				}}
 			>
-				<AccountNavigation canViewAffiliates={getAffiliateLinks(user).length > 0} />
+				<AccountNavigation canViewAffiliates={canViewAffiliates} />
 				<Wrapper fullWidth variant='animated' sx={{ height: "fit-content", "--border-radius": "1rem" }}>
 					<Wrapper
 						sx={{

@@ -1,4 +1,6 @@
 import "server-only";
+import { query } from "@/app/database/postgre";
+import type { AffiliateLink } from "@/types/affiliates";
 
 export const defaultAffiliateLinks = ["cinecom", "premierebasics", "aftereffectsbasics"];
 
@@ -22,4 +24,15 @@ export function getAffiliateLinks(user: { user_id: string; is_admin?: boolean } 
 		? [...defaultAffiliateLinks, ...Object.values(access).flat()]
 		: Object.hasOwn(access, user.user_id) ? access[user.user_id] : [];
 	return [...new Set(links)];
+}
+
+export async function getAccountAffiliateLinks(user: { user_id: string; is_admin?: boolean } | null): Promise<AffiliateLink[]> {
+	if (!user) return [];
+	const legacy = getAffiliateLinks(user);
+	const managed: AffiliateLink[] = user.is_admin
+		? await query("SELECT code, label FROM odin_affiliate_links ORDER BY created_at, code")
+		: await query("SELECT code, label FROM odin_affiliate_links WHERE owner_user_id = $1 ORDER BY created_at, code", [user.user_id]);
+	const links = new Map<string, AffiliateLink>(legacy.map(code => [code, { code, label: code }]));
+	for (const link of managed) links.set(link.code, link);
+	return [...links.values()];
 }

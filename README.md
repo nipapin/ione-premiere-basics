@@ -47,13 +47,28 @@ A modern web application built with Next.js 15 that provides a platform for mana
 - `npm run start` - Start the production server
 - `npm run lint` - Run ESLint for code quality
 
-## Partner referral statistics
+## Partner referral links and statistics
 
 `/account/affilates` displays all historical records for each permitted referral
 code. The page, account navigation (desktop and mobile), and `/api/affilates` use
 validated sessions. Partners do not need administrator rights.
 
-Configure access in the server's `.env.local` or deployment environment using
+The **Create link** form saves a name and unique code, displays the full shareable
+URL, and supports copying it. Codes are normalized to lowercase and use 3–64
+letters, numbers or hyphens. Administrators can create for themselves or select
+an existing owner account by email. Authorized partners create only for their
+own account. Owning a stored link grants access to this page automatically.
+Only administrators and accounts with existing affiliate access can create links.
+New links are immediately included in statistics, including when they have no sales.
+
+Apply `npm run migrate` before deploying this feature. Migration
+`2026_10_11_001_affiliate_links.sql` creates `odin_affiliate_links` and reserves
+existing codes from both sales tables. Existing sales are unchanged; owners of
+historical codes are not guessed. Duplicate or historical codes cannot be
+claimed via the creation form. Requests require a validated session and CSRF
+token. The existing first-referral cookie and PayPro attribution flow are reused.
+
+For shared access to historical links, configure the server's `.env.local` or deployment environment using
 account UUIDs from `users.user_id` and exact `ref` values:
 
 ```dotenv
@@ -63,10 +78,11 @@ ODIN_AFFILIATE_ACCESS={"JORDY_ACCOUNT_UUID":["cinecom","premierebasics","afteref
 Replace both placeholders with confirmed accounts and restart the server. Use
 `SELECT user_id, email FROM users WHERE lower(email) = lower($1)` to resolve each
 confirmed email. Names never grant access. Each account can have its own list;
-additional referral codes can be configured the same way. Administrators can
-view the three original codes and all codes in this configuration. An absent
-configuration grants no partner access; malformed configuration fails closed.
-No database migration or historical backfill is needed.
+shared referral codes can be configured the same way. Administrators can view
+all stored links and all configured legacy codes. An absent configuration grants
+no legacy partner access; ownership of new links works independently of this
+configuration. Malformed configuration fails closed. Historical counts require
+no sales backfill.
 
 Subscriptions count stored records across all statuses, including cancellations,
 failures and trials; status and trial counts are displayed separately. Licenses

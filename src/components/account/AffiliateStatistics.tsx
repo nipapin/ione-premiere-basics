@@ -3,8 +3,9 @@
 import { Alert, Box, Button, Chip, Divider, Link, Skeleton, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import type { AffiliateStats } from "@/types/affiliates";
+import AffiliateLinkForm, { CopyReferralLink, referralUrl } from "./AffiliateLinkForm";
 
-export default function AffiliateStatistics() {
+export default function AffiliateStatistics({ isAdmin = false }: { isAdmin?: boolean }) {
 	const [stats, setStats] = useState<AffiliateStats[] | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [attempt, setAttempt] = useState(0);
@@ -32,6 +33,7 @@ export default function AffiliateStatistics() {
 			<Typography variant="h1" sx={{ fontSize: "1.5rem", fontWeight: 500 }}>Referral sales</Typography>
 			<Typography color="text.secondary" sx={{ mt: 1 }}>All-time statistics for your referral links.</Typography>
 			<Divider sx={{ my: 2 }} />
+			<AffiliateLinkForm isAdmin={isAdmin} onCreated={() => setAttempt(value => value + 1)} />
 			{error ? (
 				<Alert severity="error" action={<Button color="inherit" size="small" onClick={() => setAttempt(value => value + 1)}>Retry</Button>}>{error}</Alert>
 			) : stats === null ? (
@@ -51,7 +53,9 @@ export default function AffiliateStatistics() {
 							<TableBody>
 								{stats.map(item => <TableRow key={item.affiliate}>
 									<TableCell component="th" scope="row" sx={{ py: 2 }}>
-										<Link href={`/?ref=${encodeURIComponent(item.affiliate)}`} target="_blank" rel="noopener noreferrer">{item.affiliate}</Link>
+										<Typography sx={{ fontWeight: 500 }}>{item.label || item.affiliate}</Typography>
+										<Link href={referralUrl(item.affiliate)} target="_blank" rel="noopener noreferrer" sx={{ overflowWrap: "anywhere" }}>{referralUrl(item.affiliate)}</Link>
+										<CopyReferralLink code={item.affiliate} />
 										<Stack direction="row" useFlexGap flexWrap="wrap" gap={0.5} sx={{ mt: 1 }}>
 											{Object.entries(item.statuses).map(([status, count]) => <Chip key={status} label={`${status}: ${count}`} size="small" variant="outlined" />)}
 											{item.trials > 0 && <Chip label={`trial: ${item.trials}`} size="small" variant="outlined" />}

@@ -140,8 +140,8 @@ const handleSubscription = async (odinSubscription: OdinSubscription) => {
 		: false;
 
 	if (isSubscriptionExists) {
-		query(
-			`UPDATE subscriptions SET status = $1, next_charge_date = $2, order_item_name = $3, is_trial = $4, trial_period_till = $5, product_id = $6, affilate = $7 WHERE subscription_id = $8`,
+		await query(
+			`UPDATE subscriptions SET status = $1, next_charge_date = $2, order_item_name = $3, is_trial = $4, trial_period_till = $5, product_id = $6, affilate = COALESCE(NULLIF($7, ''), affilate) WHERE subscription_id = $8`,
 			[
 				odinSubscription.status,
 				odinSubscription.next_charge_date || isSubscriptionExists.next_charge_date,
@@ -156,7 +156,7 @@ const handleSubscription = async (odinSubscription: OdinSubscription) => {
 			console.error("Error updating subscription", error);
 		});
 	} else {
-		query(
+		await query(
 			`INSERT INTO subscriptions (order_id, subscription_id, status, invoice, is_trial, trial_period_till, next_charge_date, quantity, user_id, customer_id, order_item_name, seats, product_id, affilate) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
 			[
 				odinSubscription.order_id,
@@ -191,8 +191,11 @@ const handleOrder = async (data: PayproOrderData, user_id: string) => {
 	]);
 };
 
-const getCustomArguments = (args: string): Record<string, string> => {
-	return args.split(",").reduce((acc, row) => ({ ...acc, [row.split("=")[0]]: row.split("=")[1] }), {});
+const getCustomArguments = (args: string = ""): Record<string, string> => {
+	return Object.fromEntries(args.split(",").filter(row => row.includes("=")).map(row => {
+		const separator = row.indexOf("=");
+		return [row.slice(0, separator), row.slice(separator + 1)];
+	}));
 };
 
 export async function POST(request: NextRequest) {
@@ -216,7 +219,7 @@ export async function POST(request: NextRequest) {
 	const odinSubscription = collectOdinSubscription(payproOrderData, user);
 	const isLifetime = payproOrderData.PRODUCT_ID === "113887";
 	if (payproOrderData.SUBSCRIPTION_ID || isLifetime) {
-		handleSubscription(odinSubscription);
+		await handleSubscription(odinSubscription);
 		if (odinSubscription.status === "active") {
 			sendEmail(
 				user?.email,
@@ -225,7 +228,7 @@ export async function POST(request: NextRequest) {
 			);
 		}
 	} else {
-		handleOrder(payproOrderData, user.user_id);
+		await handleOrder(payproOrderData, user.user_id);
 		if (payproOrderData.ORDER_STATUS === "Processed") {
 			sendEmail(user?.email, "Your order is charged", `<p>Your order is charged</p>`);
 		}

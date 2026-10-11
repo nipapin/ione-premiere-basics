@@ -47,6 +47,41 @@ A modern web application built with Next.js 15 that provides a platform for mana
 - `npm run start` - Start the production server
 - `npm run lint` - Run ESLint for code quality
 
+## Partner referral statistics
+
+`/account/affilates` displays all historical records for each permitted referral
+code. The page, account navigation (desktop and mobile), and `/api/affilates` use
+validated sessions. Partners do not need administrator rights.
+
+Configure access in the server's `.env.local` or deployment environment using
+account UUIDs from `users.user_id` and exact `ref` values:
+
+```dotenv
+ODIN_AFFILIATE_ACCESS={"JORDY_ACCOUNT_UUID":["cinecom","premierebasics","aftereffectsbasics"],"TYMON_ACCOUNT_UUID":["cinecom","premierebasics","aftereffectsbasics"]}
+```
+
+Replace both placeholders with confirmed accounts and restart the server. Use
+`SELECT user_id, email FROM users WHERE lower(email) = lower($1)` to resolve each
+confirmed email. Names never grant access. Each account can have its own list;
+additional referral codes can be configured the same way. Administrators can
+view the three original codes and all codes in this configuration. An absent
+configuration grants no partner access; malformed configuration fails closed.
+No database migration or historical backfill is needed.
+
+Subscriptions count stored records across all statuses, including cancellations,
+failures and trials; status and trial counts are displayed separately. Licenses
+sum their recorded quantities. Renewals do not count as new subscriptions.
+One-time sales count only `payments` with status `Processed`. These are record
+counts, not a verified count of paid, non-refunded transactions: the legacy
+subscription table lacks a payment ledger, and its cancelled status does not
+distinguish refunds from subscription termination. Historical subscription
+revenue is unavailable because payment amounts were not stored. Current PayPro
+prices are not used as historical revenue. Records without a referral cannot be
+attributed retroactively. Renewal notifications without a referral preserve the
+subscription's existing attribution.
+
+Verify with `node --test tests/cep/affiliates.test.mjs`.
+
 ## Project Structure
 
 - `/articles` - MDX content files

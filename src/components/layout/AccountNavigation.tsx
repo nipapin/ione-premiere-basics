@@ -13,7 +13,7 @@ type MenuItem = {
 	id: number;
 	title: string;
 	route: string;
-	adminOnly: boolean
+	affiliateOnly: boolean
 };
 
 const menuItems: MenuItem[] = [
@@ -21,30 +21,29 @@ const menuItems: MenuItem[] = [
 		id: 1,
 		title: "Account Details",
 		route: "/account",
-		adminOnly: false
+		affiliateOnly: false
 	},
 	{
 		id: 2,
 		title: "Orders",
 		route: "/account/subscription",
-		adminOnly: false
+		affiliateOnly: false
 	},
 	{
 		id: 3,
-		title: "Affilates",
+		title: "Referral sales",
 		route: "/account/affilates",
-		adminOnly: true
+		affiliateOnly: true
 	}
 ];
 
-export default function AccountNavigation({ isAdmin }: { isAdmin?: boolean }) {
+export default function AccountNavigation({ canViewAffiliates = false }: { canViewAffiliates?: boolean }) {
 	const [open, setOpen] = useState<boolean>(false);
 	const pathname = usePathname();
 	const router = useRouter();
 	const { user } = useUser();
 
-	const userItems = menuItems.filter((item) => !item.adminOnly);
-	const adminItems = menuItems.filter((item) => item.adminOnly);
+	const userItems = menuItems.filter((item) => !item.affiliateOnly || canViewAffiliates);
 
 	const handleLogout = async () => {
 		await logout();
@@ -98,24 +97,6 @@ export default function AccountNavigation({ isAdmin }: { isAdmin?: boolean }) {
 								</ListItem>
 							);
 						})}
-						{isAdmin ? adminItems.map((menuItem) => {
-							return (
-								<ListItem disableGutters disablePadding key={menuItem.id} sx={{ my: "1rem" }}>
-									<NextLink href={menuItem.route} passHref>
-										<Link
-											component={'span'}
-											sx={{
-												color: menuItem.route === pathname ? "var(--primary)" : "currentColor",
-												fontWeight: menuItem.route === pathname ? "500" : "400",
-											}}
-											underline="none"
-										>
-											{menuItem.title}
-										</Link>
-									</NextLink>
-								</ListItem>
-							);
-						}) : null}
 					</List>
 					<Divider sx={{ my: "2rem" }} />
 					<Button
@@ -173,24 +154,6 @@ export default function AccountNavigation({ isAdmin }: { isAdmin?: boolean }) {
 									</ListItem>
 								);
 							})}
-							{isAdmin ? adminItems.map((menuItem) => {
-								return (
-									<ListItem key={menuItem.id} sx={{ my: "1rem" }}>
-										<NextLink href={menuItem.route} passHref>
-											<Link
-												component={'span'}
-												sx={{
-													color: menuItem.route === pathname ? "var(--primary)" : "currentColor",
-													fontWeight: menuItem.route === pathname ? "500" : "400",
-												}}
-												underline="none"
-											>
-												{menuItem.title}
-											</Link>
-										</NextLink>
-									</ListItem>
-								);
-							}) : null}
 						</List>
 					</Drawer>
 				</Box>

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "local-dev": "next dev --turbopack",
+    "preview:sales": "node scripts/preview-sales.mjs",
     "dev": "node server.js",
     "build": "next build",
     "migrate": "node scripts/migrate.mjs",

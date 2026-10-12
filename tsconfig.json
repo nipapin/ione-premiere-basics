@@ -36,7 +36,9 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "server.js",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    ".local/affiliate-preview/next/types/**/*.ts",
+    ".local/affiliate-preview/next/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

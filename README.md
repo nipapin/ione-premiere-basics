@@ -47,56 +47,69 @@ A modern web application built with Next.js 15 that provides a platform for mana
 - `npm run start` - Start the production server
 - `npm run lint` - Run ESLint for code quality
 
-## Partner referral links and statistics
+## Sales dashboard and partners
 
-`/account/affilates` displays all historical records for each permitted referral
-code. The page, account navigation (desktop and mobile), and `/api/affilates` use
-validated sessions. Partners do not need administrator rights.
+Administrators open `/account/affilates` for **all Odin Pro sales**, including
+direct orders. The overview shows revenue, successful transactions, unique
+buyers, current paid subscriptions, vendor net, and the partner list. Open a
+partner for the same report scoped to their selected referral links. All
+administrators can view every partner and create their own; partner accounts
+can view only their assigned reports.
 
-The **Create link** form saves a name and unique code, displays the full shareable
-URL, and supports copying it. Codes are normalized to lowercase and use 3–64
-letters, numbers or hyphens. Administrators can create for themselves or select
-an existing owner account by email. Authorized partners create only for their
-own account. Owning a stored link grants access to this page automatically.
-Only administrators and accounts with existing affiliate access can create links.
-New links are immediately included in statistics, including when they have no sales.
+Revenue uses actual PayPro order prices after discounts and refunds, before
+processor fees. The default overview uses PayPro's recorded balance-currency
+amounts, including purchases charged in other currencies. Billing currencies
+are also available separately in the selector. No current price, estimated
+exchange rate or partner commission is used. Net and fees use the provider's
+actual balance amounts, which can be negative after a refund. Multi-item orders
+without an exact settlement breakdown are flagged instead of being prorated.
+Dates and month boundaries are UTC. Refunds update the original sale period.
+Active subscriptions and seats are current metrics, independent of the date
+filter. Trials, failed charges, manual grants, expired access and disabled
+subscriptions are excluded from paid active subscriptions.
 
-Apply `npm run migrate` before deploying this feature. Migration
-`2026_10_11_001_affiliate_links.sql` creates `odin_affiliate_links` and reserves
-existing codes from both sales tables. Existing sales are unchanged; owners of
-historical codes are not guessed. Duplicate or historical codes cannot be
-claimed via the creation form. Requests require a validated session and CSRF
-token. The existing first-referral cookie and PayPro attribution flow are reused.
+The Links tab shows searchable, paginated per-link visits, buyers, transactions,
+active access and revenue. Create link is available from both the overview and
+partner reports. Manage links uses a bounded search picker for historical codes;
+account access is edited separately by email. Codes can be shared across partner reports; global sales are
+counted once. The **Create link** form saves a unique lowercase code (3–64
+letters, numbers or hyphens) and returns a copyable URL. Duplicate/historical
+codes cannot be claimed as new links. Creation and settings require verified
+sessions and CSRF. Financial API responses expose masked buyer labels only.
+Existing `ODIN_AFFILIATE_ACCESS` mappings remain compatible for legacy access.
 
-For shared access to historical links, configure the server's `.env.local` or deployment environment using
-account UUIDs from `users.user_id` and exact `ref` values:
+Before a future deployment, apply `npm run migrate`, then import the provider
+history deliberately. Neither operation is automatic during deployment.
+`scripts/export-paypro-sales.mjs` is read-only and outputs a sanitized order
+snapshot; it must run where the PayPro API IP whitelist permits requests.
+`scripts/import-paypro-sales.mjs --file <snapshot.json>` validates a snapshot as a
+dry run. Add `--apply` for a deliberate database import, or `--apply --local` for
+loopback databases only. Imports and signed webhook deliveries upsert the same
+order/item key, so retries cannot duplicate revenue. Signed financial IPNs are
+verified and order details are read through the authenticated PayPro API before
+saving. API request echoes, keys, addresses and payment-card data are not stored.
 
-```dotenv
-ODIN_AFFILIATE_ACCESS={"JORDY_ACCOUNT_UUID":["cinecom","premierebasics","aftereffectsbasics"],"TYMON_ACCOUNT_UUID":["cinecom","premierebasics","aftereffectsbasics"]}
-```
+### Local review
 
-Replace both placeholders with confirmed accounts and restart the server. Use
-`SELECT user_id, email FROM users WHERE lower(email) = lower($1)` to resolve each
-confirmed email. Names never grant access. Each account can have its own list;
-shared referral codes can be configured the same way. Administrators can view
-all stored links and all configured legacy codes. An absent configuration grants
-no legacy partner access; ownership of new links works independently of this
-configuration. Malformed configuration fails closed. Historical counts require
-no sales backfill.
+`npm run preview:sales` uses a dedicated PostgreSQL instance on
+`127.0.0.1:55432` and starts Next on `http://127.0.0.1:3100`. It reads the
+sanitized `.local/affiliate-preview/paypro-data.json` snapshot. Local data,
+PostgreSQL files and preview build output are ignored by Git. Production
+credentials are disabled in the preview child process and its database is
+hardcoded to loopback. Preview login: `preview@odin.local` / `LocalPreview123!`.
+The local draft groups Cinecom under Jordy and both Basics codes under Tymon;
+this mapping is editable in **Manage links**, not applied to production.
+The new migration creates those two profiles without guessing account access
+or assigning historical codes in production.
 
-Subscriptions count stored records across all statuses, including cancellations,
-failures and trials; status and trial counts are displayed separately. Licenses
-sum their recorded quantities. Renewals do not count as new subscriptions.
-One-time sales count only `payments` with status `Processed`. These are record
-counts, not a verified count of paid, non-refunded transactions: the legacy
-subscription table lacks a payment ledger, and its cancelled status does not
-distinguish refunds from subscription termination. Historical subscription
-revenue is unavailable because payment amounts were not stored. Current PayPro
-prices are not used as historical revenue. Records without a referral cannot be
-attributed retroactively. Renewal notifications without a referral preserve the
-subscription's existing attribution.
+Visits start with this version: previous visits were never stored. Incoming
+`/?ref=code` visits are counted once per link and browser tab session, including
+when a referral attribution cookie already exists. Refreshes deduplicate by UUID;
+unknown links and common crawler user agents are excluded. No IP addresses are
+stored. First-touch payment attribution remains unchanged. Apply the visits
+migration before enabling this version.
 
-Verify with `node --test tests/cep/affiliates.test.mjs`.
+Verify with `npm test --prefix tests/cep` and `npm run build`.
 
 ## Project Structure
 

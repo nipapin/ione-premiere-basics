@@ -62,6 +62,8 @@ test('API protects historical statistics, scopes both tables, includes inactive 
     await db.exec(`CREATE TABLE users(user_id text PRIMARY KEY,is_admin boolean);
       INSERT INTO users VALUES ('partner',false),('outsider',false),('admin',true);
       CREATE TABLE odin_affiliate_links(code text PRIMARY KEY,label text,owner_user_id text,created_at timestamptz DEFAULT NOW());
+      CREATE TABLE odin_affiliate_partners(id uuid,name text,user_id text);
+      CREATE TABLE odin_affiliate_partner_links(partner_id uuid,code text);
       CREATE TABLE subscriptions(affilate text,status text,is_trial boolean,quantity integer);
       INSERT INTO subscriptions VALUES ('cinecom','active',false,3),('cinecom','cancelled',false,1),
         ('cinecom','on-hold',false,1),('cinecom','active',true,1),('cinecom','failed',false,1),
@@ -112,6 +114,7 @@ test('renewal webhook preserves the stored referral when custom fields omit or e
         const rows = (await db.query(sql, args)).rows; return options?.single ? rows[0] : rows;
       } },
       '@/lib/email': { sendEmail: async () => {} },
+      '@/lib/paypro-sales': { recordPayproSale: async () => {} },
       'next/server': { NextResponse: Response },
     })('@/app/api/payment/route');
     for (const custom of [undefined, 'x-odin-affiliate=', 'x-odin-affiliate=premierebasics']) {
@@ -157,6 +160,7 @@ test('links persist, reserved codes cannot be claimed, and only authorized accou
       CREATE TABLE payments(affilate text,status text,amount numeric);
       INSERT INTO payments VALUES ('old-payment','Processed',10);`);
     await db.exec(readFileSync(new URL('../../db/migrations/2026_10_11_001_affiliate_links.sql', import.meta.url), 'utf8'));
+    await db.exec(readFileSync(new URL('../../db/migrations/2026_10_12_001_sales_dashboard.sql', import.meta.url), 'utf8'));
     assert.equal((await query('SELECT * FROM odin_affiliate_links')).length, 5);
     assert.equal((await query('SELECT * FROM subscriptions')).length, 1);
     assert.equal((await query('SELECT * FROM payments')).length, 1);

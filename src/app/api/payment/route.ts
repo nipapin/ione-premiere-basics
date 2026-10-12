@@ -1,6 +1,7 @@
 import { query } from "@/app/database/postgre";
 import { sendEmail } from "@/lib/email";
 import { NextRequest, NextResponse } from "next/server";
+import { recordPayproSale } from "@/lib/paypro-sales";
 
 const HTTP_WC_ATOMX_SOURCE = "195bb24881ae34";
 
@@ -69,12 +70,7 @@ const OrderStatus: Record<string, AtomXPaymentStatus> = {
 };
 
 const parsePayproOrder = (payproOrder: string) => {
-	const payproOrderData = payproOrder.split("&").reduce((acc, item) => {
-		const [key, value] = item.split("=");
-		acc[key] = decodeURIComponent(value);
-		return acc;
-	}, {} as PayproOrderData);
-	return payproOrderData;
+	return Object.fromEntries(new URLSearchParams(payproOrder)) as PayproOrderData;
 };
 
 const collectAtomXPayload = (payproOrderData: PayproOrderData) => {
@@ -201,6 +197,12 @@ const getCustomArguments = (args: string = ""): Record<string, string> => {
 export async function POST(request: NextRequest) {
 	const payproOrder = await request.text();
 	const payproOrderData = parsePayproOrder(payproOrder);
+	try {
+		await recordPayproSale(payproOrderData);
+	} catch {
+		// Let PayPro retry; never acknowledge an unpersisted financial transaction.
+		return NextResponse.json({ message: "Unable to verify or record payment" }, { status: 503 });
+	}
 	const atomPayload: AtomXPaymentData = collectAtomXPayload(payproOrderData);
 	const subscriptionPeriodTypeMap: Record<string, string> = {
 		"113887": "lifetime",

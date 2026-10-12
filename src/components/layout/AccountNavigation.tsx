@@ -31,7 +31,7 @@ const menuItems: MenuItem[] = [
 	},
 	{
 		id: 3,
-		title: "Referral sales",
+		title: "Sales & partners",
 		route: "/account/affilates",
 		affiliateOnly: true
 	}

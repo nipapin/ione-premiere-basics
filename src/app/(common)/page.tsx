@@ -35,7 +35,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
 	return (
 		<PageContainer>
 			{cepCode ? <CepLogin code={cepCode} /> : null}
-			{!affiliateExists && <AffiliateSystem affiliate={affiliate} />}
+			<AffiliateSystem affiliate={affiliate} preserveAttribution={affiliateExists} />
 			<Hero />
 			<PartnersShowcase />
 			<AboutSection />

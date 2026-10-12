@@ -23,7 +23,7 @@ export default async function RootLayout({
 		<Box
 			sx={{
 				width: "100%",
-				maxWidth: "1280px",
+				maxWidth: "1600px",
 				p: "1rem",
 				m: "0 auto",
 				"& p, & a, & h2, & h1": {
@@ -34,7 +34,7 @@ export default async function RootLayout({
 			<Box
 				sx={{
 					display: { lg: "grid", xs: "flex" },
-					gridTemplateColumns: { lg: "1fr 3fr", xs: "1fr" },
+					gridTemplateColumns: { lg: "260px minmax(0,1fr)", xs: "1fr" },
 					flexDirection: { lg: "row", xs: "column" },
 					gap: "2rem",
 					minHeight: "100vh",

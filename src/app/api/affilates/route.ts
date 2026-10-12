@@ -45,6 +45,14 @@ export async function POST(request: Request) {
 		}
 		if (!user.is_admin && ownerEmail) return Response.json({ error: "Only administrators can choose another account." }, { status: 403, headers });
 		let ownerUserId = user.user_id;
+		let partnerId: string | null = null;
+		if (body.partnerId !== undefined) {
+			if (typeof body.partnerId !== "string" || !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(body.partnerId)) return Response.json({ error: "Invalid partner." }, { status: 400, headers });
+			const partner = (await query("SELECT id,user_id FROM odin_affiliate_partners WHERE id=$1 AND ($2::boolean OR user_id=$3)", [body.partnerId, user.is_admin === true, user.user_id]))[0];
+			if (!partner) return Response.json({ error: "Forbidden" }, { status: 403, headers });
+			partnerId = partner.id;
+			ownerUserId = partner.user_id;
+		}
 		if (ownerEmail) {
 			const owners = await query("SELECT user_id FROM users WHERE lower(email) = $1", [ownerEmail]);
 			if (owners.length !== 1) return Response.json({ error: "Enter the email of an existing, unique account." }, { status: 400, headers });
@@ -54,11 +62,14 @@ export async function POST(request: Request) {
 		if (getAffiliateLinks({ user_id: user.user_id, is_admin: true }).includes(code)) {
 			return Response.json({ error: "This referral code is already in use. Choose another." }, { status: 409, headers });
 		}
-		const created = await query(`INSERT INTO odin_affiliate_links (code, label, owner_user_id, created_by)
+		const created = await query(`WITH created AS (INSERT INTO odin_affiliate_links (code, label, owner_user_id, created_by)
 			SELECT $1, $2, $3, $4
 			WHERE NOT EXISTS (SELECT 1 FROM subscriptions WHERE affilate = $1)
 			AND NOT EXISTS (SELECT 1 FROM payments WHERE affilate = $1)
-			ON CONFLICT (code) DO NOTHING RETURNING code, label`, [code, label, ownerUserId, user.user_id]);
+			AND NOT EXISTS (SELECT 1 FROM odin_sales WHERE referral = $1)
+			ON CONFLICT (code) DO NOTHING RETURNING code, label),
+			assigned AS (INSERT INTO odin_affiliate_partner_links(partner_id,code) SELECT $5::uuid,code FROM created WHERE $5::uuid IS NOT NULL)
+			SELECT code,label FROM created`, [code, label, ownerUserId, user.user_id, partnerId]);
 		if (!created.length) return Response.json({ error: "This referral code is already in use. Choose another." }, { status: 409, headers });
 		return Response.json(created[0], { status: 201, headers });
 	} catch (error) {

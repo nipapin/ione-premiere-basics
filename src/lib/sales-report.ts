@@ -64,7 +64,8 @@ function summarize(rows: SalesRow[], subscriptions: any[], visits: number) {
 		currencies.set(row.currency, currency);
 		if (row.balance_currency) {
 			const balance = balances.get(row.balance_currency) || { currency: row.balance_currency, fees: 0, net: 0, revenue: 0, missing: 0 };
-			if (row.fee_amount !== null && row.net_amount !== null) { balance.fees += Math.round(Number(row.fee_amount) * 100); balance.net += Math.round(Number(row.net_amount) * 100); }
+			if (row.fee_amount !== null) balance.fees += Math.round(Number(row.fee_amount) * 100);
+			if (row.net_amount !== null) balance.net += Math.round(Number(row.net_amount) * 100);
 			if (row.balance_gross_amount !== null && row.balance_refunded_amount !== null) balance.revenue += Math.round(Number(row.balance_gross_amount) * 100) - Math.round(Number(row.balance_refunded_amount) * 100);
 			if (row.fee_amount === null || row.net_amount === null || row.balance_gross_amount === null || row.balance_refunded_amount === null) balance.missing++;
 			balances.set(row.balance_currency, balance);

@@ -127,6 +127,47 @@ test('all admins see global revenue and every partner; partners can only read th
   } finally { await db.close(); }
 });
 
+test('displayed revenue sums actual Net across all pages and links, including refunds and Net with an unknown fee', async () => {
+  const db = await database();
+  try {
+    for (let id = 1; id <= 26; id++) {
+      const item = order(id);
+      if (id === 1) item.orderItems[0].balancePayProAmount = null;
+      if (id === 2) {
+        item.billingCurrencyCode = 'EUR'; item.balanceTotalPrice = 22;
+        item.orderItems[0].balanceVendorAmount = 20.50;
+      }
+      if (id === 26) {
+        item.orderStatusName = 'Refunded';
+        item.orderItems[0].billingPriceRefund = 19; item.orderItems[0].balanceVendorAmount = -2;
+      }
+      await salesData.saveSales(db, salesData.normalizePayproOrder(item));
+    }
+    const euroBalance = order(27, { balanceCurrencyCode: 'EUR' });
+    euroBalance.orderItems[0].balanceVendorAmount = 9.99;
+    await salesData.saveSales(db, salesData.normalizePayproOrder(euroBalance));
+    const unknownNet = order(28);
+    unknownNet.orderItems[0].balanceVendorAmount = null;
+    await salesData.saveSales(db, salesData.normalizePayproOrder(unknownNet));
+
+    const load = loader({ '@/app/database/postgre': { query: async (sql, args) => (await db.query(sql, args)).rows } });
+    const api = load('@/lib/sales-report'), { netSalesRevenue } = load('@/lib/sales-revenue');
+    const period = api.salesPeriod(new URLSearchParams('period=all'));
+    const report = await api.getSalesReport(null, period);
+    assert.equal(report.payments.length, 25); assert.equal(report.totalRows, 28);
+    assert.equal(netSalesRevenue(report.summary, 'USD'), 438.50);
+    assert.equal(netSalesRevenue(report.summary, 'EUR'), 9.99);
+    assert.equal(netSalesRevenue(report.linkSummaries.cinecom, 'USD'), 438.50);
+    assert.equal(netSalesRevenue((await api.getSalesReport(['cinecom'], period)).summary, 'USD'), 438.50);
+    const secondPage = await api.getSalesReport(null, period, 2);
+    assert.equal(secondPage.payments.length, 3);
+    assert.equal(netSalesRevenue(secondPage.summary, 'USD'), 438.50);
+    assert.equal(secondPage.payments.find(payment => String(payment.orderId) === '1').net, 17.50);
+    assert.equal(netSalesRevenue((await api.getSalesReport([], period)).summary, 'USD'), 0);
+    assert.equal(netSalesRevenue(undefined, 'USD'), 0);
+  } finally { await db.close(); }
+});
+
 test('financial webhooks verify signature before API calls and persist only authenticated provider details', async () => {
   const db = await database(); const originalFetch = globalThis.fetch;
   const saved = process.env.PAYPRO_VALIDATION_KEY;

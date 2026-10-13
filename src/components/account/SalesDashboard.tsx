@@ -4,19 +4,20 @@ import { AddRounded, ArrowBackRounded, CloseRounded, SettingsOutlined } from "@m
 import NextLink from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import type { SalesReport, SalesSummary } from "@/types/sales-report";
+import { netSalesRevenue } from "@/lib/sales-revenue";
 import AffiliateLinkForm, { CopyReferralLink, referralUrl } from "./AffiliateLinkForm";
 import PartnerSettings from "./PartnerSettings";
 import s from "./SalesDashboard.module.css";
 
 const money = (value: number, currency: string) => new Intl.NumberFormat("en-US", {style: "currency", currency}).format(value);
-const revenue = (summary: SalesSummary | undefined, currency: string) => money((currency.startsWith("balance:") ? summary?.balances : summary?.currencies)?.find(row => row.currency === currency.replace("balance:", ""))?.revenue || 0, currency.replace("balance:", ""));
+const revenue = (summary: SalesSummary | undefined, currency: string) => money(netSalesRevenue(summary, currency), currency);
 function Pager({ page, count, onChange }: {page: number; count: number; onChange: (page: number) => void}) {
  if (count <= 1) return null;
  return <div className={s.pagination}><span className={s.muted}>{page} / {count}</span><button className={s.button} disabled={page <= 1} onClick={() => onChange(page - 1)}>Previous</button><button className={s.button} disabled={page >= count} onClick={() => onChange(page + 1)}>Next</button></div>;
 }
 export default function SalesDashboard({partnerId}: {partnerId?: string}) {
  const [report, setReport] = useState<SalesReport | null>(null), [error, setError] = useState(""), [loading, setLoading] = useState(true);
- const [period, setPeriod] = useState("all"), [currency, setCurrency] = useState("balance:USD");
+ const [period, setPeriod] = useState("all"), [currency, setCurrency] = useState("USD");
  const [from, setFrom] = useState(""), [to, setTo] = useState(""), [code, setCode] = useState("");
  const [page, setPage] = useState(1), [revision, setRevision] = useState(0);
  const [tab, setTab] = useState(partnerId ? "links" : "partners");
@@ -60,13 +61,13 @@ export default function SalesDashboard({partnerId}: {partnerId?: string}) {
   </header>
   <div className={s.toolbar}>
    {[["all","All time"],["month","Current month"],["last-month","Last month"],["custom","Custom range"]].map(([value,title]) => <button className={`${s.button} ${period === value ? s.active : ""}`} key={value} aria-pressed={period === value} onClick={() => {setPeriod(value); setPage(1);}}>{title}</button>)}
-   {report && <select aria-label="Revenue currency" className={`${s.select} ${s.currency}`} value={currency} onChange={e => setCurrency(e.target.value)}>{[...new Set(["balance:USD", currency, ...report.summary.balances.map(r => `balance:${r.currency}`), ...report.summary.currencies.map(r => r.currency)])].map(value => <option key={value} value={value}>{value.startsWith("balance:") ? `${value.slice(8)} · all payments` : `${value} · billing`}</option>)}</select>}
+   {report && <select aria-label="Revenue currency" className={`${s.select} ${s.currency}`} value={currency} onChange={e => setCurrency(e.target.value)}>{[...new Set(["USD", currency, ...report.summary.balances.map(r => r.currency)])].map(value => <option key={value} value={value}>{value} · all payments</option>)}</select>}
   </div>
   {period === "custom" && <div className={s.row}><label className={s.field}>From<input className={s.input} type="date" value={from} onChange={e => {setFrom(e.target.value); setPage(1);}} /></label><label className={s.field}>To<input className={s.input} type="date" value={to} onChange={e => {setTo(e.target.value); setPage(1);}} /></label></div>}
   {error ? <div className={s.error} role="alert">{error} <button className={s.button} onClick={refresh}>Retry</button></div> : needsDates ? <div className={s.muted}>Choose a date range</div> : loading || !report ? <div className={s.loading} role="status">Loading…</div> : <>
    <section className={s.stats} aria-label="Sales overview">
     {[
-     {label:"Revenue", value:revenue(report.summary,currency), note:periodLabel, title:"After refunds, before PayPro fees", accent:true},
+     {label:"Revenue", value:revenue(report.summary,currency), note:periodLabel, title:"After refunds and PayPro fees", accent:true},
      {label:"Transactions", value:report.summary.transactions, note:periodLabel},
      {label:"Buyers", value:report.summary.buyers, note:"Unique buyers"},
      {label:"Active subscriptions", value:report.summary.activeSubscriptions, note:"Currently active"},
@@ -93,7 +94,7 @@ export default function SalesDashboard({partnerId}: {partnerId?: string}) {
    </section>}
    {tab === "payments" && <section className={s.panel}>
     <div className={s.panelHeader}><h2>{code ? report.links.find(l=>l.code===code)?.label || code : "All payments"} <span className={s.muted}>· {report.totalRows}</span></h2><div className={s.actions}><select className={s.select} aria-label="Payment source" value={code} onChange={e=>{setCode(e.target.value);setPage(1);}}><option value="">All links</option>{report.links.map(l=><option key={l.code} value={l.code}>{l.label}</option>)}</select></div></div>
-    <div className={s.scroll}><table className={s.table}><thead><tr><th>Buyer / order</th><th>Plan</th><th>Source</th><th className={s.numeric}>Revenue</th><th className={s.numeric}>PayPro fee</th><th className={s.numeric}>Net</th><th>Date (UTC)</th></tr></thead><tbody>
+    <div className={s.scroll}><table className={s.table}><thead><tr><th>Buyer / order</th><th>Plan</th><th>Source</th><th className={s.numeric}>Before fees</th><th className={s.numeric}>PayPro fee</th><th className={s.numeric}>Net</th><th>Date (UTC)</th></tr></thead><tbody>
      {report.payments.map(p=><tr key={p.id}><td><div>{p.buyer}</div><div className={s.muted}>#{p.orderId}</div></td><td>{p.plan}</td><td><span className={s.badge}>{p.source || "Direct"}</span></td><td className={`${s.numeric} ${s.money}`} title={`Gross ${money(p.gross,p.currency)}`}>{money(p.revenue,p.currency)}{p.refunds>0 && <div className={s.muted}>Refund {money(p.refunds,p.currency)}</div>}</td><td className={s.numeric}>{p.fee!==null && p.balanceCurrency ? money(p.fee,p.balanceCurrency) : "—"}</td><td className={s.numeric}>{p.net!==null && p.balanceCurrency ? money(p.net,p.balanceCurrency) : "—"}</td><td style={{whiteSpace:"nowrap"}}>{new Intl.DateTimeFormat("en-GB",{dateStyle:"medium",timeZone:"UTC"}).format(new Date(p.date))}</td></tr>)}
      {!report.payments.length && <tr><td className={s.empty} colSpan={7}>No payments in this period</td></tr>}
     </tbody></table></div>

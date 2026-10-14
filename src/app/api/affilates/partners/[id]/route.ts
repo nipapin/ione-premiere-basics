@@ -1,3 +1,4 @@
+import { isEarningsScope } from "@/lib/partner-earnings";
 import { query } from "@/app/database/postgre";
 import { validateSession } from "@/lib/session";
 import { validateCsrfToken } from "@/lib/csrf";
@@ -13,8 +14,10 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 		const body = await request.json().catch(() => null);
 		if (!body || typeof body.csrfToken !== "string" || !(await validateCsrfToken(body.csrfToken))) return Response.json({ error: "Invalid security token" }, { status: 403 });
 		if (!Array.isArray(body.codes) || body.codes.length > 200 || body.codes.some((code: unknown) => typeof code !== "string")) return Response.json({ error: "Invalid referral links" }, { status: 400 });
-		const partner = (await query("SELECT id FROM odin_affiliate_partners WHERE id=$1", [id]))[0];
+		if (body.earningsScope !== undefined && !isEarningsScope(body.earningsScope)) return Response.json({ error: "Invalid earnings scope" }, { status: 400 });
+		const partner = (await query("SELECT id,to_jsonb(odin_affiliate_partners) ? 'earnings_scope' AS earnings_ready FROM odin_affiliate_partners WHERE id=$1", [id]))[0];
 		if (!partner) return Response.json({ error: "Partner not found" }, { status: 404 });
+		if (body.earningsScope !== undefined && !partner.earnings_ready) return Response.json({ error: "Apply the partner earnings database migration before saving these settings." }, { status: 409 });
 		const codes = [...new Set(body.codes)];
 		if (body.ownerEmail !== undefined && typeof body.ownerEmail !== "string") return Response.json({ error: "Invalid email" }, { status: 400 });
 		let ownerId: string | null | undefined;
@@ -28,9 +31,10 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 		}
 		const known = await query("SELECT code FROM odin_affiliate_links WHERE code=ANY($1::text[])", [codes]);
 		if (known.length !== codes.length) return Response.json({ error: "Unknown referral link" }, { status: 400 });
-		await query(`WITH updated AS (UPDATE odin_affiliate_partners SET user_id=CASE WHEN $3::boolean THEN $4::uuid ELSE user_id END WHERE id=$1),
+		const scopeUpdate = body.earningsScope !== undefined ? ", earnings_scope=$5::text" : "";
+		await query(`WITH updated AS (UPDATE odin_affiliate_partners SET user_id=CASE WHEN $3::boolean THEN $4::uuid ELSE user_id END${scopeUpdate} WHERE id=$1),
 			removed AS (DELETE FROM odin_affiliate_partner_links WHERE partner_id=$1 AND NOT(code=ANY($2::text[])))
-			INSERT INTO odin_affiliate_partner_links(partner_id,code) SELECT $1,unnest($2::text[]) ON CONFLICT DO NOTHING`, [id, codes, body.ownerEmail !== undefined, ownerId ?? null]);
+			INSERT INTO odin_affiliate_partner_links(partner_id,code) SELECT $1,unnest($2::text[]) ON CONFLICT DO NOTHING`, [id, codes, body.ownerEmail !== undefined, ownerId ?? null, ...(body.earningsScope !== undefined ? [body.earningsScope] : [])]);
 		return Response.json({ updated: true });
 	} catch {
 		return Response.json({ error: "Unable to save partner. Please try again." }, { status: 500 });

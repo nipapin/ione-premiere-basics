@@ -129,3 +129,23 @@ This project is private and proprietary. All rights reserved.
 ---
 
 Built with ❤️ using [Next.js](https://nextjs.org)
+
+## Partner earnings
+
+Each partner's **Earnings settings** selects personal links, personal links plus
+direct sales (no referral), or all sales. Settings require an administrator and
+CSRF verification. Developer/Developers defaults to all sales, Tymon to personal
+links plus direct sales, and Jordy to personal links only after applying
+`2026_10_14_001_partner_earnings.sql`. Existing link and account assignments remain.
+
+For each recorded sale, use the actual PayPro net in its settlement currency,
+subtract 7% atomX royalty, then allocate 50% of the remainder to the partner.
+Royalty and partner share are rounded per sale to cents; negative settlements
+reverse the same calculation. Totals use the selected UTC sale period, include
+all pages, and never combine currencies. Missing net or settlement currency is
+excluded and visibly flagged as incomplete. Link filters narrow the displayed
+report to that link. These reports calculate earnings; they do not send payouts.
+
+Global read access to affiliate reports can be granted by adding an existing
+account UUID to `odin_affiliate_report_viewers`. The account sees the affiliate
+tab and every partner report, without site administrator or editing privileges.

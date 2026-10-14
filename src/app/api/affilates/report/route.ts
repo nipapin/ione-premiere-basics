@@ -1,3 +1,5 @@
+import { canViewAllAffiliateReports } from "@/lib/affiliate-access";
+import type { EarningsScope } from "@/lib/partner-earnings";
 import { query } from "@/app/database/postgre";
 import { validateSession } from "@/lib/session";
 import { getSalesReport, salesPeriod } from "@/lib/sales-report";
@@ -9,12 +11,13 @@ export async function GET(request: Request) {
 		if (!session) return Response.json({ error: "Unauthorized" }, { status: 401, headers });
 		const user = (await query("SELECT user_id,is_admin FROM users WHERE user_id=$1", [session.user_id]))[0];
 		if (!user) return Response.json({ error: "Forbidden" }, { status: 403, headers });
+		const canViewAll = await canViewAllAffiliateReports(user);
 		const params = new URL(request.url).searchParams;
 		const partnerId = params.get("partner");
 		if (partnerId && !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(partnerId)) return Response.json({ error: "Invalid partner" }, { status: 400, headers });
-		const partners = await query("SELECT id,name,user_id FROM odin_affiliate_partners WHERE ($1::boolean OR user_id=$2) ORDER BY created_at,name", [user.is_admin === true, user.user_id]);
+		const partners = await query("SELECT id,name,user_id,COALESCE(to_jsonb(odin_affiliate_partners)->>'earnings_scope','links') AS earnings_scope FROM odin_affiliate_partners WHERE ($1::boolean OR user_id=$2) ORDER BY created_at,name", [canViewAll, user.user_id]);
 		const selected = partnerId ? partners.find((partner: { id: string }) => partner.id === partnerId) : null;
-		if ((partnerId && !selected) || (!partnerId && !user.is_admin)) return Response.json({ error: "Forbidden" }, { status: 403, headers });
+		if ((partnerId && !selected) || (!partnerId && !canViewAll)) return Response.json({ error: "Forbidden" }, { status: 403, headers });
 		const allLinks = await query("SELECT p.partner_id,l.code,l.label FROM odin_affiliate_partner_links p JOIN odin_affiliate_links l ON l.code=p.code WHERE p.partner_id=ANY($1::uuid[]) ORDER BY l.code", [partners.map((partner: { id: string }) => partner.id)]);
 		const codes = selected ? allLinks.filter((link: { partner_id: string }) => link.partner_id === partnerId).map((link: { code: string }) => link.code) : null;
 		const selectedCode = params.get("link");
@@ -23,12 +26,12 @@ export async function GET(request: Request) {
 		const page = Number(params.get("page") || 1);
 		if (!Number.isSafeInteger(page) || page < 1) return Response.json({ error: "Invalid page" }, { status: 400, headers });
 		const period = salesPeriod(params);
-		const report = await getSalesReport(selectedCode ? [selectedCode] : codes, period, page);
-		const partnerSummaries = selected ? [] : await Promise.all(partners.map(async (partner: { id: string; name: string }) => {
+		const report = await getSalesReport(selectedCode ? [selectedCode] : codes, period, page, selectedCode ? "links" : selected?.earnings_scope || "links");
+		const partnerSummaries = selected ? [] : await Promise.all(partners.map(async (partner: { id: string; name: string; earnings_scope: EarningsScope }) => {
 			const partnerLinks = allLinks.filter((link: { partner_id: string }) => link.partner_id === partner.id);
-			return { id: partner.id, name: partner.name, links: partnerLinks, summary: (await getSalesReport(partnerLinks.map((link: { code: string }) => link.code), period)).summary };
+			return { id: partner.id, name: partner.name, earningsScope: partner.earnings_scope, links: partnerLinks, summary: (await getSalesReport(partnerLinks.map((link: { code: string }) => link.code), period, 1, partner.earnings_scope)).summary };
 		}));
-		return Response.json({ ...report, partner: selected ? { id: selected.id, name: selected.name } : null, links: visibleLinks, partners: partnerSummaries, isAdmin: user.is_admin === true }, { headers });
+		return Response.json({ ...report, partner: selected ? { id: selected.id, name: selected.name, earningsScope: selected.earnings_scope } : null, links: visibleLinks, partners: partnerSummaries, isAdmin: user.is_admin === true, canCreateLinks: user.is_admin === true || selected?.user_id === user.user_id }, { headers });
 	} catch (error) {
 		if (error instanceof Error && error.message === "INVALID_PERIOD") return Response.json({ error: "Choose a valid date range." }, { status: 400, headers });
 		console.error("Unable to load sales report", error instanceof Error ? error.message : "Unknown error");

@@ -43,7 +43,7 @@ async function database() {
       (5,'cinecom',5,'active','2099-01-01',111867,1,true,'paypro',false),
       (6,'cinecom',6,'active','2099-01-01',111867,1,false,'manual',false);
     CREATE TABLE payments(affilate text);`);
-  for (const migration of ['2026_10_11_001_affiliate_links.sql', '2026_10_12_001_sales_dashboard.sql', '2026_10_12_002_referral_visits.sql']) await db.exec(readFileSync(new URL('../../db/migrations/' + migration, import.meta.url), 'utf8'));
+  for (const migration of ['2026_10_11_001_affiliate_links.sql', '2026_10_12_001_sales_dashboard.sql', '2026_10_12_002_referral_visits.sql', '2026_10_14_001_partner_earnings.sql', '2026_10_14_002_affiliate_report_viewers.sql']) await db.exec(readFileSync(new URL('../../db/migrations/' + migration, import.meta.url), 'utf8'));
   return db;
 }
 
@@ -114,7 +114,7 @@ test('all admins see global revenue and every partner; partners can only read th
     assert.equal((await route.GET(request('&partner=' + partner.id + '&link=premierebasics'))).status, 400);
     session = { user_id: admin };
     const report = await (await route.GET(request(''))).json();
-    assert.equal(report.summary.transactions, 2); assert.equal(report.partners.length, 2);
+    assert.equal(report.summary.transactions, 2); assert.equal(report.partners.length, 3);
     assert.equal(report.partners.find(row => row.name === 'Jordy').summary.transactions, 1);
     assert.equal((await route.GET(new Request('https://odin.test/api/affilates/report?period=custom&from=bad&to=bad'))).status, 400);
     const patch = load('@/app/api/affilates/partners/[id]/route');
@@ -209,4 +209,64 @@ test('referral visits reject cross-origin requests, ignore unknown codes and bot
     assert.equal((await api.getSalesReport([], period)).summary.visits, 0);
     assert.equal((await api.getSalesReport(null, api.salesPeriod(new URLSearchParams('period=custom&from=2026-10-06&to=2026-10-06')))).summary.visits, 0);
   } finally { await db.close(); }
+});
+
+
+test('partner earnings scopes include only own links, own links plus direct, or all sales; royalty and 50% shares reverse on refunds', async () => {
+ const db = await database();
+ try {
+  const load = loader({ '@/app/database/postgre': { query: async (sql,args) => (await db.query(sql,args)).rows }, '@/lib/session': { validateSession: async () => ({user_id: admin}) }, '@/lib/csrf': {validateCsrfToken: async token => token === 'valid'} });
+  const api = load('@/lib/sales-report');
+  const {partnerSettlement} = load('@/lib/partner-earnings');
+  assert.deepEqual(partnerSettlement(100), {royalty:7, afterRoyalty:93, earnings:46.5});
+  assert.deepEqual(partnerSettlement(-100), {royalty:-7, afterRoyalty:-93, earnings:-46.5});
+  assert.deepEqual(partnerSettlement(-17.5), {royalty:-1.23, afterRoyalty:-16.27, earnings:-8.14});
+  for (const item of [order(1), order(2,{customFields:[]}), order(3,{customFields:[{customFieldKey:'x-odin-affiliate',customFieldValue:'premierebasics'}]})]) await salesData.saveSales(db, salesData.normalizePayproOrder(item));
+  const refund=order(4,{orderStatusName:'Refunded'}); refund.orderItems[0].billingPriceRefund=19; refund.orderItems[0].balanceVendorAmount=-2;
+  await salesData.saveSales(db,salesData.normalizePayproOrder(refund));
+  const period=api.salesPeriod(new URLSearchParams('period=all'));
+  const own=await api.getSalesReport(['cinecom'],period,1,'links');
+  const direct=await api.getSalesReport(['cinecom'],period,1,'links_and_direct');
+  const all=await api.getSalesReport([],period,1,'all');
+  assert.equal(own.summary.transactions,2); assert.equal(direct.summary.transactions,3); assert.equal(all.summary.transactions,4);
+  assert.equal(own.summary.earnings[0].earnings,7.21); assert.equal(direct.summary.earnings[0].earnings,15.35); assert.equal(all.summary.earnings[0].earnings,23.49);
+  assert.equal((await api.getSalesReport([],period,1,'links_and_direct')).summary.transactions,1);
+  await db.query("UPDATE odin_sales SET net_amount=NULL WHERE order_id=2");
+  assert.equal((await api.getSalesReport(null,period)).summary.missingSettlements,1);
+  const partner=(await db.query("SELECT id FROM odin_affiliate_partners WHERE name='Jordy'")).rows[0];
+  await db.query("INSERT INTO odin_affiliate_partner_links VALUES($1,'cinecom')",[partner.id]);
+  await db.query("UPDATE odin_affiliate_partners SET name='Developers' WHERE name='Developer'");
+  const patch=load('@/app/api/affilates/partners/[id]/route');
+  const update=(scope,token='valid')=>patch.PATCH(new Request('https://odin.test',{method:'PATCH',body:JSON.stringify({codes:['cinecom'],earningsScope:scope,csrfToken:token})}),{params:Promise.resolve({id:partner.id})});
+  assert.equal((await update('invalid')).status,400); assert.equal((await update('all','bad')).status,403);
+  assert.equal((await update('all')).status,200);
+  const route=load('@/app/api/affilates/report/route');
+  const report=await (await route.GET(new Request('https://odin.test/api/affilates/report?period=all&partner='+partner.id))).json();
+  assert.equal(report.partner.earningsScope,'all'); assert.equal(report.summary.transactions,4);
+  const filtered=await (await route.GET(new Request('https://odin.test/api/affilates/report?period=all&partner='+partner.id+'&link=cinecom'))).json();
+  assert.equal(filtered.summary.transactions,2);
+  const defaults=(await db.query("SELECT name,earnings_scope FROM odin_affiliate_partners ORDER BY name")).rows;
+  assert.equal(defaults.find(p=>p.name==='Developers').earnings_scope,'all');
+  assert.equal(defaults.find(p=>p.name==='Tymon').earnings_scope,'links_and_direct');
+ } finally {await db.close();}
+});
+
+
+test('global affiliate viewer sees every partner without site administrator or editing privileges', async () => {
+ const db=await database();
+ try {
+  await db.query('INSERT INTO odin_affiliate_report_viewers(user_id) VALUES($1)',[partnerUser]);
+  const load=loader({'@/app/database/postgre':{query:async(sql,args)=>(await db.query(sql,args)).rows},'@/lib/session':{validateSession:async()=>({user_id:partnerUser})},'@/lib/csrf':{validateCsrfToken:async()=>true}});
+  const access=load('@/lib/affiliate-access');
+  assert.equal(await access.canViewAllAffiliateReports({user_id:partnerUser}),true);
+  assert.equal(await access.canViewAllAffiliateReports(null),false);
+  const route=load('@/app/api/affilates/report/route');
+  const response=await route.GET(new Request('https://odin.test/api/affilates/report?period=all'));
+  assert.equal(response.status,200);const report=await response.json();assert.equal(report.partners.length,3);assert.equal(report.isAdmin,false);
+  for(const p of report.partners) assert.equal((await route.GET(new Request('https://odin.test/api/affilates/report?period=all&partner='+p.id))).status,200);
+  const patch=load('@/app/api/affilates/partners/[id]/route');
+  assert.equal((await patch.PATCH(new Request('https://odin.test',{method:'PATCH',body:JSON.stringify({codes:[],csrfToken:'valid',earningsScope:'all'})}),{params:Promise.resolve({id:report.partners[0].id})})).status,403);
+  await db.query('DELETE FROM odin_affiliate_report_viewers WHERE user_id=$1',[partnerUser]);
+  assert.equal((await route.GET(new Request('https://odin.test/api/affilates/report?period=all'))).status,403);
+ }finally{await db.close();}
 });

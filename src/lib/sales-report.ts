@@ -1,4 +1,5 @@
 import "server-only";
+import { partnerSettlement, type EarningsScope } from "@/lib/partner-earnings";
 import { query } from "@/app/database/postgre";
 import { isSubscriptionActive } from "@/lib/subscription-date";
 import { paidStatuses } from "../../db/paypro-sales.mjs";
@@ -24,15 +25,17 @@ type SalesRow = {
 	balance_gross_amount: string | null; balance_refunded_amount: string | null;
 };
 
-export async function getSalesReport(codes: string[] | null, period: ReturnType<typeof salesPeriod>, page = 1) {
+export async function getSalesReport(codes: string[] | null, period: ReturnType<typeof salesPeriod>, page = 1, scope: EarningsScope = "links") {
+	if (scope === "all") codes = null;
+	const includeDirect = scope === "links_and_direct";
 	const [rows, subscriptions, visits]: [SalesRow[], any[], {code: string; count: number}[]] = await Promise.all([
 		query(`SELECT order_id,order_item_id,buyer_key,buyer_label,plan,referral,paid_at,status,currency,
 			gross_amount,refunded_amount,balance_currency,fee_amount,net_amount,balance_gross_amount,balance_refunded_amount FROM odin_sales
 			WHERE status=ANY($4::text[]) AND gross_amount>0
-			AND ($1::text[] IS NULL OR referral=ANY($1::text[]))
+			AND ($1::text[] IS NULL OR referral=ANY($1::text[]) OR ($5::boolean AND NULLIF(btrim(referral),'') IS NULL))
 			AND ($2::timestamptz IS NULL OR paid_at >= $2) AND ($3::timestamptz IS NULL OR paid_at < $3)
-			ORDER BY paid_at DESC,order_id DESC,order_item_id DESC`, [codes, period.from, period.to, paidStatuses]),
-		query("SELECT * FROM subscriptions WHERE ($1::text[] IS NULL OR affilate=ANY($1::text[]))", [codes]),
+			ORDER BY paid_at DESC,order_id DESC,order_item_id DESC`, [codes, period.from, period.to, paidStatuses, includeDirect]),
+		query("SELECT * FROM subscriptions WHERE ($1::text[] IS NULL OR affilate=ANY($1::text[]) OR ($2::boolean AND NULLIF(btrim(affilate),'') IS NULL))", [codes, includeDirect]),
 		query(`SELECT code,count(*)::int AS count FROM odin_referral_visits
 			WHERE ($1::text[] IS NULL OR code=ANY($1::text[]))
 			AND ($2::timestamptz IS NULL OR visited_at >= $2) AND ($3::timestamptz IS NULL OR visited_at < $3)
@@ -46,6 +49,7 @@ export async function getSalesReport(codes: string[] | null, period: ReturnType<
 			id: `${row.order_id}-${row.order_item_id}`, orderId: row.order_id, buyer: row.buyer_label,
 			plan: row.plan, source: row.referral, date: new Date(row.paid_at).toISOString(), status: row.status,
 			currency: row.currency, gross: Number(row.gross_amount), refunds: Number(row.refunded_amount), revenue: (Math.round(Number(row.gross_amount) * 100) - Math.round(Number(row.refunded_amount) * 100)) / 100,
+			settlement: row.net_amount !== null && row.balance_currency ? partnerSettlement(Number(row.net_amount)) : null,
 			balanceCurrency: row.balance_currency, fee: row.fee_amount === null ? null : Number(row.fee_amount), net: row.net_amount === null ? null : Number(row.net_amount),
 		})),
 	};
@@ -53,9 +57,18 @@ export async function getSalesReport(codes: string[] | null, period: ReturnType<
 function summarize(rows: SalesRow[], subscriptions: any[], visits: number) {
 	const currencies = new Map<string, { currency: string; gross: number; refunds: number; revenue: number }>();
 	const balances = new Map<string, { currency: string; fees: number; net: number; revenue: number; missing: number }>();
+	const earnings = new Map<string, { currency: string; royalty: number; afterRoyalty: number; earnings: number }>();
+	let missingSettlements = 0;
 	const orders = new Set<string>(), buyers = new Set<string>();
 	for (const row of rows) {
 		orders.add(row.order_id);
+		if (row.net_amount === null || !row.balance_currency) missingSettlements++;
+		else {
+			const settlement = partnerSettlement(Number(row.net_amount));
+			const total = earnings.get(row.balance_currency) || {currency: row.balance_currency, royalty: 0, afterRoyalty: 0, earnings: 0};
+			for (const key of ["royalty", "afterRoyalty", "earnings"] as const) total[key] += Math.round(settlement[key] * 100);
+			earnings.set(row.balance_currency, total);
+		}
 		if (Number(row.gross_amount) > Number(row.refunded_amount)) buyers.add(row.buyer_key);
 		const currency = currencies.get(row.currency) || { currency: row.currency, gross: 0, refunds: 0, revenue: 0 };
 		currency.gross += Math.round(Number(row.gross_amount) * 100);
@@ -73,7 +86,8 @@ function summarize(rows: SalesRow[], subscriptions: any[], visits: number) {
 	}
 	const active = subscriptions.filter(sub => sub.status === "active" && !sub.is_trial && sub.management_source !== "manual" && isSubscriptionActive(sub));
 	return {
-		visits,
+		visits, missingSettlements,
+		earnings: [...earnings.values()].map(row => ({currency: row.currency, royalty: row.royalty / 100, afterRoyalty: row.afterRoyalty / 100, earnings: row.earnings / 100})),
 			transactions: orders.size, buyers: buyers.size, activeSubscriptions: active.length,
 			activeLicenses: active.reduce((sum, sub) => sum + (Number(sub.quantity) || 0), 0),
 			currencies: [...currencies.values()].map(row => ({ ...row, gross: row.gross / 100, refunds: row.refunds / 100, revenue: row.revenue / 100 })),

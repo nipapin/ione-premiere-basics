@@ -7,6 +7,9 @@ import { createSession, deleteAllUserSessions } from "@/lib/session";
 import { User } from "@/types/interfaces";
 import bcrypt from "bcrypt";
 import { cookies } from "next/headers";
+import { pool } from "@/app/database/pool";
+import { readReferralAttribution } from "@/lib/referral-attribution";
+import { enqueueCinecomEvent, saveReferralAttribution } from "@/lib/cinecom";
 
 export const create = async (
 	name: string,
@@ -24,10 +27,24 @@ export const create = async (
 	const hashedPassword = await bcrypt.hash(_password, 10);
 	const confirmationToken = crypto.randomUUID();
 
-	const data = await query(
-		`INSERT INTO users (email, password, name, lastname, confirmtoken) VALUES ($1, $2, $3, $4, $5) RETURNING user_id, email, name, lastname, confirmtoken`,
-		[email.toLowerCase().trim(), hashedPassword, firstName, lastName || "", confirmationToken]
-	).then((res) => res[0]);
+	const attribution = readReferralAttribution(await cookies());
+	const db = await pool.connect();
+	let data;
+	try {
+		await db.query("BEGIN");
+		data = (await db.query(
+			`INSERT INTO users (email, password, name, lastname, confirmtoken) VALUES ($1, $2, $3, $4, $5) RETURNING user_id, email, name, lastname, confirmtoken`,
+			[email.toLowerCase().trim(), hashedPassword, firstName, lastName || "", confirmationToken]
+		)).rows[0];
+		const saved = await saveReferralAttribution(db, data.user_id, attribution);
+		if (saved?.referral === "cinecom") {
+			await enqueueCinecomEvent(db, { key: `free:${data.user_id}`, user: data, type: "free_plan_started", plan: "free", cid: saved.cid });
+		}
+		await db.query("COMMIT");
+	} catch (error) {
+		await db.query("ROLLBACK");
+		throw error;
+	} finally { db.release(); }
 
 	// Create a new session for the user
 	await createSession(data.user_id);

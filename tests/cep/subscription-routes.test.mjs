@@ -17,7 +17,8 @@ function loader(mocks) {
     const filename = path.join(root, 'src', name.slice(2) + '.ts');
     const source = ts.transpileModule(readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText;
     const module = { exports: {} }; cache.set(name, module);
-    vm.runInThisContext(`(function(require,module,exports){${source}\n})`, { filename })(load, module, module.exports);
+    const localRequire = createRequire(filename);
+    vm.runInThisContext(`(function(require,module,exports){${source}\n})`, { filename })(name => name.startsWith('.') ? localRequire(name) : load(name), module, module.exports);
     return module.exports;
   }
   return load;

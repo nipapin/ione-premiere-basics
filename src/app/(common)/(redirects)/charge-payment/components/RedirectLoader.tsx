@@ -20,16 +20,21 @@ const boxStyles = {
 	backgroundColor: "background.default",
 };
 
-export default function RedirectLoader({ productID, affilate }: { productID: string; affilate: string }) {
+export default function RedirectLoader({ productID, affilate, attributionId }: { productID: string; affilate: string; attributionId: string }) {
 	const { user } = useUser();
 	const isFreePlan = productID === plans[0].id[0].toString();
+	const checkoutParams = new URLSearchParams({
+		"products[1][id]": productID, "page-template": "20409", currency: "USD",
+		"billing-first-name": user?.name || "", "billing-last-name": user?.lastname || "", "billing-email": user?.email || "",
+		"x-odin-user-id": String(user?.user_id || ""), "x-odin-affiliate": affilate, "x-odin-attribution-id": attributionId,
+	});
 	const redirectURL = isFreePlan
 		? `/download`
-		: `https://store.payproglobal.com/checkout?products[1][id]=${productID}&page-template=20409&currency=USD&billing-first-name=${user?.name}&billing-last-name=${user?.lastname}&billing-email=${user?.email}&x-odin-user-id=${user?.user_id}&x-odin-affiliate=${affilate}`;
+		: `https://store.payproglobal.com/checkout?${checkoutParams}`;
 
 	useEffect(() => {
-		window.location.href = redirectURL;
-	}, [redirectURL]);
+		if (user) window.location.href = redirectURL;
+	}, [redirectURL, user]);
 
 	return (
 		<Box sx={boxStyles}>

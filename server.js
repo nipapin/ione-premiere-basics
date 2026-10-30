@@ -5,6 +5,7 @@ import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Server } from "socket.io";
 import { deployHealth } from "./deploy/health.mjs";
+import { startCinecomWorker } from "./db/cinecom-worker.mjs";
 
 const dev = process.env.NODE_ENV !== "production";
 nextEnv.loadEnvConfig(dirname(fileURLToPath(import.meta.url)), dev);
@@ -36,5 +37,6 @@ app.prepare().then(() => {
 		})
 		.listen(port, () => {
 			console.log(`> Ready on http://${hostname}:${port}`);
+			startCinecomWorker();
 		});
 });

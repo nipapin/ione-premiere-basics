@@ -1,7 +1,6 @@
 "use server";
 
 import { getBlogs } from "@/actions/blog";
-import { setCookies } from "@/actions/setCookies";
 import AffiliateSystem from "@/components/AffiliateSystem";
 import PageContainer from "@/components/layout/PageContainer";
 import AboutSection from "@/components/sections/AboutSection";
@@ -20,7 +19,6 @@ import TeamSection from "@/components/sections/TeamSection";
 import { CepLogin } from "@/components/forms/CepLogin";
 import { cepReturnPath } from "@/lib/cep-return";
 import { validateSession } from "@/lib/session";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
@@ -29,13 +27,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
 	const cepCode = cepTarget ? new URL(cepTarget, "https://odin-pro.com").searchParams.get("cep") : null;
 	if (cepTarget && !(await validateSession())) redirect(`/login?next=${encodeURIComponent(cepTarget)}`);
 	const affiliate = params.ref;
-	const affiliateExists = !!(await cookies()).get("odin-pro-affiliate")?.value;
 
 	// const blogs = await getBlogs(undefined, 3);
 	return (
 		<PageContainer>
 			{cepCode ? <CepLogin code={cepCode} /> : null}
-			<AffiliateSystem affiliate={affiliate} preserveAttribution={affiliateExists} />
+			<AffiliateSystem affiliate={affiliate} />
 			<Hero />
 			<PartnersShowcase />
 			<AboutSection />

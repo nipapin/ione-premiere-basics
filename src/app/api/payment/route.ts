@@ -1,7 +1,10 @@
-import { query } from "@/app/database/postgre";
 import { sendEmail } from "@/lib/email";
 import { NextRequest, NextResponse } from "next/server";
 import { recordPayproSale } from "@/lib/paypro-sales";
+import { pool } from "@/app/database/pool";
+import { hasPaidAccess, recordCinecomPayment } from "@/lib/cinecom";
+import type { PoolClient } from "pg";
+import { parseSubscriptionDate } from "@/lib/subscription-date";
 
 const HTTP_WC_ATOMX_SOURCE = "195bb24881ae34";
 
@@ -27,6 +30,7 @@ interface AtomXPaymentData {
 interface User {
 	user_id: string;
 	email: string;
+	name: string;
 }
 
 interface OdinSubscription {
@@ -44,6 +48,7 @@ interface OdinSubscription {
 	order_item_name: string;
 	seats: string[];
 	affilate: string;
+	revoke_access: boolean;
 }
 
 type PayproOrderData = Record<string, string>;
@@ -96,14 +101,9 @@ const collectAtomXPayload = (payproOrderData: PayproOrderData) => {
 		billing_email: payproOrderData.CUSTOMER_EMAIL,
 		subscription_period_type: subscriptionPeriodTypeMap[payproOrderData.PRODUCT_ID],
 		subscription_starts_at: new Date().getTime(),
-		subscription_ends_at: isLifetime ? null : parseDate(payproOrderData.SUBSCRIPTION_NEXT_CHARGE_DATE).getTime(),
+		subscription_ends_at: isLifetime ? null : parseSubscriptionDate(payproOrderData.SUBSCRIPTION_NEXT_CHARGE_DATE)?.getTime() ?? null,
 	};
 };
-
-const parseDate = (date: string) => {
-	return new Date(date.split("+").join(" "));
-};
-
 
 const collectOdinSubscription = (payproOrderData: PayproOrderData, user: User): OdinSubscription => {
 	const customArguments = getCustomArguments(payproOrderData.ORDER_CUSTOM_FIELDS as string);
@@ -125,34 +125,31 @@ const collectOdinSubscription = (payproOrderData: PayproOrderData, user: User): 
 			index === 0 ? user?.email : "",
 		),
 		affilate: customArguments["x-odin-affiliate"],
+		revoke_access: isRefunded,
 	};
 };
 
-const handleSubscription = async (odinSubscription: OdinSubscription) => {
-	const isSubscriptionExists = odinSubscription.subscription_id
-		? await query(`SELECT * FROM subscriptions WHERE subscription_id = $1`, [odinSubscription.subscription_id], {
-			single: true,
-		})
-		: false;
+const handleSubscription = async (db: PoolClient, odinSubscription: OdinSubscription) => {
+	const subscriptionId = odinSubscription.subscription_id || odinSubscription.order_id;
+	const isSubscriptionExists = (await db.query(`SELECT * FROM subscriptions WHERE subscription_id = $1 FOR UPDATE`, [subscriptionId])).rows[0];
+	if (isSubscriptionExists && String(isSubscriptionExists.user_id) !== String(odinSubscription.user_id)) throw new Error("Subscription owner mismatch");
 
 	if (isSubscriptionExists) {
-		await query(
+		await db.query(
 			`UPDATE subscriptions SET status = $1, next_charge_date = $2, order_item_name = $3, is_trial = $4, trial_period_till = $5, product_id = $6, affilate = COALESCE(NULLIF($7, ''), affilate) WHERE subscription_id = $8`,
 			[
 				odinSubscription.status,
-				odinSubscription.next_charge_date || isSubscriptionExists.next_charge_date,
+				odinSubscription.revoke_access ? "" : odinSubscription.next_charge_date || isSubscriptionExists.next_charge_date,
 				odinSubscription.order_item_name.replace(/\+/g, " "),
 				odinSubscription.is_trial,
 				odinSubscription.trial_period_till,
 				odinSubscription.product_id,
 				odinSubscription.affilate,
-				odinSubscription.subscription_id,
+				subscriptionId,
 			],
-		).catch((error) => {
-			console.error("Error updating subscription", error);
-		});
+		);
 	} else {
-		await query(
+		await db.query(
 			`INSERT INTO subscriptions (order_id, subscription_id, status, invoice, is_trial, trial_period_till, next_charge_date, quantity, user_id, customer_id, order_item_name, seats, product_id, affilate) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
 			[
 				odinSubscription.order_id,
@@ -170,15 +167,13 @@ const handleSubscription = async (odinSubscription: OdinSubscription) => {
 				odinSubscription.product_id,
 				odinSubscription.affilate,
 			],
-		).catch((error) => {
-			console.error("Error inserting subscription", error);
-		});
+		);
 	}
 };
 
-const handleOrder = async (data: PayproOrderData, user_id: string) => {
+const handleOrder = async (db: PoolClient, data: PayproOrderData, user_id: string) => {
 	const customArguments = getCustomArguments(data.ORDER_CUSTOM_FIELDS as string);
-	await query(`INSERT INTO payments (user_id, date, amount, status, affilate) VALUES ($1, $2, $3, $4, $5)`, [
+	await db.query(`INSERT INTO payments (user_id, date, amount, status, affilate) VALUES ($1, $2, $3, $4, $5)`, [
 		user_id,
 		`${new Date().toDateString()} ${new Date().toLocaleTimeString()}`,
 		data.ORDER_TOTAL_AMOUNT_SHOWN,
@@ -197,49 +192,58 @@ const getCustomArguments = (args: string = ""): Record<string, string> => {
 export async function POST(request: NextRequest) {
 	const payproOrder = await request.text();
 	const payproOrderData = parsePayproOrder(payproOrder);
+	// Test notifications never mutate real access or enqueue partner events.
+	if (payproOrderData.TEST_MODE === "1") return NextResponse.json({ message: "Test notification ignored" });
+	let sale: Awaited<ReturnType<typeof recordPayproSale>>;
 	try {
-		await recordPayproSale(payproOrderData);
+		sale = await recordPayproSale(payproOrderData);
 	} catch {
 		// Let PayPro retry; never acknowledge an unpersisted financial transaction.
 		return NextResponse.json({ message: "Unable to verify or record payment" }, { status: 503 });
 	}
-	const atomPayload: AtomXPaymentData = collectAtomXPayload(payproOrderData);
-	const subscriptionPeriodTypeMap: Record<string, string> = {
-		"113887": "lifetime",
-		"111867": "monthly",
-		"113886": "yearly",
-	};
-
-	const user = await query(`SELECT user_id, email FROM users WHERE email = $1`, [payproOrderData.CUSTOMER_EMAIL], {
-		single: true,
-	});
-
-	if (!user) {
-		return NextResponse.json({ message: "User not found" }, { status: 404 });
-	}
-
-	const odinSubscription = collectOdinSubscription(payproOrderData, user);
+	if (!OrderStatus[payproOrderData.IPN_TYPE_NAME]) return NextResponse.json({ message: "Notification ignored" });
 	const isLifetime = payproOrderData.PRODUCT_ID === "113887";
+	let user: User;
+	let odinSubscription: OdinSubscription;
+	const db = await pool.connect();
+	try {
+		await db.query("BEGIN");
+		const found = (await db.query(`SELECT user_id,email,name FROM users WHERE email=$1 FOR UPDATE`, [payproOrderData.CUSTOMER_EMAIL.toLowerCase().trim()])).rows[0];
+		if (!found) {
+			await db.query("ROLLBACK");
+			return NextResponse.json({ message: "User not found" }, { status: 404 });
+		}
+		user = found;
+		const before = (await db.query("SELECT * FROM subscriptions WHERE user_id=$1", [user.user_id])).rows;
+		const confirmed = new Set((await db.query("SELECT subscription_id FROM odin_referral_subscriptions WHERE user_id=$1", [user.user_id])).rows.map(row => row.subscription_id));
+		// LicenseRequested may arrive before the first charge. Such a row alone
+		// must not suppress the first actual subscription_started event.
+		const hadPaidAccess = hasPaidAccess(before.filter(sub => String(sub.subscription_id) !== payproOrderData.SUBSCRIPTION_ID || confirmed.has(String(sub.subscription_id))));
+		odinSubscription = collectOdinSubscription(payproOrderData, user);
+		const paidItem = sale?.rows.find((row: { orderItemId: string; status: string }) => row.orderItemId === payproOrderData.ORDER_ITEM_ID);
+		if (paidItem?.status === "refunded") {
+			odinSubscription.status = "cancelled";
+			odinSubscription.revoke_access = true;
+			odinSubscription.next_charge_date = "";
+		}
+		if (payproOrderData.SUBSCRIPTION_ID || isLifetime) await handleSubscription(db, odinSubscription);
+		else await handleOrder(db, payproOrderData, user.user_id);
+		if (sale) await recordCinecomPayment(db, user, sale.order, sale.rows, payproOrderData, hadPaidAccess);
+		await db.query(`UPDATE users SET paypro_customer_id=$1 WHERE user_id=$2`, [odinSubscription.customer_id, user.user_id]);
+		await db.query("COMMIT");
+	} catch {
+		await db.query("ROLLBACK");
+		return NextResponse.json({ message: "Unable to persist payment notification" }, { status: 503 });
+	} finally { db.release(); }
 	if (payproOrderData.SUBSCRIPTION_ID || isLifetime) {
-		await handleSubscription(odinSubscription);
 		if (odinSubscription.status === "active") {
-			sendEmail(
-				user?.email,
-				isLifetime ? "Your Lifetime is active" : "Your subscription is active",
-				`<p>${isLifetime ? "Your Lifetime is active" : "Your subscription is active"}</p>`,
-			);
+			const subject = isLifetime ? "Your Lifetime is active" : "Your subscription is active";
+			sendEmail(user.email, subject, `<p>${subject}</p>`);
 		}
-	} else {
-		await handleOrder(payproOrderData, user.user_id);
-		if (payproOrderData.ORDER_STATUS === "Processed") {
-			sendEmail(user?.email, "Your order is charged", `<p>Your order is charged</p>`);
-		}
+	} else if (payproOrderData.ORDER_STATUS === "Processed") {
+		sendEmail(user.email, "Your order is charged", `<p>Your order is charged</p>`);
 	}
-
-	query(`UPDATE users SET paypro_customer_id = $1 WHERE user_id = $2`, [
-		odinSubscription.customer_id,
-		odinSubscription.user_id,
-	]);
+	const atomPayload: AtomXPaymentData = collectAtomXPayload(payproOrderData);
 
 	fetch("https://api.get-atomx.com/atomx/v1/webhook_esubs", {
 		method: "POST",

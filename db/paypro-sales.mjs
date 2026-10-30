@@ -31,7 +31,9 @@ export function normalizePayproOrder(order, referralBySubscription = new Map()) 
   const balanceCurrency = order.balanceCurrencyCode?.toUpperCase() || null;
   if (balanceCurrency && !/^[A-Z]{3}$/.test(balanceCurrency)) throw new Error('Invalid balance currency');
   const status = String(order.orderStatusName || '').toLowerCase().replace(/[^a-z]/g, '');
-  const customRef = order.customFields?.find(field => field.customFieldKey === 'x-odin-affiliate')?.customFieldValue || null;
+  const customRef = (Array.isArray(order.customFields)
+    ? order.customFields.find(field => field.customFieldKey === 'x-odin-affiliate')?.customFieldValue
+    : order.customFields?.['x-odin-affiliate']) || null;
   const email = String(order.customer?.email || '');
   const buyerLabel = email.includes('@') ? `${email.slice(0, 1)}***@${email.split('@')[1]}` : 'Buyer';
   return (order.orderItems || []).filter(item => odinProductIds.includes(Number(item.productId))).map(item => {

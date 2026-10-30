@@ -106,8 +106,50 @@ Visits start with this version: previous visits were never stored. Incoming
 `/?ref=code` visits are counted once per link and browser tab session, including
 when a referral attribution cookie already exists. Refreshes deduplicate by UUID;
 unknown links and common crawler user agents are excluded. No IP addresses are
-stored. First-touch payment attribution remains unchanged. Apply the visits
+stored. Referral attribution now uses the latest referral link for six months. Apply the visits
 migration before enabling this version.
+
+### Cinecom referral events
+
+Apply `npm run migrate` before deploying the Cinecom integration; the
+`2026_10_30_001_cinecom_webhooks.sql` migration creates attribution snapshots,
+access tracking and the persistent delivery queue. Migrations are not applied
+automatically by the web server. Existing active Cinecom subscriptions are
+enrolled for future access-loss events with `cid: null`; historical events are
+not replayed.
+
+Configure `CINECOM_WEBHOOK_SECRET` in the production server environment using
+the secret supplied by Cinecom. Never put it in source control or a
+`NEXT_PUBLIC_` variable. The custom production server (`npm start`) starts the
+queue worker automatically; `next start` alone does not run it. Local development
+does not send Cinecom requests. `CINECOM_WEBHOOK_ENABLED=false` pauses the worker;
+registration and payment events continue accumulating safely in the queue.
+
+Incoming referral links on public page routes save `ref` and optional `cid`
+together in HTTP-only cookies for six calendar months. The latest link wins;
+a link without `cid` clears the previous campaign identifier. Registration
+persists the attribution and queues one `free_plan_started` event for Cinecom.
+Checkout snapshots carry an opaque ID through PayPro; later subscription events
+and refunds keep the original conversion attribution when browser cookies change.
+
+Paid events use authenticated PayPro order details: actual discounted item
+prices and cumulative refunded amounts excluding tax, before processor fees.
+Refund events report only the newly refunded amount, including partial refunds.
+Creator renewals and monthly/yearly switches do not generate start events.
+Cancellation is queued when the customer actually loses paid access, including
+expiry or an administrative access block; merely stopping renewal does not
+generate it. Continued access through another paid license or Lifetime prevents
+a false loss event. Access tracking uses the same entitlement rules as the
+application and also includes the existing subscriptions enrolled by the migration.
+
+The worker checks access and delivers pending events every 15 seconds. It keeps
+the exact JSON body and event ID for retries, generates a new timestamp and HMAC
+signature at send time, and accepts only HTTP 200. Timeouts, network failures,
+redirects and all other statuses retry indefinitely with backoff up to six hours.
+Database leases support concurrent server processes and recover after a crash.
+Events for each customer are delivered in queue order. Delivery status and
+attempt counts are retained in `odin_cinecom_events`; payloads and secrets are
+not written to application logs. GA4 access is configured separately.
 
 Verify with `npm test --prefix tests/cep` and `npm run build`.
 

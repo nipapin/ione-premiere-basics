@@ -38,14 +38,15 @@ export async function createSession(user_id: string): Promise<Session> {
 	cookieStore.set(SESSION_COOKIE, user_id, {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",
-		sameSite: "strict",
+		// OAuth callbacks arrive from Google and redirect to an authenticated page.
+		sameSite: "lax",
 		maxAge: SESSION_EXPIRY
 	});
 
 	cookieStore.set(SESSION_ID_COOKIE, session_id, {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",
-		sameSite: "strict",
+		sameSite: "lax",
 		maxAge: SESSION_EXPIRY
 	});
 

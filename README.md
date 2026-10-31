@@ -40,6 +40,48 @@ A modern web application built with Next.js 15 that provides a platform for mana
 
    The application will be available at [http://localhost:3000](http://localhost:3000).
 
+## Google sign-in
+
+`/login` and `/signup` offer **Continue with Google**, using the same OAuth
+authorization-code flow as MotionFlow. Existing users are linked by verified
+email on their first Google login; later logins use Google's stable account ID.
+Existing passwords, subscriptions and account details are preserved. New users
+have a verified email and can set a password through the existing reset flow.
+Referral attribution and Cinecom signup events also apply to Google registrations.
+
+Before enabling the feature, apply `db/migrations/2026_10_31_001_google_auth.sql`
+through the migration runner (`npm run migrate`) and configure these server
+environment variables (never put the secret in a `NEXT_PUBLIC_*` variable):
+
+```dotenv
+GOOGLE_CLIENT_ID=your-web-application-client-id
+GOOGLE_CLIENT_SECRET=your-client-secret
+AUTH_PUBLIC_URL=https://odin-pro.com
+```
+
+`AUTH_PUBLIC_URL` is the canonical public origin, without a path. Production
+also accepts `NEXT_PUBLIC_APP_URL` if `AUTH_PUBLIC_URL` is absent; an explicit
+server-side `AUTH_PUBLIC_URL` is preferable for builds deployed to several hosts.
+Development defaults to the incoming localhost origin. If setting
+`AUTH_PUBLIC_URL` locally, use the local origin, such as `http://localhost:3000`.
+
+In [Google Cloud Console](https://console.cloud.google.com/auth/clients), use a
+**Web application** OAuth client (the existing MotionFlow client can be reused)
+and register the exact **Authorized redirect URIs** for each environment:
+
+```text
+https://odin-pro.com/api/auth/google/callback
+http://localhost:3000/api/auth/google/callback
+```
+
+Use the corresponding domain/port if different, and visit the same canonical
+host when starting login. Google requires the callback URI to match the
+[registered redirect URI](https://developers.google.com/identity/protocols/oauth2/web-server#creatingcred)
+exactly. No Google tokens are stored in the browser or database. The flow uses
+PKCE, state, nonce and server-side ID-token verification, then creates the usual
+Odin Pro session. CEP confirmation and checkout return paths survive both login
+and cancellation. Invited users must choose the Google email from their invitation.
+
 ## Development
 
 - `npm run dev` - Start the development server with Turbopack

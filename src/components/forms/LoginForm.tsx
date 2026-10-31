@@ -8,6 +8,7 @@ import { Alert, Box, Button, CircularProgress, IconButton, Link, TextField, Typo
 import NextLink from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { Wrapper } from "../layout/Wrapper";
+import GoogleAuthButton from "./GoogleAuthButton";
 
 interface LoginFormData {
 	email: string;
@@ -73,7 +74,7 @@ export const styles = {
 	},
 };
 
-export default function LoginForm({ after, next }: { after?: string; next?: string }) {
+export default function LoginForm({ after, next, authError }: { after?: string; next?: string; authError?: string }) {
 	const returnTo = cepReturnPath(next);
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
@@ -135,6 +136,7 @@ export default function LoginForm({ after, next }: { after?: string; next?: stri
 				<Typography variant="h1" fontSize={{ md: "3rem", xs: "2rem" }} pb={"2rem"} width={"100%"} textAlign={"center"}>
 					Welcome Back!
 				</Typography>
+				<GoogleAuthButton next={returnTo} after={after} error={authError} disabled={isLoading} />
 				<TextField
 					placeholder="E-mail"
 					required

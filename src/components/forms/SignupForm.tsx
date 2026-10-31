@@ -22,6 +22,7 @@ import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { Wrapper } from "../layout/Wrapper";
 import { styles } from "./LoginForm";
+import GoogleAuthButton from "./GoogleAuthButton";
 
 interface SignupFormData {
 	name: string;
@@ -78,7 +79,7 @@ const SubmitButton = ({ isLoading }: { isLoading: boolean }) => (
 	</Button>
 );
 
-export default function SignupForm({ after, referal_code, next }: { after?: string; referal_code?: string; next?: string }) {
+export default function SignupForm({ after, referal_code, next, authError }: { after?: string; referal_code?: string; next?: string; authError?: string }) {
 	const returnTo = cepReturnPath(next);
 	const referalUser = Buffer.from(referal_code || "", "base64").toString("utf-8");
 	const [showPassword, setShowPassword] = useState(false);
@@ -176,6 +177,8 @@ export default function SignupForm({ after, referal_code, next }: { after?: stri
 				>
 					Welcome to <span>Odin Pro</span>
 				</Typography>
+
+				<GoogleAuthButton signup next={returnTo} after={after} inviteEmail={referalUser || undefined} error={authError} disabled={isLoading} />
 
 				<TextField
 					placeholder="First Name"

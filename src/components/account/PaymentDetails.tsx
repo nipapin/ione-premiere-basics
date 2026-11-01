@@ -15,7 +15,7 @@ export const PaymentDetails = () => {
 			>
 				Payment details
 				<Tooltip
-					title={`If you want to log in for the first time, you should use your email address to reset your password.\n\nAfterwards, you can use this password and email address to log into your account.`}
+					title="For help with payments or refunds, contact PayPro Global customer support."
 					slotProps={{
 						tooltip: {
 							sx: {
@@ -32,7 +32,7 @@ export const PaymentDetails = () => {
 					<InfoOutlined sx={{ cursor: "pointer" }} />
 				</Tooltip>
 			</Typography>
-			<NextLink href={"https://cc.payproglobal.com/Customer/Account/Login"} passHref target="_blank">
+			<NextLink href={"https://payproglobal.com/customer-support/#order-lookup"} passHref target="_blank">
 				<Button
 					component="span"
 					variant="contained"

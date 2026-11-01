@@ -40,7 +40,19 @@ export async function getAccountAffiliateLinks(user: { user_id: string; is_admin
 	return [...links.values()];
 }
 
-/** Sales and partner reports are available only to database administrators. */
+/** Global report access does not grant site administration or partner editing. */
 export async function canViewAllAffiliateReports(user: {user_id: string; is_admin?: boolean} | null): Promise<boolean> {
-	return user?.is_admin === true;
+ if (!user) return false;
+ if (user.is_admin) return true;
+ const [schema] = await query("SELECT to_regclass('public.odin_affiliate_report_viewers') IS NOT NULL AS ready");
+ if (!schema?.ready) return false;
+ return (await query("SELECT user_id FROM odin_affiliate_report_viewers WHERE user_id=$1", [user.user_id])).length > 0;
+}
+
+/** Match the reports page, including partners with no referral links yet. */
+export async function canViewAffiliateReports(user: { user_id: string; is_admin?: boolean } | null): Promise<boolean> {
+	if (!user) return false;
+	if (await canViewAllAffiliateReports(user)) return true;
+	const partners = await query("SELECT id FROM odin_affiliate_partners WHERE user_id=$1 LIMIT 1", [user.user_id]);
+	return partners.length > 0 || (await getAccountAffiliateLinks(user)).length > 0;
 }

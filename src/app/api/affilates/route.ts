@@ -11,7 +11,6 @@ export async function GET() {
 		const session = await validateSession();
 		if (!session) return Response.json({ error: "Unauthorized" }, { status: 401, headers });
 		const user = (await query("SELECT user_id, is_admin FROM users WHERE user_id = $1", [session.user_id]))[0];
-		if (user?.is_admin !== true) return Response.json({ error: "Forbidden" }, { status: 403, headers });
 		const links = await getAccountAffiliateLinks(user || null);
 		if (!links.length) return Response.json({ error: "Forbidden" }, { status: 403, headers });
 		const statistics = await getAffiliateStatistics(links.map(link => link.code));
@@ -27,7 +26,7 @@ export async function POST(request: Request) {
 		const session = await validateSession();
 		if (!session) return Response.json({ error: "Please log in again." }, { status: 401, headers });
 		const user = (await query("SELECT user_id, is_admin FROM users WHERE user_id = $1", [session.user_id]))[0];
-		if (user?.is_admin !== true) {
+		if (!user || (!user.is_admin && !(await getAccountAffiliateLinks(user)).length)) {
 			return Response.json({ error: "This account cannot create referral links." }, { status: 403, headers });
 		}
 		const body = await request.json().catch(() => null);

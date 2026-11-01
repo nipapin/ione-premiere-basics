@@ -95,8 +95,8 @@ Administrators open `/account/affilates` for **all Odin Pro sales**, including
 direct orders. The overview shows revenue, successful transactions, unique
 buyers, current paid subscriptions, vendor net, and the partner list. Open a
 partner for the same report scoped to their selected referral links. All
-administrators can view every partner and create their own; partner accounts
-can view only their assigned reports.
+administrators can view every partner and create their own. The navigation,
+pages and APIs require `users.is_admin = true` for the signed-in account.
 
 Revenue uses actual PayPro order prices after discounts and refunds, before
 processor fees. The default overview uses PayPro's recorded balance-currency
@@ -118,7 +118,8 @@ counted once. The **Create link** form saves a unique lowercase code (3–64
 letters, numbers or hyphens) and returns a copyable URL. Duplicate/historical
 codes cannot be claimed as new links. Creation and settings require verified
 sessions and CSRF. Financial API responses expose masked buyer labels only.
-Existing `ODIN_AFFILIATE_ACCESS` mappings remain compatible for legacy access.
+Existing `ODIN_AFFILIATE_ACCESS` mappings supply legacy referral codes, without
+granting report access to non-administrators.
 
 Before a future deployment, apply `npm run migrate`, then import the provider
 history deliberately. Neither operation is automatic during deployment.
@@ -230,6 +231,5 @@ all pages, and never combine currencies. Missing net or settlement currency is
 excluded and visibly flagged as incomplete. Link filters narrow the displayed
 report to that link. These reports calculate earnings; they do not send payouts.
 
-Global read access to affiliate reports can be granted by adding an existing
-account UUID to `odin_affiliate_report_viewers`. The account sees the affiliate
-tab and every partner report, without site administrator or editing privileges.
+Partner assignments and `odin_affiliate_report_viewers` entries do not grant
+report access. Only the account's database administrator flag grants access.

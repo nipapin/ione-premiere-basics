@@ -255,3 +255,31 @@ product, order ID and item ID. To retest an old already-acknowledged notificatio
 resend the signed IPN from PayPro, or start a new test checkout. Test Lifetime
 also expires after 24 hours. Payment confirmation stops waiting indefinitely
 after two minutes and offers a manual retry without asking for another payment.
+
+## Administrator promo codes
+
+`/account/promo-codes` is visible only to verified `users.is_admin` accounts.
+`GET/POST /api/promo-codes` independently enforce the same role; creation also
+requires CSRF. Affiliate report viewers do not gain coupon access. Apply
+`2026_11_03_002_promo_codes.sql` before deploying the page.
+
+Administrators can create a case-normalized alphanumeric code, a whole-number
+percentage discount from 1 to 99, selected Monthly/Yearly/Lifetime product IDs,
+and optional start/expiry dates in UTC. Every request persists its creator and
+UUID before contacting PayPro's `Products/CreatePercentageDiscountCoupon` API.
+Only a confirmed coupon ID marks a code created. The site never stores or
+returns PayPro's response echo containing API credentials. Existing server
+PayPro credentials and an allowed server IP are required.
+
+Duplicate UUIDs and codes never cause parallel provider calls. Confirmed
+failures can be retried using the same request; a lost/ambiguous response or
+failed local save after provider success requires checking PayPro manually and
+cannot be retried automatically. Expired in-flight attempts also require review.
+The list contains only attempts created on this site, and dates determine its
+scheduled/expired labels; edits made directly in PayPro are not synchronized.
+The documented creation API does not expose usage limits or recurring-discount
+settings. 100% subscription coupons are excluded until free recurring access is
+implemented. Real coupon creation is tested with a mocked provider, not by
+issuing live discount codes during deployment.
+
+Provider reference: https://developers.payproglobal.com/docs/api/products/create-percentage-discount-coupon/

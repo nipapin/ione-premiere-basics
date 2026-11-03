@@ -13,7 +13,8 @@ type MenuItem = {
 	id: number;
 	title: string;
 	route: string;
-	affiliateOnly: boolean
+	affiliateOnly: boolean;
+	adminOnly?: boolean;
 };
 
 const menuItems: MenuItem[] = [
@@ -34,16 +35,17 @@ const menuItems: MenuItem[] = [
 		title: "Sales & partners",
 		route: "/account/affilates",
 		affiliateOnly: true
-	}
+	},
+	{ id: 4, title: "Promo codes", route: "/account/promo-codes", affiliateOnly: false, adminOnly: true }
 ];
 
-export default function AccountNavigation({ canViewAffiliates = false }: { canViewAffiliates?: boolean }) {
+export default function AccountNavigation({ canViewAffiliates = false, isAdmin = false }: { canViewAffiliates?: boolean; isAdmin?: boolean }) {
 	const [open, setOpen] = useState<boolean>(false);
 	const pathname = usePathname();
 	const router = useRouter();
 	const { user } = useUser();
 
-	const userItems = menuItems.filter((item) => !item.affiliateOnly || canViewAffiliates);
+	const userItems = menuItems.filter((item) => (!item.affiliateOnly || canViewAffiliates) && (!item.adminOnly || isAdmin));
 
 	const handleLogout = async () => {
 		await logout();

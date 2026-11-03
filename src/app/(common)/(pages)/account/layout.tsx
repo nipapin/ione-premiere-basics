@@ -41,7 +41,7 @@ export default async function RootLayout({
 					py: { lg: "4rem", xs: "2rem" }
 				}}
 			>
-				<AccountNavigation canViewAffiliates={canViewAffiliates} />
+				<AccountNavigation canViewAffiliates={canViewAffiliates} isAdmin={user?.is_admin === true} />
 				<Wrapper fullWidth variant='animated' sx={{ height: "fit-content", "--border-radius": "1rem" }}>
 					<Wrapper
 						sx={{

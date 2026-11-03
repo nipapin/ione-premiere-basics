@@ -1,7 +1,7 @@
 import { query } from "@/app/database/postgre";
 import { sendEmail } from "@/lib/email";
 import { NextRequest, NextResponse } from "next/server";
-import { isSubscriptionActive } from "@/lib/subscription-date";
+import { selectActiveSubscription } from "@/lib/subscription-date";
 
 export async function POST(request: NextRequest) {
 	const { subscription, email } = await request.json();
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
 	const { user, email, seat } = await request.json();
 
-	const selected = (await query(`SELECT * FROM subscriptions WHERE user_id = $1 ORDER BY id DESC`, [user.user_id])).find((sub: any) => isSubscriptionActive(sub));
+	const selected = selectActiveSubscription(await query(`SELECT * FROM subscriptions WHERE user_id = $1 ORDER BY id DESC`, [user.user_id]));
 	const subscription = selected ? [selected] : [];
 
 	if (!subscription[0]) {
@@ -49,7 +49,7 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
 	const { user, email, seat } = await request.json();
 
-	const selected = (await query(`SELECT * FROM subscriptions WHERE user_id = $1 ORDER BY id DESC`, [user.user_id])).find((sub: any) => isSubscriptionActive(sub));
+	const selected = selectActiveSubscription(await query(`SELECT * FROM subscriptions WHERE user_id = $1 ORDER BY id DESC`, [user.user_id]));
 	const subscription = selected ? [selected] : [];
 
 	if (!subscription[0]) {

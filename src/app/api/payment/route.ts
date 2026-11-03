@@ -1,5 +1,6 @@
 import { sendEmail } from "@/lib/email";
 import { NextRequest, NextResponse } from "next/server";
+import { recordPayproTestPayment } from "@/lib/paypro-test-payment";
 import { recordPayproSale } from "@/lib/paypro-sales";
 import { pool } from "@/app/database/pool";
 import { hasPaidAccess, recordCinecomPayment } from "@/lib/cinecom";
@@ -192,8 +193,16 @@ const getCustomArguments = (args: string = ""): Record<string, string> => {
 export async function POST(request: NextRequest) {
 	const payproOrder = await request.text();
 	const payproOrderData = parsePayproOrder(payproOrder);
-	// Test notifications never mutate real access or enqueue partner events.
-	if (payproOrderData.TEST_MODE === "1") return NextResponse.json({ message: "Test notification ignored" });
+	if (payproOrderData.TEST_MODE === "1") {
+		try {
+			const result = await recordPayproTestPayment(payproOrderData, pool);
+			return NextResponse.json({ message: result.ignored ? "Test notification ignored" : "Test order recorded", test: true });
+		} catch (error) {
+			const message = error instanceof Error ? error.message : "";
+			const status = message === "Invalid PayPro sales signature" ? 401 : message === "INVALID_TEST_ORDER" ? 400 : message === "TEST_ACCOUNT_NOT_FOUND" ? 404 : 503;
+			return NextResponse.json({ message: "Unable to verify or record test payment" }, { status });
+		}
+	}
 	let sale: Awaited<ReturnType<typeof recordPayproSale>>;
 	try {
 		sale = await recordPayproSale(payproOrderData);

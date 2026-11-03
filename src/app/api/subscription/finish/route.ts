@@ -1,6 +1,6 @@
 import { query } from "@/app/database/postgre";
 import { NextRequest, NextResponse } from "next/server";
-import { isSubscriptionActive } from "@/lib/subscription-date";
+import { selectActiveSubscription } from "@/lib/subscription-date";
 import { validateSession } from "@/lib/session";
 
 export async function POST(req: NextRequest) {
@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const body = await req.json().catch(() => null);
   if (!body || (body.user_id && body.user_id !== session.user_id) || (body.reason !== undefined && (typeof body.reason !== "string" || body.reason.length > 500))) return NextResponse.json({ error: "INVALID_INPUT" }, { status: 400 });
-  const subscription = (await query("SELECT * FROM subscriptions WHERE user_id=$1 ORDER BY id DESC", [session.user_id])).find((sub: any) => isSubscriptionActive(sub));
+  const subscription = selectActiveSubscription(await query("SELECT * FROM subscriptions WHERE user_id=$1 ORDER BY id DESC", [session.user_id]));
   if (!subscription) return NextResponse.json({ error: "Subscription not found" }, { status: 404 });
   if (subscription.management_source === "manual") return NextResponse.json({ error: "MANUAL_SUBSCRIPTION_NO_BILLING" }, { status: 400 });
   const subscriptionId = Number(subscription.subscription_id);

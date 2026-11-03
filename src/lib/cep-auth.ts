@@ -1,7 +1,7 @@
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import type { Pool, PoolClient } from "pg";
 import { effectiveCepAccess } from "./motionflow-management.ts";
-import { isLifetimeSubscription, isSubscriptionActive, parseSubscriptionDate } from "./subscription-date.ts";
+import { isLifetimeSubscription, selectActiveSubscription, parseSubscriptionDate } from "./subscription-date.ts";
 
 export const CEP_CLIENT = "odin-cep";
 export const CODE_TTL = 300;
@@ -134,9 +134,9 @@ export function createCepAuth(pool: Pool, deviceLimit = 3) {
     const user = rows[0];
     if (!user) return null;
     // Match the site's current entitlement rule, including invited subscription seats.
-    const subscriptions = await pool.query(`SELECT status, product_id, management_source, order_item_name, next_charge_date, management_disabled FROM subscriptions
+    const subscriptions = await pool.query(`SELECT status, product_id, management_source, order_item_name, next_charge_date, management_disabled, COALESCE((to_jsonb(subscriptions)->>'is_test')::boolean,false) AS is_test FROM subscriptions
       WHERE user_id::text = $1 OR $2 = ANY(seats)`, [user.id, user.email]);
-    const subscription = subscriptions.rows.find(sub => isSubscriptionActive(sub));
+    const subscription = selectActiveSubscription(subscriptions.rows);
     const override = process.env.MOTIONFLOW_MANAGEMENT_ENABLED === "true"
       ? (await pool.query("SELECT mode, expires_at FROM odin_motionflow_access WHERE user_id = $1", [user.id])).rows[0]
       : undefined;

@@ -1,12 +1,12 @@
 import { query } from "@/app/database/postgre";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { isLifetimeSubscription, isSubscriptionActive, parseSubscriptionDate } from "@/lib/subscription-date";
+import { isLifetimeSubscription, selectActiveSubscription, parseSubscriptionDate } from "@/lib/subscription-date";
 
 const parseDate = (date: string) => parseSubscriptionDate(date)!;
 
 const getProduct = async (user_id: string) => {
-	const subscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1 ORDER BY id DESC`, [user_id]).then((res) => res.find((sub: any) => isSubscriptionActive(sub)));
+	const subscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1 ORDER BY id DESC`, [user_id]).then((res) => selectActiveSubscription(res));
 
 	if (!subscription || subscription.management_source === "manual") {
 		return null;
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 	}
 
-	const subscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1 ORDER BY id DESC`, [user_id]).then((res) => res.find((sub: any) => isSubscriptionActive(sub)));
+	const subscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1 ORDER BY id DESC`, [user_id]).then((res) => selectActiveSubscription(res));
 
 	if (!subscription) {
 		return NextResponse.json({ error: "Subscription not found" }, { status: 404 });

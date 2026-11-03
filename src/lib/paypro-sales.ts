@@ -1,15 +1,11 @@
 import "server-only";
-import { createHash, timingSafeEqual } from "node:crypto";
+import { verifyPayproSignature } from "@/lib/paypro-signature";
 import { query } from "@/app/database/postgre";
 import { normalizePayproOrder, saveSales } from "../../db/paypro-sales.mjs";
 
 export async function recordPayproSale(fields: Record<string, string>) {
 	if (fields.TEST_MODE === "1") return null;
-	const key = process.env.PAYPRO_VALIDATION_KEY;
-	const signature = fields.SIGNATURE;
-	if (!key || !signature || !/^[a-f0-9]{64}$/i.test(signature)) throw new Error("Invalid PayPro sales signature");
-	const expected = createHash("sha256").update([fields.ORDER_ID, fields.ORDER_STATUS, fields.ORDER_TOTAL_AMOUNT, fields.CUSTOMER_EMAIL, key, fields.TEST_MODE, fields.IPN_TYPE_NAME].join("")).digest();
-	if (!timingSafeEqual(expected, Buffer.from(signature, "hex"))) throw new Error("Invalid PayPro sales signature");
+	verifyPayproSignature(fields);
 	// Non-financial IPNs can also change access and must be authenticated before
 	// the entitlement worker is allowed to infer a cancellation from them.
 	if (!["OrderCharged", "SubscriptionChargeSucceed", "TrialCharge", "OrderRefunded", "OrderPartiallyRefunded", "OrderChargedBack", "OrderChargebackIsWon", "OrderChargedBackWon"].includes(fields.IPN_TYPE_NAME)) return null;

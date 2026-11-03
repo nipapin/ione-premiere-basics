@@ -1,6 +1,6 @@
 import { query } from "@/app/database/postgre";
 import { NextRequest, NextResponse } from "next/server";
-import { isSubscriptionActive, parseSubscriptionDate } from "@/lib/subscription-date";
+import { selectActiveSubscription, parseSubscriptionDate } from "@/lib/subscription-date";
 
 const parseDate = (date: string) => parseSubscriptionDate(date)!;
 
@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
 	const { user } = await request.json();
 
 	const subscription = await query(`SELECT * FROM subscriptions WHERE user_id = $1`, [user.user_id]).then(
-		(res) => res.find((sub: any) => isSubscriptionActive(sub))
+		(res) => selectActiveSubscription(res)
 	);
   if (!subscription) return NextResponse.json({ error: "Subscription not found" }, { status: 404 });
   if (subscription.management_source === "manual") return NextResponse.json({ error: "MANUAL_SUBSCRIPTION_NO_BILLING" }, { status: 400 });

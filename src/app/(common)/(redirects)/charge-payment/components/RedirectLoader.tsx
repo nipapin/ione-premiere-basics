@@ -20,12 +20,13 @@ const boxStyles = {
 	backgroundColor: "background.default",
 };
 
-export default function RedirectLoader({ productID, affilate, attributionId }: { productID: string; affilate: string; attributionId: string }) {
+export default function RedirectLoader({ productID, affilate, attributionId, checkoutId }: { productID: string; affilate: string; attributionId: string; checkoutId: string }) {
 	const { user } = useUser();
 	const isFreePlan = productID === plans[0].id[0].toString();
 	const checkoutParams = new URLSearchParams({
 		"products[1][id]": productID, "page-template": "20409", currency: "USD",
 		"billing-first-name": user?.name || "", "billing-last-name": user?.lastname || "", "billing-email": user?.email || "",
+		"x-odin-checkout-id": checkoutId,
 		"x-odin-user-id": String(user?.user_id || ""), "x-odin-affiliate": affilate, "x-odin-attribution-id": attributionId,
 	});
 	const redirectURL = isFreePlan

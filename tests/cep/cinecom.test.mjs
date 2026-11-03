@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { randomUUID, createHmac } from 'node:crypto';
+import { randomUUID, createHmac, createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import vm from 'node:vm';
@@ -69,20 +69,20 @@ function order(id, checkoutId, productId = 111867, cycle = 1) {
 }
 
 function paymentRoute(db, t) {
-  const controls = { failQueue: false };
+  const controls = { failQueue: false, emailCalls: 0, atomCalls: 0, salesCalls: 0, signTests: false };
   let currentOrder;
   const query = (sql, args) => {
     if (controls.failQueue && sql.includes('INSERT INTO odin_cinecom_events')) throw new Error('Simulated queue outage');
     return db.query(sql, args);
   };
   const originalFetch = globalThis.fetch;
-  globalThis.fetch = async url => { assert.equal(url, 'https://api.get-atomx.com/atomx/v1/webhook_esubs'); return Response.json({}); };
+  globalThis.fetch = async url => { controls.atomCalls++; assert.equal(url, 'https://api.get-atomx.com/atomx/v1/webhook_esubs'); return Response.json({}); };
   t.after(() => { globalThis.fetch = originalFetch; });
   const route = loader({
     '@/app/database/pool': { pool: { connect: async () => ({ query, release() {} }) } },
-    '@/lib/paypro-sales': { recordPayproSale: async fields => ['OrderCharged','SubscriptionChargeSucceed','OrderRefunded','OrderPartiallyRefunded'].includes(fields.IPN_TYPE_NAME)
-      ? { order: currentOrder, rows: normalizePayproOrder(currentOrder) } : null },
-    '@/lib/email': { sendEmail: async () => {} },
+    '@/lib/paypro-sales': { recordPayproSale: async fields => (controls.salesCalls++, ['OrderCharged','SubscriptionChargeSucceed','OrderRefunded','OrderPartiallyRefunded'].includes(fields.IPN_TYPE_NAME)
+      ? { order: currentOrder, rows: normalizePayproOrder(currentOrder) } : null) },
+    '@/lib/email': { sendEmail: async () => { controls.emailCalls++; } },
     'next/server': { NextResponse: Response },
   })('@/app/api/payment/route');
   controls.notify = async (value, overrides = {}) => {
@@ -92,6 +92,7 @@ function paymentRoute(db, t) {
       PRODUCT_ID: String(item.productId), PRODUCT_QUANTITY: '1', SUBSCRIPTION_ID: item.subscriptionId ? String(item.subscriptionId) : '',
       SUBSCRIPTION_NEXT_CHARGE_DATE: '2099-01-01', CUSTOMER_EMAIL: buyer.email, CUSTOMER_ID: '123', ORDER_ITEM_NAME: 'Odin',
       IS_ON_TRIAL_PERIOD: '0', ORDER_STATUS: 'Processed', ORDER_CUSTOM_FIELDS: 'x-odin-affiliate=cinecom', ...overrides };
+    if (controls.signTests && fields.SIGNATURE === undefined) fields.SIGNATURE = createHash('sha256').update([fields.ORDER_ID,fields.ORDER_STATUS,fields.ORDER_TOTAL_AMOUNT,fields.CUSTOMER_EMAIL,process.env.PAYPRO_VALIDATION_KEY,fields.TEST_MODE,fields.IPN_TYPE_NAME].join('')).digest('hex');
     return route.POST(new Request('https://odin.test/api/payment', { method: 'POST', body: new URLSearchParams(fields) }));
   };
   return controls;
@@ -233,7 +234,7 @@ test('queue failure returns 503 and atomically rolls back access; test orders an
   assert.equal((await db.query('SELECT count(*)::int AS count FROM subscriptions')).rows[0].count, 0);
   assert.equal((await db.query('SELECT count(*)::int AS count FROM odin_referral_orders')).rows[0].count, 0);
   route.failQueue = false;
-  assert.equal((await route.notify(paid, { TEST_MODE: '1' })).status, 200);
+  assert.equal((await route.notify(paid, { TEST_MODE: '1' })).status, 401);
   assert.deepEqual(await events(db), []);
   paid.customFields['x-odin-attribution-id'] = await checkout(db, 'other', null);
   assert.equal((await route.notify(paid)).status, 200); assert.deepEqual(await events(db), []);
@@ -277,4 +278,54 @@ test('a live delivery lease cannot be claimed twice and an expired lease recover
   const event = (await db.query('SELECT *,EXTRACT(EPOCH FROM next_attempt_at-NOW()) AS delay FROM odin_cinecom_events')).rows[0];
   assert.equal(event.attempts, 51); assert.equal(event.lock_token, null); assert.equal(event.last_status, 503);
   assert.ok(Number(event.delay) > 21590 && Number(event.delay) <= 21600);
+});
+
+
+test('signed test purchases activate isolated 24-hour access, appear in account/CEP, never bill or emit external events, and deduplicate zero IDs', async t => {
+ const savedKey=process.env.PAYPRO_VALIDATION_KEY;
+ process.env.PAYPRO_VALIDATION_KEY='signed-test-fixture-key';
+ t.after(()=>{if(savedKey===undefined) delete process.env.PAYPRO_VALIDATION_KEY;else process.env.PAYPRO_VALIDATION_KEY=savedKey;});
+ const db=await database(t);
+ await db.exec('ALTER TABLE subscriptions ADD COLUMN next_quantity integer');
+ await db.exec(readFileSync(new URL('../../db/migrations/2026_11_03_001_paypro_test_orders.sql',import.meta.url),'utf8'));
+ await db.exec(readFileSync(new URL('../../db/migrations/2026_09_29_odin_cep_auth.sql',import.meta.url),'utf8'));
+ const route=paymentRoute(db,t);route.signTests=true;
+ const paid=order(0,null,113887);
+ const checkoutId=randomUUID();
+ const fields={TEST_MODE:'1',ORDER_TOTAL_AMOUNT:'0',ORDER_CUSTOM_FIELDS:'x-odin-checkout-id='+checkoutId};
+ assert.equal((await route.notify(paid,{...fields,SIGNATURE:'0'.repeat(64)})).status,401);
+ assert.equal((await db.query('SELECT count(*)::int AS count FROM subscriptions')).rows[0].count,0);
+ assert.equal((await route.notify(paid,fields)).status,200);
+ const original=(await db.query('SELECT * FROM subscriptions')).rows[0];
+ assert.equal(original.is_test,true);assert.equal(original.management_source,'manual');assert.ok(Number(original.subscription_id)<0);
+ assert.equal(original.affilate,null);assert.match(original.order_item_name,/^\[TEST\]/);
+ assert.ok(Date.parse(original.next_charge_date)>Date.now());assert.ok(Date.parse(original.next_charge_date)<=Date.now()+86400000);
+ assert.equal((await route.notify(paid,fields)).status,200);
+ let rows=(await db.query('SELECT * FROM subscriptions')).rows;
+ assert.equal(rows.length,1);assert.equal(rows[0].next_charge_date,original.next_charge_date);
+ const load=loader({'@/app/database/postgre':{query:async(sql,args)=>(await db.query(sql,args)).rows},'next/headers':{cookies:async()=>({get:()=>({value:buyer.user_id})})},'next/server':{NextResponse:Response}});
+ const check=load('@/app/api/subscription/check/route');
+ assert.equal((await (await check.GET(new Request('https://odin.test'))).json()).is_test,true);
+ const details=load('@/app/api/subscription/details/route');
+ const request=()=>new Request('https://odin.test',{method:'POST',body:JSON.stringify({user_id:buyer.user_id})});
+ assert.equal((await (await details.POST(request())).json()).type,'primary');
+ const auth=load('@/lib/cep-auth').createCepAuth({query:(sql,args)=>db.query(sql,args)});
+ const profile=()=>auth.profile({id:'test-device',user_id:buyer.user_id});
+ assert.equal((await profile()).tier,'subscribed');assert.match((await profile()).subscription.plan,/^\[TEST\]/);
+ await db.query("UPDATE subscriptions SET next_charge_date='2000-01-01'");assert.equal((await profile()).tier,'free');
+ await db.query('UPDATE subscriptions SET next_charge_date=$1',[original.next_charge_date]);
+ assert.equal((await route.notify(paid,{...fields,IPN_TYPE_NAME:'OrderRefunded'})).status,200);
+ assert.equal((await profile()).tier,'free');
+ assert.equal((await route.notify(paid,fields)).status,200);assert.equal((await profile()).tier,'free');
+ assert.equal((await route.notify(paid,{...fields,ORDER_CUSTOM_FIELDS:'x-odin-checkout-id='+randomUUID()})).status,200);
+ assert.equal((await db.query('SELECT count(*)::int AS count FROM subscriptions')).rows[0].count,2);
+ assert.equal(route.salesCalls,0);assert.equal(route.atomCalls,0);assert.equal(route.emailCalls,0);
+ assert.deepEqual(await events(db),[]);
+ assert.equal((await db.query('SELECT count(*)::int AS count FROM payments')).rows[0].count,0);
+ assert.equal((await db.query('SELECT count(*)::int AS count FROM odin_sales')).rows[0].count,0);
+ assert.equal((await db.query('SELECT paypro_customer_id FROM users')).rows[0].paypro_customer_id,null);
+ await db.query("INSERT INTO subscriptions(user_id,subscription_id,status,product_id,order_item_name,next_charge_date,seats) VALUES($1,98765,'active',113887,'Paid Lifetime','',ARRAY[$2]::text[])",[buyer.user_id,buyer.email]);
+ assert.equal((await (await check.GET(new Request('https://odin.test'))).json()).is_test,false);
+ assert.equal((await profile()).subscription.plan,'Paid Lifetime');
+ assert.equal((await (await details.POST(request())).json()).order_item_name,'Paid Lifetime');
 });

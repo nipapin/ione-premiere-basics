@@ -34,5 +34,5 @@ export default async function ChargePaymentPage({ searchParams }: ChargePaymentP
 		} finally { db.release(); }
 	}
 
-	return <RedirectLoader productID={productID} affilate={affiliate} attributionId={attributionId} />;
+	return <RedirectLoader productID={productID} affilate={affiliate} attributionId={attributionId} checkoutId={randomUUID()} />;
 }

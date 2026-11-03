@@ -1,4 +1,5 @@
 export interface ISubscriptionDetails {
+  is_test?: boolean;
   management_source?: "manual" | "paypro";
 	status: string;
 	order_item_name: string;

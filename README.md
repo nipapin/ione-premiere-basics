@@ -233,3 +233,25 @@ report to that link. These reports calculate earnings; they do not send payouts.
 Global read access to affiliate reports can be granted by adding an existing
 account UUID to `odin_affiliate_report_viewers`. The account sees the affiliate
 tab and every partner report, without site administrator or editing privileges.
+
+## PayPro sandbox purchases
+
+Signed `TEST_MODE=1` notifications now create a clearly marked `[TEST]` order
+with 24-hour, one-seat test access. The account must already exist and the
+PayPro SHA-256 signature must validate with `PAYPRO_VALIDATION_KEY`. The public
+test HASH is not accepted as authentication. Apply
+`2026_11_03_001_paypro_test_orders.sql` before deploying this handler.
+
+Test orders use local negative provider IDs, `is_test=true`, and the existing
+manual/no-billing management path. They never update the customer's live PayPro
+ID, enter sales/affiliate revenue, or send AtomX/Cinecom/email notifications.
+The selected real entitlement takes priority over test access. A refund,
+chargeback, suspension, termination, or failed charge revokes only test access.
+Retries cannot extend access or restore revoked tests.
+
+Checkout includes `x-odin-checkout-id` so sandbox orders with zero provider IDs
+can be distinguished. Older checkouts without this UUID deduplicate by email,
+product, order ID and item ID. To retest an old already-acknowledged notification,
+resend the signed IPN from PayPro, or start a new test checkout. Test Lifetime
+also expires after 24 hours. Payment confirmation stops waiting indefinitely
+after two minutes and offers a manual retry without asking for another payment.

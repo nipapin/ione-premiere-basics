@@ -93,7 +93,7 @@ export default function DownloadPage() {
 								<MacIcon />
 							</Box>
 							{/* <Typography>Extension version 1.0.0 - 86MB</Typography> */}
-							<DownloadButton href="/odin_pro_installer_mac.zip" title="Download for Mac OS" />
+							<DownloadButton href="/downloads/OdinProInstaller-mac-notarized-2026-11-04.zip" title="Download for Mac OS" />
 						</Box>
 					</Wrapper>
 				</Box>

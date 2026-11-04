@@ -81,7 +81,7 @@ export default function DownloadPage() {
 								<WinIcon />
 							</Box>
 							{/* <Typography>Extension version 1.0.0 - 86MB</Typography> */}
-							<DownloadButton href="/odin_pro_installer_windows.zip" title="Download for Windows" />
+							<DownloadButton href="/downloads/OdinProInstaller-windows-2026-11-04.exe" title="Download for Windows" filename="OdinProInstaller.exe" />
 						</Box>
 					</Wrapper>
 					<Wrapper variant="animated" fullWidth angleOffset={90}>

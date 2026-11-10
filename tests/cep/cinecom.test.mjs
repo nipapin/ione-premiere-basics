@@ -216,7 +216,7 @@ test('LicenseRequested does not suppress the first paid start; expiry cancels on
   assert.equal((await route.notify(paid)).status, 200);
   assert.equal((await events(db))[0].type, 'subscription_started');
   const expiredAt = new Date(Date.now() - 60000).toISOString();
-  await db.query('UPDATE subscriptions SET next_charge_date=$1,ai_paid_until=$1', [expiredAt]);
+  await db.query('UPDATE subscriptions SET next_charge_date=$1,ai_paid_until=$2', [expiredAt,expiredAt]);
   await db.query('UPDATE odin_cinecom_access SET access_until=$1', [expiredAt]);
   await cinecom.reconcileCinecomAccess(db); await cinecom.reconcileCinecomAccess(db);
   assert.equal((await events(db)).length, 2);

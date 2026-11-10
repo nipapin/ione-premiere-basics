@@ -1,42 +1,67 @@
-import { test, before, after } from "node:test";
-import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
-import { PGlite } from "@electric-sql/pglite";
-import { createCepAuth } from "../../src/lib/cep-auth.ts";
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { accounts,createOdinDatabase,seedOdinAccounts,signInDevice } from './fixtures/odin.mjs';
+import { createOdinSubscriptionManagement } from '../../src/lib/odin-subscription-management.ts';
+import { randomUUID } from 'node:crypto';
 
-const db = new PGlite();
-const pool = { query: async (sql, args) => {
-  const result = await db.query(sql, args);
-  return { ...result, rowCount: result.affectedRows ?? result.rows.length };
-} };
-const auth = createCepAuth(pool);
-before(async () => {
-  await db.exec(`CREATE TABLE users (user_id integer PRIMARY KEY, email text, name text);
-    INSERT INTO users VALUES (1, 'owner@test.invalid', 'Owner'), (2, 'seat@test.invalid', 'Seat'), (3, 'free@test.invalid', 'Free');
-    CREATE TABLE subscriptions (id serial PRIMARY KEY, user_id integer, status text, product_id numeric, order_item_name text, next_charge_date timestamptz, seats text[]);`);
-  for (const file of ["2026_09_29_odin_cep_auth.sql", "2026_09_30_002_motionflow_management.sql", "2026_10_05_001_subscription_management.sql"]) {
-    await db.exec(await readFile(new URL("../../db/migrations/" + file, import.meta.url), "utf8"));
+test('real account/device/profile flow grants 100 to owners and Seats and 5 to unpaid/expired accounts', async t => {
+  const fixture=await seedOdinAccounts(await createOdinDatabase()); t.after(()=>fixture.close());
+  for(const name of ['paid','seat','trial','expired','admin']) {
+    const {profile}=await signInDevice(fixture,name);
+    const paid=['paid','seat'].includes(name);
+    assert.equal(profile.entitlements.ai_generations_limit,paid?100:5);
+    assert.equal(profile.subscription.active,paid);
+    assert.equal(profile.entitlements.ai.plan,paid?'paid':'trial');
+    assert.ok(profile.entitlements.ai.period_id);
   }
-  await db.exec(`INSERT INTO subscriptions (user_id,status,order_item_name,next_charge_date,seats)
-    VALUES (1,'Active','Odin Pro',NOW() + INTERVAL '1 month',ARRAY['seat@test.invalid']);`);
-});
-after(() => db.close());
-
-test("paid Odin owners and invited seats receive 100 generations; free accounts get zero", async () => {
-  for (const id of ["1", "2"]) {
-    const profile = await auth.profile({ id: "device", user_id: id });
-    assert.equal(profile.subscription.active, true);
-    assert.equal(profile.entitlements.ai_generations_limit, 100);
-  }
-  const free = await auth.profile({ id: "device", user_id: "3" });
-  assert.equal(free.subscription.active, false);
-  assert.equal(free.entitlements.ai_generations_limit, 0);
+  const owner=await fixture.auth.profile({id:'device',user_id:accounts.paid.id});
+  const seat=await fixture.auth.profile({id:'device',user_id:accounts.seat.id});
+  assert.equal(owner.entitlements.ai.period_id,seat.entitlements.ai.period_id);
+  assert.notEqual(owner.user.id,seat.user.id);
 });
 
-test("expired subscription removes the allotment for both owner and seat", async () => {
-  await db.exec("UPDATE subscriptions SET next_charge_date = NOW() - INTERVAL '1 day'");
-  for (const id of ["1", "2"]) {
-    const profile = await auth.profile({ id: "device", user_id: id });
-    assert.equal(profile.entitlements.ai_generations_limit, 0);
-  }
+test('cancellation retains paid access until expiry; expiry/refund/chargeback select the registration-based trial quota',async t=>{
+  const f=await seedOdinAccounts(await createOdinDatabase());t.after(()=>f.close());
+  const profile=()=>f.auth.profile({id:'device',user_id:accounts.paid.id});
+  await f.db.query("UPDATE subscriptions SET status='cancelled',finished=true WHERE user_id=$1",[accounts.paid.id]);
+  assert.equal((await profile()).entitlements.ai_generations_limit,100);
+  await f.db.query("UPDATE subscriptions SET access_revoked_at=NOW() WHERE user_id=$1",[accounts.paid.id]);
+  const after=await profile();
+  assert.equal(after.subscription.active,false);assert.equal(after.entitlements.ai_generations_limit,5);
+  assert.equal(new Date(after.entitlements.ai.period_end).getUTCDate(),23);
+  assert.equal((await f.auth.profile({id:'device',user_id:accounts.seat.id})).entitlements.ai_generations_limit,5);
+});
+
+test('device revocation, expiration and cross-account device mutations are enforced by the real account service',async t=>{
+  const f=await seedOdinAccounts(await createOdinDatabase());t.after(()=>f.close());
+  const paid=await signInDevice(f,'paid');
+  assert.equal(await f.auth.revoke(accounts.trial.id,paid.identity.id),false);
+  assert.ok(await f.auth.authenticate(`Bearer ${paid.token}`));
+  await f.auth.revoke(accounts.paid.id,paid.identity.id);
+  assert.equal(await f.auth.authenticate(`Bearer ${paid.token}`),null);
+  const free=await signInDevice(f,'trial');
+  await f.db.query("UPDATE odin_cep_devices SET expires_at=NOW()-INTERVAL '1 second' WHERE id=$1",[free.identity.id]);
+  assert.equal(await f.auth.authenticate(`Bearer ${free.token}`),null);
+});
+
+test('unconfirmed/trial payment rows cannot grant a paid profile or a 100-credit allowance',async t=>{
+  const f=await seedOdinAccounts(await createOdinDatabase());t.after(()=>f.close());
+  await f.db.query("UPDATE subscriptions SET ai_billing_confirmed=false WHERE user_id=$1",[accounts.paid.id]);
+  assert.equal((await f.auth.profile({id:'device',user_id:accounts.paid.id})).entitlements.ai_generations_limit,5);
+  await f.db.query("UPDATE subscriptions SET ai_billing_confirmed=true,is_trial=true WHERE user_id=$1",[accounts.paid.id]);
+  assert.equal((await f.auth.profile({id:'device',user_id:accounts.paid.id})).entitlements.ai_generations_limit,5);
+});
+
+test('an audited manual subscription grants 100 once and disabling it restores the trial allowance',async t=>{
+  const f=await seedOdinAccounts(await createOdinDatabase());t.after(()=>f.close());
+  const service=createOdinSubscriptionManagement(f.pool);
+  const input={user_id:accounts.trial.id,actor:accounts.admin.email,action:'subscription_issue',reason:'Isolated admin fixture',
+    expires_at:new Date(Date.now()+10*86400000).toISOString(),plan_name:'Odin manual access',request_id:randomUUID()};
+  await service.change(input);await service.change(input);
+  const rows=(await f.db.query('SELECT * FROM subscriptions WHERE user_id=$1',[accounts.trial.id])).rows;
+  assert.equal(rows.length,1);
+  assert.equal((await f.auth.profile({id:'device',user_id:accounts.trial.id})).entitlements.ai_generations_limit,100);
+  await service.change({...input,action:'subscription_disable',subscription_id:Number(rows[0].id)});
+  assert.equal((await f.auth.profile({id:'device',user_id:accounts.trial.id})).entitlements.ai_generations_limit,5);
+  assert.equal((await f.db.query('SELECT count(*)::int AS count FROM odin_motionflow_audit WHERE user_id=$1',[accounts.trial.id])).rows[0].count,2);
 });

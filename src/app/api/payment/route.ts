@@ -6,6 +6,7 @@ import { pool } from "@/app/database/pool";
 import { hasPaidAccess, recordCinecomPayment } from "@/lib/cinecom";
 import type { PoolClient } from "pg";
 import { parseSubscriptionDate } from "@/lib/subscription-date";
+import { reconcileOdinBilling, type VerifiedBillingItem } from "@/lib/odin-ai-billing";
 
 const HTTP_WC_ATOMX_SOURCE = "195bb24881ae34";
 
@@ -57,7 +58,7 @@ type PayproOrderData = Record<string, string>;
 const OrderStatus: Record<string, AtomXPaymentStatus> = {
 	OrderCharged: "active",
 	OrderRefunded: "cancelled",
-	OrderChargedBack: "active",
+	OrderChargedBack: "cancelled",
 	OrderDeclined: "failed",
 	OrderPartiallyRefunded: "active",
 	SubscriptionChargeSucceed: "active",
@@ -69,6 +70,7 @@ const OrderStatus: Record<string, AtomXPaymentStatus> = {
 	LicenseRequested: "active",
 	TrialCharge: "active",
 	OrderChargebackIsWon: "active",
+	OrderChargedBackWon: "active",
 	OrderCustomerInformationChanged: "active",
 	InstantLeadNotification: "active",
 	OrderOnWaiting: "active",
@@ -108,7 +110,7 @@ const collectAtomXPayload = (payproOrderData: PayproOrderData) => {
 
 const collectOdinSubscription = (payproOrderData: PayproOrderData, user: User): OdinSubscription => {
 	const customArguments = getCustomArguments(payproOrderData.ORDER_CUSTOM_FIELDS as string);
-	const isRefunded = payproOrderData.IPN_TYPE_NAME === "OrderRefunded";
+	const isRefunded = ["OrderRefunded", "OrderChargedBack"].includes(payproOrderData.IPN_TYPE_NAME);
 	return {
 		product_id: payproOrderData.PRODUCT_ID,
 		order_id: payproOrderData.ORDER_ID,
@@ -130,10 +132,12 @@ const collectOdinSubscription = (payproOrderData: PayproOrderData, user: User): 
 	};
 };
 
-const handleSubscription = async (db: PoolClient, odinSubscription: OdinSubscription) => {
+const handleSubscription = async (db: PoolClient, odinSubscription: OdinSubscription, event: string, paidItem?: VerifiedBillingItem) => {
 	const subscriptionId = odinSubscription.subscription_id || odinSubscription.order_id;
 	const isSubscriptionExists = (await db.query(`SELECT * FROM subscriptions WHERE subscription_id = $1 FOR UPDATE`, [subscriptionId])).rows[0];
 	if (isSubscriptionExists && String(isSubscriptionExists.user_id) !== String(odinSubscription.user_id)) throw new Error("Subscription owner mismatch");
+	const billing = reconcileOdinBilling(isSubscriptionExists, odinSubscription, event, paidItem);
+	if (!billing) return;
 
 	if (isSubscriptionExists) {
 		await db.query(
@@ -170,6 +174,9 @@ const handleSubscription = async (db: PoolClient, odinSubscription: OdinSubscrip
 			],
 		);
 	}
+	await db.query(`UPDATE subscriptions SET ai_billing_anchor=$1,ai_last_paid_at=$2,ai_paid_until=$3,
+		ai_paid_order_id=$4,ai_billing_confirmed=$5,access_revoked_at=$6 WHERE subscription_id=$7`,
+		[billing.anchor,billing.paidAt,billing.paidUntil,billing.orderId,billing.confirmed,billing.revokedAt,subscriptionId]);
 };
 
 const handleOrder = async (db: PoolClient, data: PayproOrderData, user_id: string) => {
@@ -211,6 +218,7 @@ export async function POST(request: NextRequest) {
 		return NextResponse.json({ message: "Unable to verify or record payment" }, { status: 503 });
 	}
 	if (!OrderStatus[payproOrderData.IPN_TYPE_NAME]) return NextResponse.json({ message: "Notification ignored" });
+	if (!["111867", "113886", "113887"].includes(payproOrderData.PRODUCT_ID)) return NextResponse.json({ message: "Notification ignored" });
 	const isLifetime = payproOrderData.PRODUCT_ID === "113887";
 	let user: User;
 	let odinSubscription: OdinSubscription;
@@ -230,12 +238,17 @@ export async function POST(request: NextRequest) {
 		const hadPaidAccess = hasPaidAccess(before.filter(sub => String(sub.subscription_id) !== payproOrderData.SUBSCRIPTION_ID || confirmed.has(String(sub.subscription_id))));
 		odinSubscription = collectOdinSubscription(payproOrderData, user);
 		const paidItem = sale?.rows.find((row: { orderItemId: string; status: string }) => row.orderItemId === payproOrderData.ORDER_ITEM_ID);
-		if (paidItem?.status === "refunded") {
+		if (sale && (!paidItem || String(paidItem.productId) !== payproOrderData.PRODUCT_ID ||
+			(paidItem.subscriptionId && paidItem.subscriptionId !== payproOrderData.SUBSCRIPTION_ID))) throw new Error("Payment item mismatch");
+		if (paidItem?.subscriptionId && sale?.periodEnds?.has(paidItem.subscriptionId)) {
+			odinSubscription.next_charge_date = parseSubscriptionDate(sale.periodEnds.get(paidItem.subscriptionId))?.toISOString() ?? "";
+		}
+		if (["refunded", "chargeback", "chargedback"].includes(String(paidItem?.status ?? ""))) {
 			odinSubscription.status = "cancelled";
 			odinSubscription.revoke_access = true;
 			odinSubscription.next_charge_date = "";
 		}
-		if (payproOrderData.SUBSCRIPTION_ID || isLifetime) await handleSubscription(db, odinSubscription);
+		if (payproOrderData.SUBSCRIPTION_ID || isLifetime) await handleSubscription(db, odinSubscription, payproOrderData.IPN_TYPE_NAME, paidItem);
 		else await handleOrder(db, payproOrderData, user.user_id);
 		if (sale) await recordCinecomPayment(db, user, sale.order, sale.rows, payproOrderData, hadPaidAccess);
 		await db.query(`UPDATE users SET paypro_customer_id=$1 WHERE user_id=$2`, [odinSubscription.customer_id, user.user_id]);

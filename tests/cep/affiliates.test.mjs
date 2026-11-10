@@ -110,6 +110,9 @@ test('renewal webhook preserves the stored referral when custom fields omit or e
         is_trial boolean,trial_period_till text,product_id text,affilate text,user_id text);
       INSERT INTO subscriptions VALUES ('100','active','2099-01-01','Odin',false,'','113886','cinecom','buyer');
       CREATE TABLE odin_referral_subscriptions(subscription_id text,user_id text);`);
+    await db.exec(`ALTER TABLE subscriptions ADD COLUMN ai_billing_anchor timestamptz,ADD COLUMN ai_last_paid_at timestamptz,
+      ADD COLUMN ai_paid_until timestamptz,ADD COLUMN ai_paid_order_id bigint,
+      ADD COLUMN ai_billing_confirmed boolean DEFAULT true,ADD COLUMN access_revoked_at timestamptz`);
     globalThis.fetch = async () => Response.json({});
     const route = loader({
       '@/app/database/pool': { pool: { connect: async () => ({ query: (sql, args) => db.query(sql, args), release() {} }) } },

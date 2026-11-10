@@ -12,12 +12,15 @@ export function parseSubscriptionDate(value) {
     date = new Date(year, month - 1, day, hour % 12 + (period.toUpperCase() === 'PM' ? 12 : 0), minute);
     if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return null;
   } else {
-    date = new Date(value);
+    // PayPro's ISO dateFormat=a omits its UTC suffix. Do not reinterpret it in
+    // the developer machine's or process's local timezone.
+    const isoUtc = typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(value) && !/[zZ]$|[+-]\d{2}:\d{2}$/.test(value);
+    date = new Date(isoUtc ? `${value}Z` : value);
   }
   return Number.isFinite(date.getTime()) ? date : null;
 }
 
-/** @typedef {{ next_charge_date?: string | Date | null, management_disabled?: boolean, management_source?: string, product_id?: string | number | null, status?: string }} Subscription */
+/** @typedef {{ next_charge_date?: string | Date | null, management_disabled?: boolean, management_source?: string, product_id?: string | number | null, status?: string, access_revoked_at?: string | Date | null, ai_billing_confirmed?: boolean, ai_paid_until?: string | Date | null }} Subscription */
 
 /** Identify the one-time PayPro product; a missing expiry alone is not Lifetime.
  * @param {{ product_id?: string | number | null, management_source?: string }} subscription */
@@ -27,7 +30,9 @@ export function isLifetimeSubscription(subscription) {
 
 /** @param {Subscription} subscription */
 export function isSubscriptionActive(subscription, now = Date.now()) {
-  if (subscription.management_disabled) return false;
+  if (subscription.management_disabled || subscription.access_revoked_at) return false;
+  if (subscription.management_source !== 'manual' && subscription.ai_billing_confirmed === false) return false;
+  if (subscription.ai_paid_until && (parseSubscriptionDate(subscription.ai_paid_until)?.getTime() ?? 0) <= now) return false;
   if (isLifetimeSubscription(subscription)) return subscription.status?.trim().toLowerCase() === 'active';
   return (parseSubscriptionDate(subscription.next_charge_date)?.getTime() ?? 0) > now;
 }

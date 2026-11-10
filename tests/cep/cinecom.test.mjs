@@ -44,6 +44,9 @@ async function database(t, beforeMigration = async () => {}) {
     CREATE TABLE subscriptions(id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, user_id uuid, subscription_id bigint UNIQUE,
       product_id bigint,order_id bigint,status text,invoice text,is_trial boolean DEFAULT false,trial_period_till text,next_charge_date text,
       quantity integer,customer_id text,order_item_name text,seats text[],affilate text,management_source text DEFAULT 'paypro',management_disabled boolean DEFAULT false);
+    ALTER TABLE subscriptions ADD COLUMN ai_billing_anchor timestamptz,ADD COLUMN ai_last_paid_at timestamptz,
+      ADD COLUMN ai_paid_until timestamptz,ADD COLUMN ai_paid_order_id bigint,
+      ADD COLUMN ai_billing_confirmed boolean DEFAULT true,ADD COLUMN access_revoked_at timestamptz;
     CREATE TABLE payments(user_id uuid,date text,amount numeric,status text,affilate text);
     CREATE TABLE odin_sales(subscription_id bigint,currency text,paid_at timestamptz);
     INSERT INTO users(user_id,email,name) VALUES('${buyer.user_id}','${buyer.email}','${buyer.name}');`);

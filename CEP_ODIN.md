@@ -46,7 +46,11 @@ The panel calls `POST /api/cep/auth/device`, opens `/?cep=…` (the homepage wit
 
 Codes expire after five minutes. Consent requires a website session and a matching request origin. A token can be claimed once; only token/secret hashes are stored. Account-level transaction locks enforce device limits. Access tokens expire after 30 days; `GET /api/cep/me` and `POST /api/cep/devices/revoke` support the panel profile. Old AtomX sessions do not become new CEP sessions automatically.
 
-Entitlements use this site's existing subscription rule (`next_charge_date` in the future), including invited subscription seats. Active accounts expose `ai_generations_limit: 100`; inactive accounts expose zero. AI requests go to Motionflow, which verifies this site's CEP Bearer token through `/api/cep/me` and maintains a separate Odin usage ledger with 100 generations per UTC calendar month. Deploy the corresponding `next-app` AI integration before distributing the updated panel. There are no free pack slots or individual pack purchases for Odin.
+Entitlements include invited subscription Seats. Each paid account receives 100 AI generations per billing period; annual and Lifetime allocations renew monthly from the original purchase date. Registered unpaid accounts receive 5 monthly from registration. Cancellation retains paid rights until the paid-through date; full refund/chargeback immediately returns the account to its registration-based trial allowance. Unused generations do not carry over. Prior consumption in that same trial period is preserved.
+
+The server returns a versioned `entitlements.ai` allocation with plan, limit, opaque period ID and UTC start/end. Monthly subscriptions advance only on a confirmed charge. Short months clamp to their last day and restore the original day afterwards. Motionflow verifies the CEP Bearer token through this site's `/api/cep/me` on every request. Editing a local CEP tier or limit cannot grant access. There are no free pack slots or individual pack purchases for Odin.
+
+Before enabling this contract, apply `2026_11_10_001_ai_billing_periods.sql`, run the preview-only `node scripts/backfill-ai-billing.mjs`, then explicitly run with `--apply` after review. It reads verified subscription dates and the latest verified order before writing. Deploy this site's account/webhook code, the matching Motionflow AI service and the rebuilt panel in that order. See [the verification report](docs/odin-ai-verification-2026-11-10.md) for test commands, rollout and remaining Adobe checks.
 
 ## Catalog and downloads
 

@@ -1,6 +1,7 @@
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import type { Pool, PoolClient } from "pg";
 import { effectiveCepAccess } from "./motionflow-management.ts";
+import { resolveAiEntitlement } from "../../db/ai-entitlements.mjs";
 import { isLifetimeSubscription, selectActiveSubscription, parseSubscriptionDate } from "./subscription-date.ts";
 
 export const CEP_CLIENT = "odin-cep";
@@ -130,24 +131,25 @@ export function createCepAuth(pool: Pool, deviceLimit = 3) {
   }
 
   async function profile(identity: { id: string; user_id: string }) {
-    const { rows } = await pool.query("SELECT user_id::text AS id, email, name FROM users WHERE user_id::text = $1", [identity.user_id]);
+    const { rows } = await pool.query("SELECT user_id::text AS id, email, name, to_jsonb(users)->>'created_at' AS created_at FROM users WHERE user_id::text = $1", [identity.user_id]);
     const user = rows[0];
     if (!user) return null;
     // Match the site's current entitlement rule, including invited subscription seats.
-    const subscriptions = await pool.query(`SELECT status, product_id, management_source, order_item_name, next_charge_date, management_disabled, COALESCE((to_jsonb(subscriptions)->>'is_test')::boolean,false) AS is_test FROM subscriptions
-      WHERE user_id::text = $1 OR $2 = ANY(seats)`, [user.id, user.email]);
-    const subscription = selectActiveSubscription(subscriptions.rows);
+    const subscriptions = await pool.query(`SELECT * FROM subscriptions
+      WHERE user_id::text = $1 OR $2 = ANY(seats) ORDER BY id DESC`, [user.id, user.email]);
+    const subscription = selectActiveSubscription(subscriptions.rows.filter(sub => !sub.is_trial));
     const override = process.env.MOTIONFLOW_MANAGEMENT_ENABLED === "true"
-      ? (await pool.query("SELECT mode, expires_at FROM odin_motionflow_access WHERE user_id = $1", [user.id])).rows[0]
+      ? (await pool.query("SELECT mode, expires_at, updated_at FROM odin_motionflow_access WHERE user_id = $1", [user.id])).rows[0]
       : undefined;
     const active = effectiveCepAccess(Boolean(subscription), override);
     const manual = override?.mode === "allow" && new Date(override.expires_at).getTime() > Date.now();
+    const ai = resolveAiEntitlement({ registeredAt: user.created_at, subscription, active, override });
     return {
-      user, tier: active ? "subscribed" : "free",
+      user: { id: user.id, email: user.email, name: user.name }, tier: active ? "subscribed" : "free",
       subscription: { active, plan: active ? (subscription?.order_item_name ?? "Odin Pro — manual access") : null,
         status: !active ? null : subscription?.status ?? (manual ? "manual" : null),
         renews_at: !active || (subscription && isLifetimeSubscription(subscription)) ? null : parseSubscriptionDate(subscription?.next_charge_date)?.toISOString() ?? (manual ? override.expires_at : null) },
-      purchases: [], entitlements: { free_pack_slots: 0, ai_generations_limit: active ? 100 : 0 },
+      purchases: [], entitlements: { free_pack_slots: 0, ai_generations_limit: ai.limit, ai },
       subscribe_url: "https://odin-pro.com/pricing", manage_subscription_url: "https://odin-pro.com/account",
       devices: (await devices(user.id)).map((device) => ({ ...device, current: device.id === identity.id })),
     };

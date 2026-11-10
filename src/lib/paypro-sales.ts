@@ -23,5 +23,21 @@ export async function recordPayproSale(fields: Record<string, string>) {
 	const refs = new Map<string, string>(attribution.map((row: { subscription_id: string; affilate: string }) => [String(row.subscription_id), row.affilate]));
 	const rows = normalizePayproOrder(data.response, refs);
 	await saveSales({ query }, rows, "paypro_webhook");
-	return { order: data.response, rows };
+	const periodEnds = new Map<string, string | null>();
+	if (["OrderCharged", "SubscriptionChargeSucceed", "TrialCharge", "OrderChargebackIsWon", "OrderChargedBackWon"].includes(fields.IPN_TYPE_NAME)) {
+		const ids = [...new Set<string>(rows.map((row: { subscriptionId: string | null }) => row.subscriptionId)
+			.filter((id: string | null): id is string => Boolean(id)))];
+		await Promise.all(ids.map(async subscriptionId => {
+			const res = await fetch("https://store.payproglobal.com/api/Subscriptions/GetSubscriptionDetails", {
+				method: "POST", redirect: "error", cache: "no-store", signal: AbortSignal.timeout(15000),
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ subscriptionId: Number(subscriptionId), dateFormat: "a",
+					vendorAccountId: Number(process.env.PAYPRO_VENDOR_ACCOUNT_ID), apiSecretKey: process.env.PAYPRO_API_SECRET_KEY }),
+			});
+			const details = await res.json();
+			if (!res.ok || details.isSuccess !== true) throw new Error("Unable to verify subscription period");
+			periodEnds.set(subscriptionId, typeof details.response?.nextPayment === "string" ? details.response.nextPayment : null);
+		}));
+	}
+	return { order: data.response, rows, periodEnds };
 }

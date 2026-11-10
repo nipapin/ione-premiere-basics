@@ -49,6 +49,8 @@ before(async () => {
   for (const migration of ['2026_09_29_odin_cep_auth.sql','2026_09_30_002_motionflow_management.sql','2026_10_05_001_subscription_management.sql']) {
     await db.exec(await readFile(new URL('../../db/migrations/' + migration, import.meta.url), 'utf8'));
   }
+  await db.exec(`ALTER TABLE subscriptions ADD COLUMN ai_billing_anchor timestamptz,ADD COLUMN ai_last_paid_at timestamptz,
+    ADD COLUMN ai_billing_confirmed boolean DEFAULT true`);
 });
 after(() => db.close());
 

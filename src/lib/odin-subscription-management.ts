@@ -37,8 +37,8 @@ export function createOdinSubscriptionManagement(pool: Pool, billing = payproSub
         }
         const id = (await db.query("SELECT nextval(COALESCE(pg_get_serial_sequence('subscriptions', 'id'), 'odin_managed_subscription_id')) AS id")).rows[0].id;
         const after = (await db.query(`INSERT INTO subscriptions
-          (id,user_id,subscription_id,status,invoice,is_trial,next_charge_date,quantity,next_quantity,customer_id,order_item_name,seats,management_source,management_issue_key)
-          OVERRIDING SYSTEM VALUE VALUES ($1,$2,$3,'active','',false,$4,1,1,0,$5,$6,'manual',$7) RETURNING *`,
+          (id,user_id,subscription_id,status,invoice,is_trial,next_charge_date,quantity,next_quantity,customer_id,order_item_name,seats,management_source,management_issue_key,ai_billing_anchor,ai_last_paid_at,ai_billing_confirmed)
+          OVERRIDING SYSTEM VALUE VALUES ($1,$2,$3,'active','',false,$4,1,1,0,$5,$6,'manual',$7,NOW(),NOW(),true) RETURNING *`,
           [id, input.user_id, -Number(id), new Date(input.expires_at!).toISOString(), input.plan_name!.trim(), [user.email], input.request_id])).rows[0];
         await audit(db, input, null, snapshot(after));
         return null;

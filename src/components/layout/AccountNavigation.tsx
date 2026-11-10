@@ -32,6 +32,12 @@ const menuItems: MenuItem[] = [
 	},
 	{
 		id: 3,
+		title: "Usage",
+		route: "/account/usage",
+		affiliateOnly: false
+	},
+	{
+		id: 5,
 		title: "Sales & partners",
 		route: "/account/affilates",
 		affiliateOnly: true

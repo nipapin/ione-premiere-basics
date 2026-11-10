@@ -148,7 +148,7 @@ export function createCepAuth(pool: Pool, deviceLimit = 3) {
       user: { id: user.id, email: user.email, name: user.name }, tier: active ? "subscribed" : "free",
       subscription: { active, plan: active ? (subscription?.order_item_name ?? "Odin Pro — manual access") : null,
         status: !active ? null : subscription?.status ?? (manual ? "manual" : null),
-        renews_at: !active || (subscription && isLifetimeSubscription(subscription)) ? null : parseSubscriptionDate(subscription?.next_charge_date)?.toISOString() ?? (manual ? override.expires_at : null) },
+        renews_at: !active || (subscription && isLifetimeSubscription(subscription)) ? null : parseSubscriptionDate(subscription?.ai_paid_until ?? subscription?.next_charge_date)?.toISOString() ?? (manual ? override.expires_at : null) },
       purchases: [], entitlements: { free_pack_slots: 0, ai_generations_limit: ai.limit, ai },
       subscribe_url: "https://odin-pro.com/pricing", manage_subscription_url: "https://odin-pro.com/account",
       devices: (await devices(user.id)).map((device) => ({ ...device, current: device.id === identity.id })),

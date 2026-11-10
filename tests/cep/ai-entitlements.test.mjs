@@ -65,3 +65,15 @@ test('an audited manual subscription grants 100 once and disabling it restores t
   assert.equal((await f.auth.profile({id:'device',user_id:accounts.trial.id})).entitlements.ai_generations_limit,5);
   assert.equal((await f.db.query('SELECT count(*)::int AS count FROM odin_motionflow_audit WHERE user_id=$1',[accounts.trial.id])).rows[0].count,2);
 });
+
+test('verified paid-through dates control access and the profile expiry despite missing or rounded legacy dates',async t=>{
+  const f=await seedOdinAccounts(await createOdinDatabase());t.after(()=>f.close());
+  const until=new Date(Date.now()+86400000).toISOString();
+  for(const legacy of ['',new Date(Date.now()-1000).toISOString()]) {
+    await f.db.query('UPDATE subscriptions SET next_charge_date=$1,ai_paid_until=$2 WHERE user_id=$3',
+      [legacy,until,accounts.paid.id]);
+    const profile=await f.auth.profile({id:'device',user_id:accounts.paid.id});
+    assert.equal(profile.subscription.active,true);assert.equal(profile.entitlements.ai_generations_limit,100);
+    assert.equal(profile.subscription.renews_at,until);
+  }
+});

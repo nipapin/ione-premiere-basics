@@ -34,5 +34,5 @@ export function isSubscriptionActive(subscription, now = Date.now()) {
   if (subscription.management_source !== 'manual' && subscription.ai_billing_confirmed === false) return false;
   if (subscription.ai_paid_until && (parseSubscriptionDate(subscription.ai_paid_until)?.getTime() ?? 0) <= now) return false;
   if (isLifetimeSubscription(subscription)) return subscription.status?.trim().toLowerCase() === 'active';
-  return (parseSubscriptionDate(subscription.next_charge_date)?.getTime() ?? 0) > now;
+  return (parseSubscriptionDate(subscription.ai_paid_until ?? subscription.next_charge_date)?.getTime() ?? 0) > now;
 }

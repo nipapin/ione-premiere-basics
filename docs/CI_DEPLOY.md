@@ -13,6 +13,8 @@ Paths:
 
 `DEPLOY_ENABLED=true` enables deployment. Secrets `DEPLOY_HOST`, `DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS` use a dedicated SSH key and strict host verification. `BUILD_PUBLIC_ENV` contains only public browser settings. Production credentials remain on the server. PR builds do not receive production credentials or deploy.
 
+Transactional email and the contact form use the Resend HTTPS API. Set `RESEND_API_KEY` in the server `.env` to a key with sending access to the verified `odin-pro.com` domain. The contact form sends to `support@odin-pro.com`, so keep that address routed to the support inbox when changing incoming mail providers.
+
 The existing Telegram bot and subscriber registry are reused. One message per run/attempt is sent, then edited for deployment and completion. Shared notifier source is maintained in `nipapin/motionflow` (`deploy/lib/telegram-run.mjs`) and installed at `/root/motionflow-ci`. The old push hook to `85.92.108.114/deploy` is disabled (hook 539613125).
 
 For normal changes, commit and push to `master`, or ask the agent to do it. Use Actions → Odin Pro build and deploy → Run workflow to redeploy. Set the `deploy` input to false for a build only. `npm run fetch` dispatches that workflow through authenticated `gh`; it no longer builds on the server. Schema migrations remain a separate deliberate operation (`npm run migrate`); the old deployment did not migrate automatically.

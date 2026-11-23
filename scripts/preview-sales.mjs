@@ -39,8 +39,7 @@ const child = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'dev',
   env: { ...process.env, NODE_ENV: 'development', NEXT_DIST_DIR: '.local/affiliate-preview/next',
     HOST_URL: '127.0.0.1', HOST_PORT: String(port), HOST_NAME: 'odin_preview', HOST_PASS: 'local-preview', HOST_DB: 'postgres',
     PAYPRO_API_SECRET_KEY: '', PAYPRO_VENDOR_ACCOUNT_ID: '', PAYPRO_VALIDATION_KEY: '', ODIN_AFFILIATE_ACCESS: '',
-    MAILGUN_API_KEY: '', SMTP_HOST: '127.0.0.1', SMTP_PORT: '1',
-    NO_REPLY_SMTP_ALIAS: '', NO_REPLY_SMTP_PASSWORD: '', SUPPORT_SMTP_ALIAS: '', SUPPORT_SMTP_PASSWORD: '', HELP_SMTP_ALIAS: '', HELP_SMTP_PASSWORD: '', AUTH_SECRET: 'local-preview-only', NEXT_TELEMETRY_DISABLED: '1' },
+    MAILGUN_API_KEY: '', RESEND_API_KEY: '', AUTH_SECRET: 'local-preview-only', NEXT_TELEMETRY_DISABLED: '1' },
 });
 console.log('Local review: http://127.0.0.1:3100/account/affilates · preview@odin.local / LocalPreview123!');
 child.on('exit', code => { process.exitCode = code ?? 0; });

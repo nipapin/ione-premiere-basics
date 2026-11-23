@@ -1,74 +1,63 @@
 "use server";
 
-import nodemailer from "nodemailer";
-
-const noReplyTransport = nodemailer.createTransport({
-	host: process.env.SMTP_HOST,
-	port: Number(process.env.SMTP_PORT),
-	secure: false,
-	auth: {
-		user: process.env.NO_REPLY_SMTP_ALIAS,
-		pass: process.env.NO_REPLY_SMTP_PASSWORD,
-	},
-});
-
-const supportTransport = nodemailer.createTransport({
-	host: process.env.SMTP_HOST,
-	port: Number(process.env.SMTP_PORT),
-	secure: false,
-	auth: {
-		user: process.env.SUPPORT_SMTP_ALIAS,
-		pass: process.env.SUPPORT_SMTP_PASSWORD,
-	},
-});
-
-const helpTransport = nodemailer.createTransport({
-	host: process.env.SMTP_HOST,
-	port: Number(process.env.SMTP_PORT),
-	secure: false,
-	auth: {
-		user: process.env.HELP_SMTP_ALIAS,
-		pass: process.env.HELP_SMTP_PASSWORD,
-	},
-});
-
-export const sendEmail = async (to: string, subject: string, html: string): Promise<boolean> => {
-	try {
-		await noReplyTransport.sendMail({
-			from: `Odin Pro Notification <${process.env.NO_REPLY_SMTP_ALIAS}>`,
-			to,
-			subject,
-			html,
-		});
-		return true;
-	} catch (error) {
-		console.error("Error sending email:", {
-			error: error instanceof Error ? error.message : error,
-			stack: error instanceof Error ? error.stack : undefined,
-		});
-		return false;
-	}
+type ResendEmail = {
+	from: string;
+	to: string[];
+	subject: string;
+	html: string;
+	reply_to?: string;
 };
 
-export const sendEmailFromContact = async (from: string, subject: string, html: string): Promise<boolean> => {
+const supportAddress = "support@odin-pro.com";
+
+async function sendWithResend(email: ResendEmail): Promise<boolean> {
+	const apiKey = process.env.RESEND_API_KEY?.trim();
+	if (!apiKey) {
+		console.error("Email delivery requires RESEND_API_KEY.");
+		return false;
+	}
+
 	try {
-		await supportTransport.sendMail({
-			from: `"Contact Form" <${process.env.SUPPORT_SMTP_ALIAS}>`,
-			to: process.env.SUPPORT_SMTP_ALIAS,
-			subject: `New submission from ${from}`,
-			replyTo: from,
-			html: `
+		const response = await fetch("https://api.resend.com/emails", {
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${apiKey}`,
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(email),
+			cache: "no-store",
+			signal: AbortSignal.timeout(10_000),
+		});
+
+		if (!response.ok) {
+			console.error("Resend rejected the email request:", response.status);
+		}
+		return response.ok;
+	} catch (error) {
+		console.error("Resend email request failed:", error);
+		return false;
+	}
+}
+
+export async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
+	return sendWithResend({
+		from: "Odin Pro Notification <no-reply@odin-pro.com>",
+		to: [to],
+		subject,
+		html,
+	});
+}
+
+export async function sendEmailFromContact(from: string, subject: string, html: string): Promise<boolean> {
+	return sendWithResend({
+		from: `Contact Form <${supportAddress}>`,
+		to: [supportAddress],
+		subject: `New submission from ${from}`,
+		reply_to: from,
+		html: `
 			  <h1>${subject}</h1>
 			  <p>${html}</p>
 			  <p>From: ${from}</p>
 			`,
-		});
-		return true;
-	} catch (error) {
-		console.error("Error sending email:", {
-			error: error instanceof Error ? error.message : error,
-			stack: error instanceof Error ? error.stack : undefined,
-		});
-		return false;
-	}
-};
+	});
+}

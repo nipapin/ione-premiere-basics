@@ -60,12 +60,10 @@ export async function POST(request: Request) {
 			return new Response("Could not download the incoming email", { status: 502 });
 		}
 
-		const parsed = await PostalMime.parse(await rawEmail.arrayBuffer(), { attachmentEncoding: "base64" });
+		const parsed = await PostalMime.parse(await rawEmail.arrayBuffer());
 		const attachments = parsed.attachments.map((attachment) => ({
 			filename: attachment.filename || "attachment",
-			content: typeof attachment.content === "string"
-				? attachment.content
-				: Buffer.from(attachment.content).toString("base64"),
+			content: attachment.content,
 			contentType: attachment.mimeType,
 			contentId: attachment.contentId?.replace(/^<|>$/g, "") || undefined,
 		}));

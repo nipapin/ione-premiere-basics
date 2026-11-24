@@ -32,6 +32,7 @@ export const plans: Plan[] = [
 		per: "month",
 		benefits: [
 			"Unlimited access to all features and categories",
+			"100 AI generations per month",
 			"Regular monthly content updates",
 			"Fast support",
 			"Commercial use license"
@@ -48,6 +49,7 @@ export const plans: Plan[] = [
 		benefits: [
 			"One-time payment, lifetime access",
 			"All current and future features unlocked",
+			"100 AI generations per month",
 			"Priority support",
 			"Full commercial license for unlimited projects"
 		],

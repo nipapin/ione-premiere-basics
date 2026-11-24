@@ -5,6 +5,7 @@ import AffiliateSystem from "@/components/AffiliateSystem";
 import PageContainer from "@/components/layout/PageContainer";
 import AboutSection from "@/components/sections/AboutSection";
 import BlogSection from "@/components/sections/BlogSection";
+import ToolsSection from "@/components/sections/ToolsSection";
 import EditingSolutions from "@/components/sections/EditingSolutionsSection";
 import FAQSection from "@/components/sections/FAQSection";
 import Hero from "@/components/sections/HeroSection";
@@ -39,6 +40,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
 			<StatisticShowcase />
 			<PowerfulTools />
 			<Showcase />
+			<ToolsSection />
 			<EditingSolutions />
 			<SuitsSection />
 			<PlansSection />

@@ -189,7 +189,9 @@ const AudioItem = ({ item }: { item: TreeElement }) => {
 		setHover(true);
 		if (!audioRef.current) return;
 		audioRef.current.currentTime = 0;
-		audioRef.current.play();
+		void audioRef.current.play().catch(() => {
+			// Moving away can cancel playback before the audio has loaded.
+		});
 	};
 
 	const mouseLeave = () => {

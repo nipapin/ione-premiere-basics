@@ -52,11 +52,14 @@ const ElementCard = memo(({ item }: { item: RowItem }) => {
 			try {
 				if (state) {
 					videoRef.current.currentTime = 0;
-					videoRef.current.play();
+					void videoRef.current.play().catch(() => {
+						// Leaving the preview or unmounting can cancel pending playback.
+					});
 				} else {
-					if (videoRef.current.paused) return;
-					videoRef.current.currentTime = videoRef.current.duration;
 					videoRef.current.pause();
+					if (Number.isFinite(videoRef.current.duration)) {
+						videoRef.current.currentTime = videoRef.current.duration;
+					}
 				}
 			} catch (error) {
 				//silent
